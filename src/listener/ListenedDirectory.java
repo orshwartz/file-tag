@@ -14,7 +14,6 @@ public class ListenedDirectory {
 	private boolean recursive;
 	private Collection<String> regularExpressions;
 	
-
 	/**
 	 * @param directory
 	 * @param recursive
@@ -27,4 +26,27 @@ public class ListenedDirectory {
 		this.recursive = recursive;
 		this.regularExpressions = regularExpressions;
 	}
+
+	/**
+	 * @return the directory
+	 */
+	public File getDirectory() {
+		return directory;
+	}
+
+	/**
+	 * @return the recursive
+	 */
+	public boolean isRecursive() {
+		return recursive;
+	}
+
+	/**
+	 * @return the regularExpressions
+	 */
+	public Collection<String> getRegularExpressions() {
+		return regularExpressions;
+	}
+	
+	
 }
