@@ -1,14 +1,15 @@
 package listener;
 
 /**
+ * Interface for a filesystem listener, watching for changes.
  * @author Or Shwartz
- *
  */
 public interface Listener {
 
-	public boolean activate();
-	public boolean deactivate();
+	public void activate(); /* TBD throws exception? */
+	public void deactivate(); /* TBD throws exception? */
+	public boolean isActive();
 	/* TBD remember to use Observer interface and Observable class */
-	public boolean listenTo(ListenedDirectory dir);
-	public boolean stopListeningTo(ListenedDirectory dir);
+	public void listenTo(ListenedDirectory dir); /* TBD throws exception? */
+	public void stopListeningTo(ListenedDirectory dir); /* TBD throws exception? */
 }
