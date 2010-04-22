@@ -6,7 +6,7 @@ import java.util.Date;
  * This class represents a file tagging system logged event.
  * @author Or Shwartz, Itay Evron
  */
-public class LogEvent {
+public class LogEvent implements Comparable<LogEvent> {
 
 	EventType type;
 	String filename;
@@ -49,5 +49,16 @@ public class LogEvent {
 	 */
 	public Date getTime() {
 		return time;
+	}
+
+	/**
+	 * Compare the events by using the Date comparison method.
+	 * @see java.util.Date#compareTo(Date)
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(LogEvent otherEvent) {
+
+		return getTime().compareTo(otherEvent.getTime());
 	}
 }
