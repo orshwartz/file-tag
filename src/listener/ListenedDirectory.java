@@ -5,8 +5,11 @@ import java.util.Collection;
 
 
 /**
+ * This class represents a directory available for listening,
+ * enabling the possibility to define recursive listening for
+ * sub-folders and also define regular expressions for files
+ * that should be watched.
  * @author Or Shwartz
- *
  */
 public class ListenedDirectory {
 
@@ -47,6 +50,4 @@ public class ListenedDirectory {
 	public Collection<String> getRegularExpressions() {
 		return regularExpressions;
 	}
-	
-	
 }
