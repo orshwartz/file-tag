@@ -3,14 +3,18 @@
  */
 package listener;
 
-import java.util.Observable;
-
 /**
- * @author Or Shwartz
- *
+ * This class represents an object capable of listening to filesystem
+ * events on pre-specified folders and notify about changes to files.
+ * @author Or Shwartz, Itay Evron
  */
-public class ListenerImpl extends Observable implements Listener {
+public class ListenerImpl extends Listener {
 
+	public ListenerImpl() {
+		// TODO Auto-generated constructor stub
+		System.out.println(this.getClass().getName() + " up.");
+	}
+	
 	@Override
 	public void activate() {
 		// TODO Auto-generated method stub
@@ -40,5 +44,4 @@ public class ListenerImpl extends Observable implements Listener {
 		// TODO Auto-generated method stub
 		
 	}
-
 }
