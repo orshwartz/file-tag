@@ -9,8 +9,9 @@ import java.util.Collection;
 import java.util.Observable;
 
 /**
+ * This class represents a tag repository - which is a repository associating
+ * files to tags and uses events to keep track of those files.
  * @author Or Shwartz
- *
  */
 public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 
