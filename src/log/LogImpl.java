@@ -21,7 +21,7 @@ public class LogImpl implements Log {
 	private LogImpl() {
 
 		// TODO: Remove this stub message
-		System.out.println("LogImpl created.");
+		System.out.println(this.getClass().getName() + " up.");
 	}
 	
 	/**
