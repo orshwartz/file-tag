@@ -103,7 +103,6 @@ public class CommandManager implements Observer {
 		setListener(listener);
 		setLog(log);
 		setTagRepository(tagRep);
-		// TODO Auto-generated constructor stub
 
 		initCmdMappings();
 	}
