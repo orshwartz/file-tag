@@ -3,6 +3,12 @@
  */
 package listener;
 
+import static java.nio.file.StandardWatchEventKind.*;
+
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.WatchService;
+
 /**
  * This class represents an object capable of listening to filesystem
  * events on pre-specified folders and notify about changes to files.
@@ -10,9 +16,15 @@ package listener;
  */
 public class ListenerImpl extends Listener {
 
-	public ListenerImpl() {
-		// TODO Auto-generated constructor stub
+	private WatchService watcher;
+	
+	public ListenerImpl() throws IOException {
+	
+		// TODO: Remove this stub message
 		System.out.println(this.getClass().getName() + " up.");
+		
+		// Create a new watch service for listening to directory changes 
+		this.watcher = FileSystems.getDefault().newWatchService();
 	}
 	
 	@Override
@@ -34,9 +46,13 @@ public class ListenerImpl extends Listener {
 	}
 
 	@Override
-	public void listenTo(ListenedDirectory dir) {
+	public void listenTo(ListenedDirectory dir) throws IOException {
 		// TODO Auto-generated method stub
 		
+		dir.getDirectory().toPath().register(watcher,
+											 ENTRY_CREATE,
+											 ENTRY_DELETE,
+											 ENTRY_MODIFY);
 	}
 
 	@Override
