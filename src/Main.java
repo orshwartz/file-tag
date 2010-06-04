@@ -42,6 +42,7 @@ public class Main {
 		listener.addObserver(tagRep);
 		tagRep.addObserver(commander);
 		
+		// Show the GUI to the user
 		gui.displayGUI();
 	}
 }
