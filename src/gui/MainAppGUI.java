@@ -68,7 +68,7 @@ public class MainAppGUI {
 	private void createSShell() {
 		// Setup main window
 		display = new Display();
-		sShell = new Shell(display);
+		sShell = new Shell(display, SWT.CLOSE | SWT.TITLE | SWT.MIN);
 
 		{
 			//Register as a resource user - SWTResourceManager will
