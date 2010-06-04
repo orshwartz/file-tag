@@ -1,6 +1,8 @@
 package listener;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.nio.file.NotDirectoryException;
 import java.util.Collection;
 
 
@@ -18,13 +20,33 @@ public class ListenedDirectory {
 	private Collection<String> regularExpressions;
 	
 	/**
-	 * @param directory
-	 * @param recursive
-	 * @param regularExpressions
+	 * @param directory The directory for event listening.
+	 * @param recursive True, if recursively all sub-directories should
+	 * be listened as well.
+	 * @param regularExpressions A collection of regular expressions for files
+	 * that should be watched.
+	 * @throws NotDirectoryException 
+	 * @throws FileNotFoundException 
 	 */
 	public ListenedDirectory(File directory,
 							 boolean recursive,
-							 Collection<String> regularExpressions) {
+							 Collection<String> regularExpressions) throws NotDirectoryException, FileNotFoundException {
+		
+		// If given directory argument is not really a directory
+		if (!directory.isDirectory())
+		{
+			// Throw exception - we must have a directory
+			throw new NotDirectoryException(directory.getAbsolutePath());
+		}
+		
+		// Else, if given directory doesn't exist
+		else if (!directory.exists())
+		{
+			// Throw Exception - the directory must exist in order to be
+			// listened
+			throw new FileNotFoundException();
+		}
+		
 		this.directory = directory;
 		this.recursive = recursive;
 		this.regularExpressions = regularExpressions;
