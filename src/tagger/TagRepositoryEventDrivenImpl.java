@@ -27,6 +27,12 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 	public void addTag(String tag) throws TagAlreadyExistsException {
 		// TODO Auto-generated method stub
 		
+		// Remove any leading and trailing whitespace
+		tag = tag.trim();
+		
+		// TODO: Consider using only lowercase for tag comparison or
+		// maybe even enter tags to repository as lowercase (check sites
+		// using tags, for a common way of action).
 	}
 
 	@Override
@@ -43,9 +49,8 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 
 	@Override
 	public void renameTag(String oldName, String newName)
-			throws TagNotFoundException {
-		// TODO Auto-generated method stub
-		
+			throws TagNotFoundException, TagAlreadyExistsException {
+		// TODO Auto-generated method stub		
 	}
 
 	@Override
