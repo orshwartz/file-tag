@@ -17,7 +17,7 @@ public interface TagRepository {
 	public void addTag(String tag) throws TagAlreadyExistsException;
 	public void tagFile(File file, String tag) throws FileNotFoundException;
 	public void untagFile(File file, String tag) throws FileNotTaggedException;
-	public void renameTag(String oldName, String newName) throws TagNotFoundException;
+	public void renameTag(String oldName, String newName) throws TagNotFoundException, TagAlreadyExistsException;
 	public Collection<File> searchByTag(Collection<String> includedTags,
 										Collection<String> excludedTags);
 	public Collection<String> getTagListFreqOrdered();
