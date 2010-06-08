@@ -3,10 +3,13 @@
  */
 package gui;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 import com.cloudgarden.resource.SWTResourceManager;
@@ -35,6 +38,9 @@ public class MainAppGUI {
 	Display display = null;
 	private Button btnOptionsAndSettings;
 	private Button btnSearch;
+	private Label lblControlAndMonitor;
+	private Label lblOptionsAndSettings;
+	private Label lblSearch;
 	private Button btnControl;
 	
 	/**
@@ -77,30 +83,56 @@ public class MainAppGUI {
 		}
 		
 		sShell.setText("Tig-Tag-Toe");
-		RowLayout sShellLayout = new RowLayout(org.eclipse.swt.SWT.HORIZONTAL);
+		GridLayout sShellLayout = new GridLayout();
+		sShellLayout.makeColumnsEqualWidth = true;
+		sShellLayout.numColumns = 2;
 		sShell.setLayout(sShellLayout);
 		{
-			btnControl = new Button(sShell, SWT.PUSH);
-			RowData btnControlLData = new RowData();
-			btnControl.setLayoutData(btnControlLData);
-			btnControl.setText("Control and Monitor");
-			btnControl.setImage(SWTResourceManager.getImage("gui/res/monitor.bmp"));
-		}
-		{
 			btnOptionsAndSettings = new Button(sShell, SWT.PUSH);
-			RowData btnOptionsAndSettingsLData = new RowData();
+			GridData btnOptionsAndSettingsLData = new GridData();
+			btnOptionsAndSettingsLData.widthHint = 183;
+			btnOptionsAndSettingsLData.heightHint = 58;
 			btnOptionsAndSettings.setLayoutData(btnOptionsAndSettingsLData);
 			btnOptionsAndSettings.setText("Options and Settings");
-			btnOptionsAndSettings.setImage(SWTResourceManager.getImage("gui/res/settings.bmp"));
+			btnOptionsAndSettings.setImage(SWTResourceManager.getImage("gui/res/preferences_system.png"));
+		}
+		{
+			lblOptionsAndSettings = new Label(sShell, SWT.NONE);
+			GridData lblOptionsAndSettingsLData = new GridData();
+			lblOptionsAndSettings.setLayoutData(lblOptionsAndSettingsLData);
+			lblOptionsAndSettings.setText("Select listened directories and files to tag.");
+		}
+		{
+			btnControl = new Button(sShell, SWT.PUSH);
+			GridData btnControlLData = new GridData();
+			btnControlLData.widthHint = 183;
+			btnControlLData.heightHint = 58;
+			btnControl.setLayoutData(btnControlLData);
+			btnControl.setText("Control and Monitor");
+			btnControl.setImage(SWTResourceManager.getImage("gui/res/activity_monitor.png"));
+		}
+		{
+			lblControlAndMonitor = new Label(sShell, SWT.NONE);
+			GridData lblControlAndMonitorLData = new GridData();
+			lblControlAndMonitor.setLayoutData(lblControlAndMonitorLData);
+			lblControlAndMonitor.setText("Start/stop listener and view log.");
 		}
 		{
 			btnSearch = new Button(sShell, SWT.PUSH);
-			RowData btnSearchLData = new RowData();
+			GridData btnSearchLData = new GridData();
+			btnSearchLData.widthHint = 183;
+			btnSearchLData.heightHint = 58;
 			btnSearch.setLayoutData(btnSearchLData);
 			btnSearch.setText("Search");
-			btnSearch.setImage(SWTResourceManager.getImage("gui/res/search.bmp"));
+			//			btnSearch.setImage(SWTResourceManager.getImage("gui/res/search.bmp"));
+			btnSearch.setImage(SWTResourceManager.getImage("gui/res/find.png"));
+		}
+		{
+			lblSearch = new Label(sShell, SWT.NONE);
+			GridData lblSearchLData = new GridData();
+			lblSearch.setLayoutData(lblSearchLData);
+			lblSearch.setText("Search tagged files by tags.");
 		}
 		sShell.pack();
-		sShell.setSize(478, 100);
 	}
 }
