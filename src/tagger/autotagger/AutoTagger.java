@@ -21,13 +21,11 @@ public interface AutoTagger {
 	 */
 	Collection<String> autoTag(File file) throws FileNotFoundException, IOException;
 	
-	
 	/**
 	 * Get a description of the algorithm.
 	 * @return Algorithm description.
 	 */
 	String getDescription();
-	
 	
 	/**
 	 * Get version of this auto tagging algorithm.
