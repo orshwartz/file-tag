@@ -2,6 +2,8 @@
  * 
  */
 package gui;
+
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -9,7 +11,9 @@ import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 import com.cloudgarden.resource.SWTResourceManager;
@@ -35,13 +39,15 @@ import commander.CommandManager;
 public class MainAppGUI {
 
 	private Shell sShell = null;
-	Display display = null;
+	static Display display = null;
 	private Button btnOptionsAndSettings;
 	private Button btnSearch;
 	private Label lblControlAndMonitor;
 	private Label lblOptionsAndSettings;
 	private Label lblSearch;
 	private Button btnControl;
+	
+	private static ControlsWindow controlsWindow = new ControlsWindow();
 	
 	/**
 	 * @param commander TODO: Connect commands to actionListeners
@@ -133,6 +139,20 @@ public class MainAppGUI {
 			lblSearch.setLayoutData(lblSearchLData);
 			lblSearch.setText("Search tagged files by tags.");
 		}
+		
+		btnControl.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event e) {
+				switch (e.type) {
+		          case SWT.Selection:
+		        	  
+		        	  controlsWindow.makeWindow();
+		        	  controlsWindow.open();
+				}	
+			   }
+		});
+		
+		
+		
 		sShell.pack();
 	}
 }
