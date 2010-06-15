@@ -7,4 +7,5 @@ package commander;
 public interface Command {
 
 	public void execute();
+
 }

@@ -60,7 +60,7 @@ public class CommandManager implements Observer {
 	 * 
 	 */
 	private void initCmdMappings() {
-		
+		System.out.println("initCmdMappings");
 		commandMappings = new HashMap<CmdCodes, Command>();
 		
 		// Add all the commands to the hashmap
@@ -70,7 +70,7 @@ public class CommandManager implements Observer {
 							new RequestTagCommand());
 		commandMappings.put(CmdCodes.LSTNR_ACTIVATE,
 							new ActivateListenerCommand());
-		commandMappings.put(CmdCodes.LSTNR_ACTIVATE,
+		commandMappings.put(CmdCodes.LSTNR_DEACTIVATE,
 							new DeactivateListenerCommand());
 		/* TODO: Add rest of the commands to the hashmap here...
 		 * 
@@ -105,6 +105,12 @@ public class CommandManager implements Observer {
 		setTagRepository(tagRep);
 
 		initCmdMappings();
+	}
+	
+	
+	public void runCommand(CmdCodes command){
+		commandMappings.get(command).execute();
+
 	}
 
 	/**

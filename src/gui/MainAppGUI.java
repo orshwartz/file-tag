@@ -33,12 +33,13 @@ import commander.CommandManager;
 * LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
 */
 /**
- * @author Or Shwartz
+ * @author Or Shwartz, Itay Evron
  *
  */
 public class MainAppGUI {
 
-	private Shell sShell = null;
+	public static CommandManager commander = null;
+	private static Shell sShell = null;
 	static Display display = null;
 	private Button btnOptionsAndSettings;
 	private Button btnSearch;
@@ -47,7 +48,9 @@ public class MainAppGUI {
 	private Label lblSearch;
 	private Button btnControl;
 	
-	private static ControlsWindow controlsWindow = new ControlsWindow();
+	private static ControlsWindow controlsWindow = null;
+	private static OptionsWindow optionsWindow = null;
+	private static SearchWindow searchWindow = null;
 	
 	/**
 	 * @param commander TODO: Connect commands to actionListeners
@@ -55,6 +58,13 @@ public class MainAppGUI {
 	public MainAppGUI(CommandManager commander) {
 
 		// TODO Auto-generated constructor stub
+		
+		this.commander = commander;
+		
+		controlsWindow = new ControlsWindow(commander);
+		optionsWindow = new OptionsWindow(commander);
+		searchWindow = new SearchWindow(commander);
+		
 		System.out.println(this.getClass().getName() + " up.");
 		createSShell();
 	}
@@ -139,6 +149,10 @@ public class MainAppGUI {
 			lblSearch.setLayoutData(lblSearchLData);
 			lblSearch.setText("Search tagged files by tags.");
 		}
+
+
+		/* -------- Listen to buttons ---------------*/
+		
 		
 		btnControl.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event e) {
@@ -147,6 +161,28 @@ public class MainAppGUI {
 		        	  
 		        	  controlsWindow.makeWindow();
 		        	  controlsWindow.open();
+				}	
+			   }
+		});
+		
+		btnOptionsAndSettings.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event e) {
+				switch (e.type) {
+		          case SWT.Selection:
+		        	  
+		        	  optionsWindow.makeWindow();
+		        	  optionsWindow.open();
+				}	
+			   }
+		});
+		
+		btnSearch.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event e) {
+				switch (e.type) {
+		          case SWT.Selection:
+		        	  
+		        	  searchWindow.makeWindow();
+		        	  searchWindow.open();
 				}	
 			   }
 		});

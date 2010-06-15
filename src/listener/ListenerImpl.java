@@ -17,6 +17,7 @@ import java.nio.file.WatchService;
 public class ListenerImpl extends Listener {
 
 	private WatchService watcher;
+	private boolean recursive;
 	
 	public ListenerImpl() throws IOException {
 	

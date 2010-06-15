@@ -4,7 +4,7 @@
 package commander;
 
 /**
- * @author Or Shwartz
+ * @author Or Shwartz, Itay Evron
  *
  */
 public class ActivateListenerCommand implements Command {
@@ -14,7 +14,7 @@ public class ActivateListenerCommand implements Command {
 	 */
 	@Override
 	public void execute() {
-		// TODO Auto-generated method stub
+		System.out.println("listener is on");
 
 	}
 
