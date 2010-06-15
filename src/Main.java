@@ -6,6 +6,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.ClassPathResource;
 
+import tagger.TableUploader;
 import tagger.TagRepositoryEventDriven;
 
 import commander.CommandManager;
@@ -26,10 +27,12 @@ public class Main {
 		TagRepositoryEventDriven tagRep = null;
 		Listener listener = null;
 		CommandManager commander = null;
+		TableUploader uploader = null;
 
 		// Create subsystems using Spring Framework for dependency injection
 		log = (Log)beanFactory.getBean("log");
 		tagRep = (TagRepositoryEventDriven)beanFactory.getBean("tagger");
+		uploader = (TableUploader)beanFactory.getBean("uploader");
 		listener = (Listener)beanFactory.getBean("listener");
 		commander = (CommandManager)beanFactory.getBean("commander");
 		gui = (MainAppGUI)beanFactory.getBean("gui");
