@@ -13,11 +13,11 @@ public class TableUploader {
 		
 		System.out.println(this.getClass().getName() + " up.");
 		
-		try {
+		/*try {
 			br = new BufferedReader( new FileReader(fileName));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 	}
 }
