@@ -18,6 +18,9 @@ public class ListenerImpl extends Listener {
 
 	private WatchService watcher;
 	
+	/**
+	 * @throws IOException
+	 */
 	public ListenerImpl() throws IOException {
 	
 		// TODO: Remove this stub message
@@ -27,24 +30,36 @@ public class ListenerImpl extends Listener {
 		this.watcher = FileSystems.getDefault().newWatchService();
 	}
 	
+	/**
+	 * @see listener.Listener#activate()
+	 */
 	@Override
 	public void activate() {
 		// TODO Auto-generated method stub
 		
 	}
 
+	/**
+	 * @see listener.Listener#deactivate()
+	 */
 	@Override
 	public void deactivate() {
 		// TODO Auto-generated method stub
 		
 	}
 
+	/**
+	 * @see listener.Listener#isActive()
+	 */
 	@Override
 	public boolean isActive() {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	/**
+	 * @see listener.Listener#listenTo(listener.ListenedDirectory)
+	 */
 	@Override
 	public void listenTo(ListenedDirectory dir) throws IOException {
 		// TODO Auto-generated method stub
@@ -55,6 +70,9 @@ public class ListenerImpl extends Listener {
 											 ENTRY_MODIFY);
 	}
 
+	/**
+	 * @see listener.Listener#stopListeningTo(listener.ListenedDirectory)
+	 */
 	@Override
 	public void stopListeningTo(ListenedDirectory dir) {
 		// TODO Auto-generated method stub
