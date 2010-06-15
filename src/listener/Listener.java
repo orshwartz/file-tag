@@ -10,10 +10,33 @@ import java.util.Observable;
  */
 public abstract class Listener extends Observable {
 
-	public abstract void activate(); /* TBD throws exception? */
-	public abstract void deactivate(); /* TBD throws exception? */
+	/**
+	 * Start listening to directory changes.
+	 */
+	public abstract void activate();
+
+	/**
+	 * Stop the listening to directory changes. 
+	 */
+	public abstract void deactivate();
+	
+	
+	/**
+	 * @return True if the listener is active. False is returned otherwise.
+	 */
 	public abstract boolean isActive();
-	/* TBD remember to use Observer interface and Observable class */
+	
+
+	/**
+	 * @param dir Directory for file-change-monitoring.
+	 * @throws IOException If an I/O error occurs (<code>dir</code> is not a directory
+	 * of doesn't exist.
+	 */
 	public abstract void listenTo(ListenedDirectory dir) throws IOException;
-	public abstract void stopListeningTo(ListenedDirectory dir); /* TBD throws exception? */
+	
+	
+	/**
+	 * @param dir Directory to remove from listener.
+	 */
+	public abstract void stopListeningTo(ListenedDirectory dir);
 }

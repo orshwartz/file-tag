@@ -6,7 +6,10 @@ package tagger;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Observable;
+
+import sun.security.action.GetLongAction;
 
 /**
  * This class represents a tag repository - which is a repository associating
@@ -33,6 +36,7 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 		// TODO: Consider using only lowercase for tag comparison or
 		// maybe even enter tags to repository as lowercase (check sites
 		// using tags, for a common way of action).
+		// Use tag.toLowerCase(Locale.getDefault())
 	}
 
 	@Override
