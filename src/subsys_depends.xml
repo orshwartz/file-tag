@@ -6,8 +6,6 @@
 	</bean>
 	<bean id="tagger" class="tagger.TagRepositoryEventDrivenImpl">
 	</bean>
-	<bean id="uploader" class="tagger.TableUploader">
-	</bean>
 	<bean id="listener" class="listener.ListenerImpl">
 	</bean>
 	<bean id="commander" class="commander.CommandManager">
