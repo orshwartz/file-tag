@@ -66,8 +66,12 @@ public class LogImpl implements Log {
 	 */
 	@Override
 	public void writeMessage(LogEvent event) {
-		// TODO Auto-generated method stub
 
+		// TODO : Real log processing required... not just printing to console.
+		System.out.format("%s: %s %s\n",
+						  event.getTime(),
+						  event.getFilename(),
+						  event.getType());
 	}
 
 }
