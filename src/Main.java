@@ -1,3 +1,8 @@
+import java.io.FileNotFoundException;
+import java.util.Collection;
+import java.util.LinkedList;
+
+
 import gui.MainAppGUI;
 import listener.Listener;
 import log.Log;
@@ -7,6 +12,7 @@ import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.ClassPathResource;
 
 import tagger.TagAlreadyExistsException;
+import tagger.TagNotFoundException;
 import tagger.TagRepositoryEventDriven;
 
 import commander.CommandManager;
@@ -43,8 +49,29 @@ public class Main {
 		listener.addObserver(tagRep);
 		tagRep.addObserver(commander);
 		
-		// Show the GUI to the user
 		
+		Collection<String> col = new LinkedList();
+		
+		col.add("gomel");
+		col.add("zomel");
+		
+		try {
+			tagRep.addTag(col);
+			try {
+				tagRep.renameTag("zomel", "domel");
+			} catch (TagNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (TagAlreadyExistsException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+	
+		
+		// Show the GUI to the user
 		gui.displayGUI();
 	}
 }

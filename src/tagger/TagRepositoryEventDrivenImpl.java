@@ -29,7 +29,7 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 	 */
 
     private static Statement stmt = null;
-    private DBconnector connector = null;
+    private DataAccessLevel DAL = null;
     private Connection conn;
     
     private int tag_id;
@@ -39,28 +39,18 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 		
 		tag_id = 1;
 		
-		connector = new DBconnector();
-		conn = connector.getConnection(); // get connection
+		DAL = new DataAccessLevel();
+		conn = DAL.getConnection(); // get connection
 		
 		System.out.println(this.getClass().getName() + " up.");
 	}
 
 	@Override
-	public void addTag(String tag1) throws TagAlreadyExistsException {
+	public void addTag(Collection<String> tags) throws TagAlreadyExistsException {
 		// TODO Auto-generated method stub
 		
-		// Remove any leading and trailing whitespace
-		tag1 = tag1.trim();
-		 try {
-		stmt = conn.createStatement();
-
-			stmt.executeUpdate("insert into TAGS(tag) values('" +
-					tag1 + "')");
-        stmt.close();
-		 } catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		
+		DAL.addTag(tags);
 		
 		// TODO: Consider using only lowercase for tag comparison or
 		// maybe even enter tags to repository as lowercase (check sites
@@ -76,14 +66,13 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 
 	@Override
 	public void removeTag(String tag) throws TagNotFoundException {
-		// TODO Auto-generated method stub
-		
+			DAL.removeTag(tag);
 	}
 
 	@Override
 	public void renameTag(String oldName, String newName)
 			throws TagNotFoundException, TagAlreadyExistsException {
-		// TODO Auto-generated method stub		
+		DAL.renameTag(oldName, newName);
 	}
 
 	@Override
@@ -100,8 +89,8 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 	}
 
 	@Override
-	public void tagFile(File file, String tag) throws FileNotFoundException {
-		// TODO Auto-generated method stub
+	public void tagFile(String file, Collection<String> tags) throws FileNotFoundException {
+		DAL.tagFile(file, tags);
 		
 	}
 
