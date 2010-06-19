@@ -18,6 +18,8 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.Attributes;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,7 +54,9 @@ public class ListenerImpl extends Listener {
 	@Override
 	public void activate() {
 		// TODO Auto-generated method stub
-
+		
+		Thread watchThread = new ListenerThread();
+		watchThread.start();
 	}
 
 	/**
@@ -86,18 +90,21 @@ public class ListenerImpl extends Listener {
 												 ENTRY_DELETE,
 												 ENTRY_MODIFY);
 
+		// If anything had already been registered
 		if (trace) {
 
-			FileRef prev = keys.get(key);
+			FileRef previousRef = keys.get(key);
 
-			if (prev == null) {
+			// If path not registered before
+			if (previousRef == null) {
 
+				// TODO: Instead of this... probably write to log
 				System.out.format("register: %s\n", dir);
 			}
+ 
+			else if (!dir.getDirectory().toPath().equals(previousRef)) {
 
-			else if (!dir.equals(prev)) {
-
-				System.out.format("update: %s -> %s\n", prev, dir);
+				System.out.format("update: %s -> %s\n", previousRef, dir);
 			}
 		}
 
@@ -113,7 +120,6 @@ public class ListenerImpl extends Listener {
 	@Override
 	public void stopListeningTo(ListenedDirectory dir) {
 		// TODO Auto-generated method stub
-
 	}
 
     /**
@@ -145,16 +151,18 @@ public class ListenerImpl extends Listener {
 	/**
 	 * @author Or Shwartz
 	 */
-	public class ListenerThread implements Runnable {
+	public class ListenerThread extends Thread {
 
 		/**
 		 * @see java.lang.Runnable#run()
 		 */
 		@Override
 		public void run() {
-			for (;;) {
+			
+			// Run "forever"
+			while (true) {
 
-				// wait for key to be signalled
+				// Wait for key to be signaled
 				WatchKey key;
 				try {
 					key = watcher.take();
@@ -164,6 +172,7 @@ public class ListenerImpl extends Listener {
 
 				Path dir = keys.get(key);
 				if (dir == null) {
+					// TODO: Printing is not discouraged... think this through.
 					System.err.println("WatchKey not recognized!!");
 					continue;
 				}
@@ -173,7 +182,7 @@ public class ListenerImpl extends Listener {
 					
 					WatchEvent.Kind kind = event.kind();
 
-					// TODO: TBD - provide example of how OVERFLOW event is handled
+					// TODO: Check how OVERFLOW event is handled
 					if (kind == OVERFLOW) {
 						
 						continue;
@@ -184,10 +193,17 @@ public class ListenerImpl extends Listener {
 					WatchEvent<Path> ev = cast(event);
 					Path name = ev.context();
 					Path child = dir.resolve(name);
-
-					// Print out event TODO: 
-					System.out.format(System.currentTimeMillis() + " %s: %s\n",
-									  event.kind().name(), child);
+					
+					// TODO: Send something useful to tagger
+					setChanged();
+					SimpleDateFormat timeFormat =
+						new SimpleDateFormat("HH:mm:ss:SSS");
+					Date now = new Date();
+					notifyObservers(String.format(SimpleDateFormat.getDateInstance().format(now) + " " +
+												  SimpleDateFormat.getTimeInstance().format(now) +
+												  " %s: %s",
+												  event.kind().name(),
+												  child));
 
 					// If directory is created, and watching recursively, then
 					// register it and its sub-directories
