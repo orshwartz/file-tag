@@ -78,14 +78,15 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 	@Override
 	public Collection<File> searchByTag(Collection<String> includedTags,
 			Collection<String> excludedTags) {
+		
 		// TODO Auto-generated method stub
-		return null;
+		return DAL.searchByTag(includedTags, excludedTags);
 	}
 
 	@Override
 	public boolean tagExists(String tag) {
 		// TODO Auto-generated method stub
-		return false;
+		return DAL.tagExists(tag);
 	}
 
 	@Override
@@ -95,8 +96,8 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 	}
 
 	@Override
-	public void untagFile(File file, String tag) throws FileNotTaggedException {
-		// TODO Auto-generated method stub
+	public void untagFile(String file, String tag) throws FileNotTaggedException {
+		DAL.untagFile(file, tag);
 		
 	}
 
@@ -104,6 +105,10 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 	public void update(Observable o, Object arg) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public void DropTables(){
+		DAL.DropTables();
 	}
 
 }
