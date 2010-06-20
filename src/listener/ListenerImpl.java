@@ -160,6 +160,7 @@ public class ListenerImpl extends Listener {
 		@Override
 		public void run() {
 			
+			// TODO: Use a flag to enable pausing the thread in an orderly manner
 			// Run "forever"
 			while (true) {
 
