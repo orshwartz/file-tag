@@ -1,0 +1,7 @@
+CREATE TABLE files (
+	file_id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+	filename VARCHAR(256) NOT NULL,
+	last_modified_epoch BIGINT,
+	PRIMARY KEY(file_id),
+	UNIQUE(filename)
+)
