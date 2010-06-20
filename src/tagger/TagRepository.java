@@ -14,7 +14,7 @@ public interface TagRepository {
 	
 	public boolean tagExists(String tag);
 	public void removeTag(String tag) throws TagNotFoundException;
-	public void addTag(Collection<String> tags) throws TagAlreadyExistsException;
+	public void addTags(Collection<String> tags) throws TagAlreadyExistsException;
 	public void tagFile(String file, Collection<String> tags) throws FileNotFoundException;
 	public void untagFile(String file, String tag) throws FileNotTaggedException;
 	public void renameTag(String oldName, String newName) throws TagNotFoundException, TagAlreadyExistsException;

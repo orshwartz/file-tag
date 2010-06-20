@@ -33,8 +33,14 @@ public class DataAccessLevel {
 	private boolean connectionMode;
 	
 	private BufferedReader br;
-	private PreparedStatement stmt;
-	
+	private PreparedStatement stmt;	
+
+	private static final String tagsTableCreationScript =
+													"TAGS.sql";
+	private static final String filesTableCreationScript =
+													"FILES.sql";
+	private static final String attachmentsTableCreationScript =
+													"ATTACHMENTS.sql";
 	
 	/**
 	 * 
@@ -42,37 +48,34 @@ public class DataAccessLevel {
 	public DataAccessLevel(){
 		
 		dbURL = "jdbc:derby://localhost:1527/myDB;create=true;user=me;password=mine";
-		Connect();
-		LoadTables();
-		Disconnect();
-		
+		connect();
+		loadTables();
+		disconnect();
 	}
 	
 	/**
 	 * 
 	 */
-	public void Connect(){
-		
+	public void connect(){
 		
 		try
         {
-			System.out.println("Connecting to data base .. " );
+			System.out.println("Connecting to database...");
             Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
-            //Get a connection
+            
+            // Get a connection
             conn = DriverManager.getConnection(dbURL); 
         }
         catch (Exception except)
         {
             except.printStackTrace();
         }
-
-		
 	}
 	
 	/**
 	 * 
 	 */
-	public void LoadTables(){
+	public void loadTables(){
 
 		string = new StringBuilder();
 		
@@ -87,7 +90,7 @@ public class DataAccessLevel {
 			// add TAGS table, if needed
 			if(!results.next())
 			{
-				fileName = "TAGS.sql";
+				fileName = tagsTableCreationScript;
 				try {
 					br = new BufferedReader( new FileReader(fileName));
 				} catch (FileNotFoundException e) {
@@ -116,7 +119,7 @@ public class DataAccessLevel {
 			// add FILES table, if needed
 			if(!results.next())
 			{
-				fileName = "FILES.sql";
+				fileName = filesTableCreationScript;
 				string.setLength(0);
 				try {
 					br = new BufferedReader( new FileReader(fileName));
@@ -145,7 +148,7 @@ public class DataAccessLevel {
 			// add ATTACHMENTS table, if needed
 			if(!results.next())
 			{
-				fileName = "ATTACHMENTS.sql";
+				fileName = attachmentsTableCreationScript;
 				string.setLength(0);
 				try {
 					br = new BufferedReader( new FileReader(fileName));
@@ -181,9 +184,9 @@ public class DataAccessLevel {
 	 * @param tags
 	 * @throws TagAlreadyExistsException
 	 */
-	public void addTag(Collection<String> tags) throws TagAlreadyExistsException{
+	public void addTags(Collection<String> tags) throws TagAlreadyExistsException{
 		
-		Connect();
+		connect();
 		
 			 
 			 Iterator<String> it = tags.iterator();
@@ -207,7 +210,7 @@ public class DataAccessLevel {
 					}
 			 	}
 				 
-		Disconnect();			 
+		disconnect();			 
 	}
 	
 	
@@ -217,7 +220,7 @@ public class DataAccessLevel {
 	 */
 	public void removeTag(String tag) throws TagNotFoundException{
 	
-		Connect();
+		connect();
 		try {
 			
 			// build the string for the command
@@ -233,7 +236,7 @@ public class DataAccessLevel {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			 Disconnect();
+			 disconnect();
 	}
 	
 	
@@ -243,7 +246,7 @@ public class DataAccessLevel {
 	 */
 	public void renameTag(String oldName, String newName){
 
-		Connect();
+		connect();
 		try {
 			
 			// build the string for the command
@@ -261,7 +264,7 @@ public class DataAccessLevel {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		Disconnect();
+		disconnect();
 	}
 	
 	
@@ -272,7 +275,7 @@ public class DataAccessLevel {
 	 */
 	public void tagFile(String file, Collection<String> tags){
 		
-		Connect();
+		connect();
 		Iterator<String> it = tags.iterator();
 		
 		try {
@@ -305,7 +308,7 @@ public class DataAccessLevel {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			 Disconnect();
+			 disconnect();
 	}
 	
 	
@@ -315,7 +318,7 @@ public class DataAccessLevel {
 	 */
 	public void untagFile(String file, String tag){
 		// get tag id
-		Connect();
+		connect();
 		try {
 			// get tag id
 			
@@ -363,7 +366,7 @@ public class DataAccessLevel {
 		// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		 Disconnect();
+		 disconnect();
 		
 	}
 	
@@ -437,7 +440,7 @@ public class DataAccessLevel {
 	
 	public boolean tagExists(String tag){
 		
-		Connect();
+		connect();
 		
 		try {
 		string.setLength(0);
@@ -462,31 +465,39 @@ public class DataAccessLevel {
 
 	
 	
-		Disconnect();
+		disconnect();
 		return false;
 		
 	}
 	
+	/**
+	 * Connection getter.
+	 * @return
+	 */
 	public Connection getConnection(){
+	
 		return conn;
 	}
 	
-	
-	
-	
-	
+	/**
+	 * This method returns files tagged with certain tags but not tagged with others.
+	 * @param includedTags Tags which should be attached to returned files.
+	 * @param excludedTags Tags which should not attached to returned files.
+	 * @return Collection of files attached to <CODE>includedTags</CODE> but not
+	 * attached to <CODE>exlcludedTags</CODE>.
+	 */
 	public Collection<File> searchByTag(Collection<String> includedTags,
-			Collection<String> excludedTags){
+										Collection<String> excludedTags){
 		
-		Connect();
+		connect();
 		int i = 0;
 		int incSize = 0;
 		int excSize = 0;
 		String part;
 		Integer integer;
 		
-		Collection<Integer> incInts = new LinkedList();
-		Collection<Integer> excInts = new LinkedList();
+		Collection<Integer> incInts = new LinkedList<Integer>();
+		Collection<Integer> excInts = new LinkedList<Integer>();
 		PreparedStatement stmt;
 		
 		
@@ -495,6 +506,11 @@ public class DataAccessLevel {
 		Iterator<String> it = includedTags.iterator();
 		string.setLength(0);
 		string.append("SELECT tag_id FROM tags WHERE tag = '");
+		
+		for (String curTag : includedTags)
+		{
+			System.out.println(curTag);
+		}
 		
 		while(it.hasNext()){
 			
@@ -556,14 +572,14 @@ public class DataAccessLevel {
 	
 		
 		searchAttachments(incInts,excInts);
-		Disconnect();
+		disconnect();
 				return null;
 		
 	}
 	
 	
 	public void searchAttachments(Collection<Integer> incInts,
-			Collection<Integer> excInts){
+								  Collection<Integer> excInts){
 		
 		Iterator<Integer> incIt = incInts.iterator();
 		Iterator<Integer> excIt = excInts.iterator();
@@ -571,15 +587,12 @@ public class DataAccessLevel {
 		string.setLength(0);
 		
 		string.append("SELECT file_id FROM attachments WHERE (tag_id = '");
-		
-		
-		
 	}
 	
 	
 	
 	public void DropTables(){
-			Connect();
+			connect();
 			
 			try {
 				string.setLength(0);
@@ -603,22 +616,18 @@ public class DataAccessLevel {
 				e.printStackTrace();
 			}
 			
-			
-			
-			Disconnect();
-		
-		
+			disconnect();
 	}
 	
 	
 	/**
 	 * 
 	 */
-	public void Disconnect(){
+	public void disconnect(){
 		
 		try
         {
-			System.out.println("Task done. Disconnecting ..");
+			System.out.println("Task done. Disconnecting...");
             if (stmt != null)
             {
                 stmt.close();
@@ -627,16 +636,11 @@ public class DataAccessLevel {
             {
                 DriverManager.getConnection(dbURL + ";shutdown=true");
                 conn.close();
-            }        
-            
+            }
         }
         catch (SQLException sqlExcept)
         {
-            
-        }
-		
-		
-		
+        	// TODO: Do something?
+        }	
 	}
-
 }
