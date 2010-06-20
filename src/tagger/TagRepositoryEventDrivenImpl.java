@@ -5,9 +5,11 @@ package tagger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Observable;
+import java.util.Vector;
 
 
 import java.sql.Connection;
@@ -33,7 +35,12 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
     private Connection conn;
     
     private int tag_id;
+    
+	private final static Locale dfltLocal = Locale.getDefault();
 	
+	/**
+	 * <CODE>TagRepositoryEventDrivenImpl</CODE> constructor.
+	 */
 	public TagRepositoryEventDrivenImpl() {
 		// TODO Auto-generated constructor stub
 		
@@ -45,28 +52,60 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 		System.out.println(this.getClass().getName() + " up.");
 	}
 
+	/**
+	 * This method fixes a string to be used as a tag in the repository.
+	 * @param string to fix.
+	 * @return The string lowercased and without leading and trailing
+	 * whitespace.
+	 */
+	private String fixString(String string) {
+		
+		// Change to lowercase and remove leading and trailing whitespace
+		return string.trim().toLowerCase(dfltLocal);	
+	}
+	
+	/**
+	 * This method receives a collection of strings and adds them
+	 * to the repository.
+	 * @see tagger.TagRepository#addTags(java.util.Collection)
+	 */
 	@Override
-	public void addTag(Collection<String> tags) throws TagAlreadyExistsException {
+	public void addTags(Collection<String> tags) throws TagAlreadyExistsException {
 		// TODO Auto-generated method stub
 		
+		Collection<String> fixedTags = new ArrayList<String>(tags.size());
 		
-		DAL.addTag(tags);
+		// For each tag string
+		for (String curTag : tags)
+		{
+			// Fix current string and add to list
+			fixedTags.add(fixString(curTag));
+		}
 		
-		// TODO: Consider using only lowercase for tag comparison or
-		// maybe even enter tags to repository as lowercase (check sites
-		// using tags, for a common way of action).
-		// Use tag.toLowerCase(Locale.getDefault())
+		// Add fixed strings to database
+		DAL.addTags(fixedTags);
 	}
 
+	/**
+	 * This method returns all the tags, ordered by frequency - most frequent first.
+	 * @see tagger.TagRepository#getTagListFreqOrdered()
+	 */
 	@Override
 	public Collection<String> getTagListFreqOrdered() {
+
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	/**
+	 * This method removes a tag from the repository.
+	 * TODO: Say what happens if tag is associated to files or doesn't exist.
+	 * @see tagger.TagRepository#removeTag(java.lang.String)
+	 */
 	@Override
 	public void removeTag(String tag) throws TagNotFoundException {
-			DAL.removeTag(tag);
+
+		DAL.removeTag(tag);
 	}
 
 	@Override
@@ -110,5 +149,4 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 	public void DropTables(){
 		DAL.DropTables();
 	}
-
 }
