@@ -74,10 +74,11 @@ public class ListenerImpl extends Listener {
 	}
 
 	/**
+	 * @throws IOException 
 	 * @see listener.Listener#listenTo(listener.ListenedDirectory)
 	 */
 	@Override
-	public void listenTo(ListenedDirectory dir) throws IOException {
+	public void listenTo(ListenedDirectory dir) throws IOException  {
 		// TODO Auto-generated method stub
 
 		WatchKey key =
@@ -85,7 +86,9 @@ public class ListenerImpl extends Listener {
 												 ENTRY_CREATE,
 												 ENTRY_DELETE,
 												 ENTRY_MODIFY);
-
+		
+		
+		
 		if (trace) {
 
 			FileRef prev = keys.get(key);
