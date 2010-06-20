@@ -16,9 +16,11 @@ public interface TagRepository {
 	public void removeTag(String tag) throws TagNotFoundException;
 	public void addTag(Collection<String> tags) throws TagAlreadyExistsException;
 	public void tagFile(String file, Collection<String> tags) throws FileNotFoundException;
-	public void untagFile(File file, String tag) throws FileNotTaggedException;
+	public void untagFile(String file, String tag) throws FileNotTaggedException;
 	public void renameTag(String oldName, String newName) throws TagNotFoundException, TagAlreadyExistsException;
 	public Collection<File> searchByTag(Collection<String> includedTags,
 										Collection<String> excludedTags);
 	public Collection<String> getTagListFreqOrdered();
+	
+	public void DropTables();
 }
