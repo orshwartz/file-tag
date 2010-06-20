@@ -10,6 +10,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -100,9 +103,9 @@ public class LogImpl implements Log {
 	 * @see log.Log#getMessages()
 	 */
 	@Override
-	public SortedSet<String> getMessages() {
+	public Collection<String> getMessages() {
 		
-		SortedSet<String> messages = new TreeSet<String>();
+		Collection<String> messages = new ArrayList<String>();
 		
 		// Read the log file line by line
 		InputStream inputStream = null;
