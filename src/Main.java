@@ -77,6 +77,7 @@ public class Main {
 		col4.add("zz");
 	
 		col5.add("bb");
+		col5.add("aa");
 		
 			try {
 				tagRep.tagFile("file1",col);
@@ -87,7 +88,8 @@ public class Main {
 				e.printStackTrace();
 			}
 
-		files = tagRep.searchByTag(col4, col5);
+		//files = tagRep.searchByTag(col4, col5);
+			tagRep.getTagListFreqOrdered();
 		//tagRep.DropTables();
 		
 		

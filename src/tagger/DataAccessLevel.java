@@ -86,7 +86,6 @@ public class DataAccessLevel {
 			
 			DatabaseMetaData dbmd = conn.getMetaData();
 			ResultSet results = dbmd.getTables(null, "ME", "TAGS", null);
-			
 			// add TAGS table, if needed
 			if(!results.next())
 			{
@@ -171,7 +170,24 @@ public class DataAccessLevel {
 				stmt.execute();
 				stmt.close();
 			}
+			
 		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try{
+			
+			
+			string.setLength(0);
+			string.append("CREATE VIEW freq_desc_tags (tag_id, tag_frequency) AS ");
+			string.append("SELECT tag_id, COUNT(tag_id) FROM attachments ");
+			string.append("GROUP BY tag_id ORDER BY COUNT(tag_id) DESC");
+			
+			stmt = conn.prepareStatement(string.toString());
+			stmt.execute();
+			
+		}catch (SQLException e){
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -561,16 +577,36 @@ public class DataAccessLevel {
 		
 	}
 	
-	
-	public void searchAttachments(Collection<Integer> incInts,
-								  Collection<Integer> excInts){
+	public Collection<TagFreq> getTagListFreqOrdered(){
 		
-		Iterator<Integer> incIt = incInts.iterator();
-		Iterator<Integer> excIt = excInts.iterator();
+		connect();
+		
+		TagFreq tagFreq;
+		StringBuilder part = new StringBuilder();
+		Collection<TagFreq> tagFreqs = new LinkedList<TagFreq>();
 		
 		string.setLength(0);
+		string.append("SELECT tag,tag_frequency FROM freq_desc_tags NATURAL JOIN tags");
 		
-		string.append("SELECT file_id FROM attachments WHERE (tag_id = '");
+		try {
+			stmt = conn.prepareStatement(string.toString());
+			ResultSet results = stmt.executeQuery();
+			
+			while(results.next()){
+				
+				tagFreq = new TagFreq(results.getInt(2), results.getString(1)) ;
+				tagFreqs.add(tagFreq);
+				
+			}
+			
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		disconnect();
+		return tagFreqs;
 	}
 	
 	

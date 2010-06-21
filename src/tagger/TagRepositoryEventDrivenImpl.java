@@ -91,10 +91,9 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 	 * @see tagger.TagRepository#getTagListFreqOrdered()
 	 */
 	@Override
-	public Collection<String> getTagListFreqOrdered() {
+	public Collection<TagFreq> getTagListFreqOrdered() {
 
-		// TODO Auto-generated method stub
-		return null;
+		return DAL.getTagListFreqOrdered();
 	}
 
 	/**
