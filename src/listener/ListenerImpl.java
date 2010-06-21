@@ -186,7 +186,6 @@ public class ListenerImpl extends Listener {
 		@Override
 		public void run() {
 			
-			// TODO: Use a flag to enable pausing the thread in an orderly manner
 			// Run "forever"
 			while (true) {
 
@@ -236,22 +235,23 @@ public class ListenerImpl extends Listener {
 					Path name = ev.context();
 					Path child = dir.resolve(name);
 					
-					// TODO: Send something useful to tagger
-					setChanged();
-					SimpleDateFormat timeFormat =
-						new SimpleDateFormat("HH:mm:ss:SSS");
-					Date now = new Date();
-					notifyObservers(String.format(SimpleDateFormat.getDateInstance().format(now) + " " +
-												  SimpleDateFormat.getTimeInstance().format(now) +
-												  " %s: %s",
-												  event.kind().name(),
-												  child));
+//					SimpleDateFormat timeFormat =
+//						new SimpleDateFormat("HH:mm:ss:SSS");
+//					Date now = new Date();
+//					String.format(SimpleDateFormat.getDateInstance().format(now) + " " +
+//							  SimpleDateFormat.getTimeInstance().format(now) +
+//							  " %s: %s",
+//							  kind.name(),
+//							  child);
+//					System.out.println(kind + "\t" + child); // TODO: Remove this line
 
-					System.out.println(kind + "\t" + child); // TODO: Remove this line
+					// Notify observers of file changes
+					setChanged();
+					notifyObservers(kind);
 					
 					// If directory is created, and watching recursively, then
 					// register it and its sub-directories
-					if (/* TODO: Was "recursive &&" but I removed it */kind == ENTRY_CREATE) {
+					if (kind == ENTRY_CREATE) {
 						try {
 							if (Attributes.readBasicFileAttributes(child,
 																   NOFOLLOW_LINKS).isDirectory()) {
