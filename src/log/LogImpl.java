@@ -35,7 +35,7 @@ public class LogImpl implements Log {
 	Logger logger;
 	
 	/**
-	 * 
+	 * Log constructor. Sets up required files for logging.
 	 */
 	private LogImpl() {
 
@@ -58,7 +58,7 @@ public class LogImpl implements Log {
 	}
 
 	/**
-	 * @return
+	 * @return an instance of this log.
 	 */
 	public static LogImpl getInstance() {
 
