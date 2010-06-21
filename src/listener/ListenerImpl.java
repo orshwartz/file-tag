@@ -4,9 +4,11 @@
 package listener;
 
 import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
-import static java.nio.file.StandardWatchEventKind.*;
+import static java.nio.file.StandardWatchEventKind.ENTRY_CREATE;
+import static java.nio.file.StandardWatchEventKind.ENTRY_DELETE;
+import static java.nio.file.StandardWatchEventKind.ENTRY_MODIFY;
+import static java.nio.file.StandardWatchEventKind.OVERFLOW;
 
-import java.io.IOError;
 import java.io.IOException;
 import java.nio.file.FileRef;
 import java.nio.file.FileSystems;
@@ -22,6 +24,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import sun.util.logging.resources.logging;
 
 /**
  * This class represents an object capable of listening to filesystem events on
@@ -33,7 +38,9 @@ public class ListenerImpl extends Listener {
 
 	private final WatchService watcher;
 	private final Map<WatchKey, Path> keys;
+	Thread watchThread = null;
 	private boolean trace = false;
+	private AtomicBoolean listenerActive = new AtomicBoolean(false);
 
 	/**
 	 * @throws IOException
@@ -53,10 +60,28 @@ public class ListenerImpl extends Listener {
 	 */
 	@Override
 	public void activate() {
-		// TODO Auto-generated method stub
 		
-		Thread watchThread = new ListenerThread();
-		watchThread.start();
+		// If thread not created before
+		if (watchThread == null) {
+		
+			// Create the processing thread
+			watchThread = new ListenerThread();
+			
+			// Start the thread (process directory listening)
+			listenerActive.set(true);
+			watchThread.start();
+		}
+		
+		// Else, thread exists - resume is requested
+		else
+		{
+			// Signal thread to resume work
+			listenerActive.set(true);
+			synchronized (watchThread) {
+				
+				watchThread.notify();
+			} 
+		}
 	}
 
 	/**
@@ -64,8 +89,9 @@ public class ListenerImpl extends Listener {
 	 */
 	@Override
 	public void deactivate() {
-		// TODO Auto-generated method stub
 
+		// Signal the processing thread it should pause 
+		listenerActive.set(false);
 	}
 
 	/**
@@ -73,8 +99,8 @@ public class ListenerImpl extends Listener {
 	 */
 	@Override
 	public boolean isActive() {
-		// TODO Auto-generated method stub
-		return false;
+
+		return listenerActive.get();
 	}
 
 	/**
@@ -100,7 +126,7 @@ public class ListenerImpl extends Listener {
 			if (previousRef == null) {
 
 				// TODO: Instead of this... probably write to log
-				System.out.format("register: %s\n", dir);
+				System.out.format("register: %s\n", dir.getDirectory().toString());
 			}
  
 			else if (!dir.getDirectory().toPath().equals(previousRef)) {
@@ -164,6 +190,20 @@ public class ListenerImpl extends Listener {
 			// Run "forever"
 			while (true) {
 
+				// Check if should wait
+				synchronized (this) {
+					
+					// While requested to pause
+					while (!listenerActive.get()) {
+						try {
+						
+							// Pause this thread and wait for someone to wake it up
+							wait();
+						} catch (Exception e) {
+						}
+					}
+				} 				
+				
 				// Wait for key to be signaled
 				WatchKey key;
 				try {
@@ -207,6 +247,8 @@ public class ListenerImpl extends Listener {
 												  event.kind().name(),
 												  child));
 
+					System.out.println(kind + "\t" + child); // TODO: Remove this line
+					
 					// If directory is created, and watching recursively, then
 					// register it and its sub-directories
 					if (/* TODO: Was "recursive &&" but I removed it */kind == ENTRY_CREATE) {
