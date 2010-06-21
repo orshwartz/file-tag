@@ -591,7 +591,7 @@ public class DataAccessLevel {
 	
 	
 	
-	public void DropTables(){
+	public void dropTables(){
 			connect();
 			
 			try {
