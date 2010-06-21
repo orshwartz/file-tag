@@ -21,6 +21,4 @@ public interface TagRepository {
 	public Collection<File> searchByTag(Collection<String> includedTags,
 										Collection<String> excludedTags);
 	public Collection<String> getTagListFreqOrdered();
-	
-	public void DropTables();
 }
