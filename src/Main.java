@@ -51,50 +51,56 @@ public class Main {
 		tagRep.addObserver(commander);
 		
 		
-		/*Collection<String> col = new LinkedList();
+		Collection<String> col = new LinkedList();
 		Collection<String> col2 = new LinkedList();
 		Collection<String> col3 = new LinkedList();
 		Collection<String> col4 = new LinkedList();
 		Collection<String> col5 = new LinkedList();
+		Collection<String> files = new LinkedList();
 		
-		col.add("gomel513");
-		col.add("kzomel513");
-		col.add("shmip315");
-		col.add("shmop315");
+		col.add("gomel");
+		col.add("kzomel");
+		col.add("shmip");
+		col.add("shmop");
 		
 		col2.add("zz");
 		col2.add("dd");
 		col2.add("aa");
 		col2.add("bb");
 		
-		col3.add("gomel513");
-		col3.add("kzomel513");
+		col3.add("gomel");
+		col3.add("kzomel");
 		col3.add("aa");
 		col3.add("zz");
 		
-		col4.add("shmop315");
+		col4.add("gomel");
 		col4.add("zz");
-		col4.add("dd");
+	
+		col5.add("bb");
 		
-		col5.add("dd");
-		try {
-			tagRep.addTag(col);
-			tagRep.addTag(col2);
-		} catch (TagAlreadyExistsException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		tagRep.searchByTag(col3, col4);*/
+			try {
+				tagRep.tagFile("file1",col);
+				tagRep.tagFile("file2",col2);
+				tagRep.tagFile("file3",col3);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
+		files = tagRep.searchByTag(col4, col5);
 		//tagRep.DropTables();
+		
+		
+		for ( String curFile : files){
+			System.out.println("outcome = " + curFile);
+		}
 		
 		gui.displayGUI();
 		
-		log.clearLog();
-		log.writeMessage("3");
-		log.writeMessage("2");
-		log.writeMessage("1");
-		System.out.println(log.getMessages());;
+		//log.clearLog();
+		//log.writeMessage("3");
+		//log.writeMessage("2");
+		//log.writeMessage("1");
+		//System.out.println(log.getMessages());;
 	}
 }
