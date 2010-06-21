@@ -108,7 +108,7 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 	}
 
 	@Override
-	public Collection<File> searchByTag(Collection<String> includedTags,
+	public Collection<String> searchByTag(Collection<String> includedTags,
 			Collection<String> excludedTags) {
 		
 		// TODO Auto-generated method stub
