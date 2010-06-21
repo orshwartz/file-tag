@@ -298,9 +298,13 @@ public class DataAccessLevel {
 				string.append("INSERT INTO tags(tag) VALUES('");
 				string.append(tag);
 				string.append("')");
-				
-				stmt = conn.prepareStatement(string.toString());
-				stmt.executeUpdate();
+					try{
+						stmt = conn.prepareStatement(string.toString());
+						stmt.executeUpdate();
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				makeAttachments(file, tag);
 				}
 				stmt.close();
@@ -486,94 +490,74 @@ public class DataAccessLevel {
 	 * @return Collection of files attached to <CODE>includedTags</CODE> but not
 	 * attached to <CODE>exlcludedTags</CODE>.
 	 */
-	public Collection<File> searchByTag(Collection<String> includedTags,
+	public Collection<String> searchByTag(Collection<String> includedTags,
 										Collection<String> excludedTags){
 		
 		connect();
-		int i = 0;
-		int incSize = 0;
-		int excSize = 0;
-		String part;
-		Integer integer;
 		
-		Collection<Integer> incInts = new LinkedList<Integer>();
-		Collection<Integer> excInts = new LinkedList<Integer>();
+		Collection<String> files = new LinkedList<String>();
+		
+		int i=0;
+		int size = includedTags.size();
 		PreparedStatement stmt;
-		
-		
-		// get included tag_ids
-		incSize = includedTags.size();
-		Iterator<String> it = includedTags.iterator();
 		string.setLength(0);
-		string.append("SELECT tag_id FROM tags WHERE tag = '");
+		string.append("SELECT filename FROM files WHERE file_id IN ");
+		string.append("(SELECT file_id FROM tags NATURAL JOIN attachments ");
+		string.append("WHERE ");
 		
-		for (String curTag : includedTags)
-		{
-			System.out.println(curTag);
-		}
-		
-		while(it.hasNext()){
-			
-				part = it.next();
-				string.append(part);
-			
-				if(it.hasNext())
-					string.append("' OR tag = '");
-				else
-					string.append("'");
-		}
-	
-			try {
-				stmt = conn.prepareStatement(string.toString());
-				ResultSet results = stmt.executeQuery();
-				
-						for(i=0;i<incSize;i++){
-							results.next();
-							incInts.add(results.getInt(1));
-					
-						}
-					
-				} catch (SQLException e) {
-				// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			
-		// get excluded tag_ids
-		excSize = excludedTags.size();
-		it = excludedTags.iterator();
-		string.setLength(0);
-		string.append("SELECT tag_id FROM tags WHERE tag = '");	
-		
-		while(it.hasNext()){
-			
-				part = it.next();
-				string.append(part);
-			
-				if(it.hasNext())
-					string.append("' OR tag = '");
-				else
-					string.append("'");
-		}	
-		
-			try {
-				stmt = conn.prepareStatement(string.toString());
-				ResultSet results = stmt.executeQuery();
-			
-					for(i=0;i<excSize;i++){
-						results.next();
-						excInts.add(results.getInt(1));
-				
-					}
-
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			for (String curTag : includedTags)
+			{
+				i++;
+				string.append("tag = '");
+				string.append(curTag);
+				string.append("' ");
+				if( i < size )
+					string.append("OR ");
 			}
-	
 		
-		searchAttachments(incInts,excInts);
+		i=0;
+		size = excludedTags.size();
+		
+		string.append("EXCEPT ");
+		string.append("SELECT file_id FROM tags NATURAL JOIN attachments ");
+		string.append("WHERE ");
+		
+
+			for (String curTag : excludedTags)
+			{
+				i++;
+				string.append("tag = '");
+				string.append(curTag);
+				string.append("' ");
+				if( i < size )
+					string.append("OR ");
+				else
+					string.append(")");
+			}
+		
+		try {
+			System.out.println(string);
+			stmt = conn.prepareStatement(string.toString());
+			ResultSet results = stmt.executeQuery();
+			
+			System.out.println("nani?");
+			while(results.next())
+	        {
+	            files.add(results.getString(1));
+	        }
+			
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();			
+		}
+		
+		
+
+		
+			
 		disconnect();
-				return null;
+				return files;
 		
 	}
 	
