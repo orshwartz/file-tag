@@ -12,9 +12,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Logger;
@@ -44,9 +41,9 @@ public class LogImpl implements Log {
 
 		// TODO: Remove this stub message
 		System.out.println(this.getClass().getName() + " up.");
-		
+
 		// Configure the Log4J
-		DOMConfigurator.configure("Log4j.xml");
+		DOMConfigurator.configure("src\\Log4j.xml");
 		logger = Logger.getLogger("FileTagger");
 	}
 	
@@ -75,28 +72,30 @@ public class LogImpl implements Log {
 	@Override
 	public void clearLog() {
 		
-		// Disable the log file
-		logger.getAppender("fileTag").close();
-		logger.removeAppender("fileTag");
-		
-		// Delete the log file
-		try {
-			File logFile = new File(LOG_NAME);
-			OutputStream os = new FileOutputStream(logFile);
-			OutputStreamWriter writer = new OutputStreamWriter(os);
-			writer.write("");
-			writer.close();
-		} catch (Exception e) {
-			// TODO: Something
-		}
-		
-		// Recreate the log file
-		try {
-			logger.addAppender(new FileAppender(new PatternLayout(), LOG_NAME, true));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		// Disable the log file
+//		logger.getAppender("fileTag").close();
+//		logger.removeAppender("fileTag");
+//		
+//		// Delete the log file
+//		try {
+//			File logFile = new File(LOG_NAME);
+//			OutputStream os = new FileOutputStream(logFile);
+//			OutputStreamWriter writer = new OutputStreamWriter(os);
+//			writer.write("");
+//			writer.close();
+//		} catch (Exception e) {
+//			// TODO: Something
+//		}
+//		
+//		// Recreate the log file
+//		try {
+//			FileAppender appender = new FileAppender(new PatternLayout(), LOG_NAME, true);
+//			appender.activateOptions();
+//			logger.addAppender(appender);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 	/**
