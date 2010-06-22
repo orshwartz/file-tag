@@ -20,5 +20,7 @@ public interface TagRepository {
 	public void renameTag(String oldName, String newName) throws TagNotFoundException, TagAlreadyExistsException;
 	public Collection<String> searchByTag(Collection<String> includedTags,
 										Collection<String> excludedTags);
-	public Collection<String> getTagListFreqOrdered();
+	public Collection<TagFreq> getTagListFreqOrdered();
+	
+	public void dropTables();
 }
