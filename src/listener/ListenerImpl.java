@@ -1,6 +1,3 @@
-/**
- * 
- */
 package listener;
 
 import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
@@ -8,7 +5,9 @@ import static java.nio.file.StandardWatchEventKind.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKind.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKind.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKind.OVERFLOW;
+import static listener.FileEvents.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileRef;
 import java.nio.file.FileSystems;
@@ -19,10 +18,13 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.nio.file.WatchEvent.Kind;
 import java.nio.file.attribute.Attributes;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -38,12 +40,15 @@ public class ListenerImpl extends Listener {
 
 	private final WatchService watcher;
 	private final Map<WatchKey, Path> keys;
+	private final Map<File, Collection<String>> listenedPaths;
+	private final Map<Kind<?>,FileEvents> fileEventsMap;
 	Thread watchThread = null;
 	private boolean trace = false;
 	private AtomicBoolean listenerActive = new AtomicBoolean(false);
 
 	/**
-	 * @throws IOException
+	 * Constructor - Sets up the listener.
+	 * @throws IOException if error occurred during creation of file system watcher.
 	 */
 	public ListenerImpl() throws IOException {
 
@@ -53,9 +58,21 @@ public class ListenerImpl extends Listener {
 		// Create a new watch service for listening to directory changes
 		this.watcher = FileSystems.getDefault().newWatchService();
 		this.keys = new HashMap<WatchKey, Path>();
+		
+		// Create a new hash map for listened directories and
+		// their regular expressions 
+		this.listenedPaths = new HashMap<File, Collection<String>>();
+		
+		// Set up mapping between events
+		fileEventsMap = new HashMap<Kind<?>, FileEvents>(3);
+		fileEventsMap.put(ENTRY_MODIFY, MODIFIED);
+		fileEventsMap.put(ENTRY_CREATE, CREATED);
+		fileEventsMap.put(ENTRY_DELETE, DELETED);
 	}
 
 	/**
+	 * This method causes the listener to start
+	 * monitor changes to listened directories. 
 	 * @see listener.Listener#activate()
 	 */
 	@Override
@@ -85,6 +102,8 @@ public class ListenerImpl extends Listener {
 	}
 
 	/**
+	 * This method pauses the system monitoring for file changes in requested
+	 * directories.
 	 * @see listener.Listener#deactivate()
 	 */
 	@Override
@@ -117,6 +136,9 @@ public class ListenerImpl extends Listener {
 												 ENTRY_DELETE,
 												 ENTRY_MODIFY);
 		
+		// Save path to monitored directories map and their regular expressions
+		listenedPaths.put(dir.getDirectory(), dir.getRegularExpressions());
+		
 		// If anything had already been registered
 		if (trace) {
 
@@ -135,6 +157,7 @@ public class ListenerImpl extends Listener {
 			}
 		}
 
+		// Save monitoring key
 		keys.put(key, dir.getDirectory().toPath());
 
 		// Enable trace after initial registration
@@ -146,7 +169,27 @@ public class ListenerImpl extends Listener {
 	 */
 	@Override
 	public void stopListeningTo(ListenedDirectory dir) {
-		// TODO Auto-generated method stub
+		
+		Path pathToMute = dir.getDirectory().toPath();
+			
+		// Remove path from path->RegEx map
+		listenedPaths.remove(dir.getDirectory());
+		
+		// Scan key-map to search for path that should be removed 
+		for (Map.Entry<WatchKey, Path> curEntry : keys.entrySet()) {
+			
+			// If the path is found
+			if (curEntry.getValue().equals(pathToMute)) {
+
+				WatchKey curKey = curEntry.getKey();
+				
+				// "Mute" directory, remove from watch keys map 
+				// and stop searching (TODO: Mute inner directories too?)
+				curKey.cancel();
+				keys.remove(curKey);
+				break;
+			}
+		}
 	}
 
     /**
@@ -154,7 +197,8 @@ public class ListenerImpl extends Listener {
      * WatchService.
      */
     private void registerAll(final Path start) throws IOException {
-        // register directory and sub-directories
+        
+    	// Register directory and sub-directories
         Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult preVisitDirectory(Path dir) {
@@ -176,6 +220,9 @@ public class ListenerImpl extends Listener {
 	}
 
 	/**
+	 * This class is a thread for processing file events for
+	 * watched directories. This needs to be a thread because waiting
+	 * for file events is a blocking operation. 
 	 * @author Or Shwartz
 	 */
 	public class ListenerThread extends Thread {
@@ -225,7 +272,7 @@ public class ListenerImpl extends Listener {
 
 					// TODO: Check how OVERFLOW event is handled
 					if (kind == OVERFLOW) {
-						
+						System.out.println("OVERFLOW occurred."); // TODO: Delete this line
 						continue;
 					}
 
@@ -247,7 +294,8 @@ public class ListenerImpl extends Listener {
 
 					// Notify observers of file changes
 					setChanged();
-					notifyObservers(kind);
+					notifyObservers(new FileEvent(child,
+										  		  fileEventsMap.get(kind)));
 					
 					// If directory is created, and watching recursively, then
 					// register it and its sub-directories
@@ -259,7 +307,7 @@ public class ListenerImpl extends Listener {
 							}
 						} catch (IOException x) {
 							
-							// Ignore to keep sample readable
+							// Ignore to keep sample readable TODO: Ignore?
 						}
 					}
 				}
