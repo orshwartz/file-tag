@@ -5,19 +5,12 @@ package tagger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Observable;
-import java.util.Vector;
-
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-
-
-import sun.security.action.GetLongAction;
 
 /**
  * This class represents a tag repository - which is a repository associating
@@ -143,9 +136,13 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 	public void update(Observable o, Object arg) {
 		// TODO Auto-generated method stub
 		
+		
+		
 	}
 	
-	public void DropTables(){
-		DAL.DropTables();
+	public void dropTables(){
+		DAL.dropTables();
 	}
+
+
 }

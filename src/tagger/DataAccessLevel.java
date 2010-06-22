@@ -380,6 +380,16 @@ public class DataAccessLevel {
 			stmt = conn.prepareStatement(string.toString());
 			stmt.executeUpdate();
 			
+			// delete tags that remained tagged to nothing
+			string.setLength(0);
+			string.append("DELETE FROM tags ");
+			string.append("WHERE tag_id NOT IN (");
+			string.append("SELECT tag_id FROM attachments)");
+	
+			stmt = conn.prepareStatement(string.toString());
+			stmt.execute();
+			
+			
 			stmt.close();
 			
 		} catch (SQLException e) {
@@ -611,7 +621,7 @@ public class DataAccessLevel {
 	
 	
 	
-	public void DropTables(){
+	public void dropTables(){
 			connect();
 			
 			try {

@@ -82,20 +82,28 @@ public class Main {
 			try {
 				tagRep.tagFile("file1",col);
 				tagRep.tagFile("file2",col2);
-				tagRep.tagFile("file3",col3);
+				//tagRep.tagFile("file3",col3);
+				
+			try {
+					tagRep.untagFile("file1", "shmop");
+				} catch (FileNotTaggedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
 		//files = tagRep.searchByTag(col4, col5);
-			tagRep.getTagListFreqOrdered();
+			//tagRep.getTagListFreqOrdered();
 		//tagRep.DropTables();
 		
 		
-		for ( String curFile : files){
-			System.out.println("outcome = " + curFile);
-		}
+		//for ( String curFile : files){
+			//System.out.println("outcome = " + curFile);
+		//}
 		
 		gui.displayGUI();
 		

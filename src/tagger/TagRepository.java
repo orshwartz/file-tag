@@ -22,5 +22,5 @@ public interface TagRepository {
 										Collection<String> excludedTags);
 	public Collection<TagFreq> getTagListFreqOrdered();
 	
-	public void DropTables();
+	public void dropTables();
 }
