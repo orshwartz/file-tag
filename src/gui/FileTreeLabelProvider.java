@@ -34,7 +34,7 @@ class FileTreeLabelProvider implements ILabelProvider {
 	public FileTreeLabelProvider() {
 		
 		// Create the list to hold the listeners
-		listeners = new ArrayList();
+		listeners = new ArrayList<ILabelProviderListener>();
 
 		// Create the images
 		try {
