@@ -16,21 +16,18 @@ import java.util.Collection;
 public class ListenedDirectory {
 
 	private File directory;
-	private boolean recursive;
 	private Collection<String> regularExpressions;
 	
 	/**
 	 * @param directory The directory for event listening.
-	 * @param recursive True, if recursively all sub-directories should
-	 * be listened as well.
 	 * @param regularExpressions A collection of regular expressions for files
 	 * that should be watched.
 	 * @throws NotDirectoryException 
 	 * @throws FileNotFoundException 
 	 */
 	public ListenedDirectory(File directory,
-							 boolean recursive,
-							 Collection<String> regularExpressions) throws NotDirectoryException, FileNotFoundException {
+							 Collection<String> regularExpressions) throws 	NotDirectoryException,
+							 												FileNotFoundException {
 		
 		// If given directory argument is not really a directory
 		if (!directory.isDirectory())
@@ -48,7 +45,6 @@ public class ListenedDirectory {
 		}
 		
 		this.directory = directory;
-		this.recursive = recursive;
 		this.regularExpressions = regularExpressions;
 	}
 
@@ -57,13 +53,6 @@ public class ListenedDirectory {
 	 */
 	public File getDirectory() {
 		return directory;
-	}
-
-	/**
-	 * @return the recursive
-	 */
-	public boolean isRecursive() {
-		return recursive;
 	}
 
 	/**
