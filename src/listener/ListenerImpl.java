@@ -5,7 +5,9 @@ import static java.nio.file.StandardWatchEventKind.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKind.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKind.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKind.OVERFLOW;
-import static listener.FileEvents.*;
+import static listener.FileEvents.CREATED;
+import static listener.FileEvents.DELETED;
+import static listener.FileEvents.MODIFIED;
 
 import java.io.File;
 import java.io.IOError;
@@ -23,20 +25,10 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.WatchEvent.Kind;
 import java.nio.file.attribute.Attributes;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.util.PatternMatchUtils;
-
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.RegularExpression;
-
-import sun.util.logging.resources.logging;
 
 /**
  * This class represents an object capable of listening to filesystem events on
@@ -48,7 +40,7 @@ public class ListenerImpl extends Listener {
 
 	private final WatchService watcher;
 	private final Map<WatchKey, Path> keys;
-	private final Map<File, Collection<String>> listenedPaths;
+	private final Map<File, Collection<String>> listenedPaths; 			// TODO: Consider a possible optimization by saving a PathMatcher object rather than a String - will save the need to use getPathMatcher each time
 	private final Map<Kind<?>,FileEvents> fileEventsMap;
 	Thread watchThread = null;
 	private boolean trace = false;
@@ -373,7 +365,7 @@ public class ListenerImpl extends Listener {
 		
 		// For each regular expression
 		for (String curRegEx : regularExpressions) {
-			
+
 			// Get matcher for current regular expression
 			matcher = dfltFS.getPathMatcher("regex:" + curRegEx);
 			
