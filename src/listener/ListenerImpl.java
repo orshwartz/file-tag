@@ -8,12 +8,15 @@ import static java.nio.file.StandardWatchEventKind.OVERFLOW;
 import static listener.FileEvents.*;
 
 import java.io.File;
+import java.io.IOError;
 import java.io.IOException;
 import java.nio.file.FileRef;
+import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
@@ -27,6 +30,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.util.PatternMatchUtils;
+
+import com.sun.org.apache.xerces.internal.impl.xpath.regex.RegularExpression;
 
 import sun.util.logging.resources.logging;
 
@@ -153,6 +161,7 @@ public class ListenerImpl extends Listener {
  
 			else if (!dir.getDirectory().toPath().equals(previousRef)) {
 
+				// TODO: Instead of this... probably write to log
 				System.out.format("update: %s -> %s\n", previousRef, dir);
 			}
 		}
@@ -165,26 +174,24 @@ public class ListenerImpl extends Listener {
 	}
 
 	/**
-	 * @see listener.Listener#stopListeningTo(listener.ListenedDirectory)
+	 * @see listener.Listener#stopListeningTo(File)
 	 */
 	@Override
-	public void stopListeningTo(ListenedDirectory dir) {
-		
-		Path pathToMute = dir.getDirectory().toPath();
+	public void stopListeningTo(File pathToMute) {
 			
 		// Remove path from path->RegEx map
-		listenedPaths.remove(dir.getDirectory());
+		listenedPaths.remove(pathToMute);
 		
 		// Scan key-map to search for path that should be removed 
 		for (Map.Entry<WatchKey, Path> curEntry : keys.entrySet()) {
 			
 			// If the path is found
-			if (curEntry.getValue().equals(pathToMute)) {
+			if (curEntry.getValue().equals(pathToMute.toPath())) {
 
 				WatchKey curKey = curEntry.getKey();
 				
 				// "Mute" directory, remove from watch keys map 
-				// and stop searching (TODO: Mute inner directories too?)
+				// and stop searching (TODO: Mute inner directories too? Probably will happen by itself.)
 				curKey.cancel();
 				keys.remove(curKey);
 				break;
@@ -202,17 +209,18 @@ public class ListenerImpl extends Listener {
         Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult preVisitDirectory(Path dir) {
-//                try {
-//                	 // TODO: listen to inner directories recursively,
-//            		 // and use parent's regex for them (I think...).
-//                    listenTo(dir);
-//                } catch (IOException x) {
-//                    throw new IOError(x);
-//                }
+                try {
+                	 // TODO: listen to inner directories recursively,
+            		 // and use parent's regex for them (I think...).
+                    listenTo(new ListenedDirectory(new File(dir.toString()),
+                    							   listenedPaths.get(dir.getParent())));
+                } catch (IOException x) {
+                    throw new IOError(x);
+                }
                 return FileVisitResult.CONTINUE;
             }
         });
-    }	
+    }
 	
 	@SuppressWarnings("unchecked")
 	static <T> WatchEvent<T> cast(WatchEvent<?> event) {
@@ -246,6 +254,8 @@ public class ListenerImpl extends Listener {
 							// Pause this thread and wait for someone to wake it up
 							wait();
 						} catch (Exception e) {
+							
+							// TODO: Handle this exception?
 						}
 					}
 				} 				
@@ -272,6 +282,7 @@ public class ListenerImpl extends Listener {
 
 					// TODO: Check how OVERFLOW event is handled
 					if (kind == OVERFLOW) {
+						
 						System.out.println("OVERFLOW occurred."); // TODO: Delete this line
 						continue;
 					}
@@ -290,32 +301,50 @@ public class ListenerImpl extends Listener {
 //							  " %s: %s",
 //							  kind.name(),
 //							  child);
-//					System.out.println(kind + "\t" + child); // TODO: Remove this line
-
-					// Notify observers of file changes
-					setChanged();
-					notifyObservers(new FileEvent(child,
-										  		  fileEventsMap.get(kind)));
+					System.out.println(kind + "\t" + child); // TODO: Remove this line
 					
-					// If directory is created, and watching recursively, then
-					// register it and its sub-directories
-					if (kind == ENTRY_CREATE) {
-						try {
-							if (Attributes.readBasicFileAttributes(child,
-																   NOFOLLOW_LINKS).isDirectory()) {
+					try {
+						
+						// If directory event occurred
+						if (Attributes.readBasicFileAttributes(child, NOFOLLOW_LINKS).isDirectory()) {					
+						
+							// If directory is created then register it and its sub-directories
+							if (kind == ENTRY_CREATE) {
+
+								// Listen to all sub-folders of new folder
 								registerAll(child);
 							}
-						} catch (IOException x) {
-							
-							// Ignore to keep sample readable TODO: Ignore?
+							else if (kind == ENTRY_MODIFY) {
+								// TODO: Do something?
+							}
+							else if (kind == ENTRY_DELETE) {
+								
+								// TODO: Send folder to stopListeningTo?
+								stopListeningTo(new File(child.toAbsolutePath().toString()));
+							}
 						}
+						
+						// Else, a file event occurred
+						else {
+							
+							// If file matches a regular expression mask for its containing path
+							if (checkRegex(child, listenedPaths.get(child.getParent()))) {
+							
+								// Notify observers of file changes
+								setChanged();
+								notifyObservers(new FileEvent(child,
+													  		  fileEventsMap.get(kind)));
+							}
+						}
+					} catch (IOException e) {
+
+						// Ignore to keep sample readable TODO: Ignore?
 					}
 				}
 
 				// Reset key and remove from set if directory no longer
 				// accessible
 				boolean valid = key.reset();
-				
 				if (!valid) {
 					
 					keys.remove(key);
@@ -328,5 +357,35 @@ public class ListenerImpl extends Listener {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * This method checks whether a filename matches any of the given regular expressions.
+	 * @param fileName which should be matched.
+	 * @param regularExpressions to check against.
+	 * @return True is returned if the filename matches at least one of the regular expressions. False,
+	 * if it matches none of the regular expressions. 
+	 */
+	private boolean checkRegex(Path fileName, Collection<String> regularExpressions) {
+		
+		FileSystem dfltFS = FileSystems.getDefault();
+		PathMatcher matcher = null;
+		
+		// For each regular expression
+		for (String curRegEx : regularExpressions) {
+			
+			// Get matcher for current regular expression
+			matcher = dfltFS.getPathMatcher("regex:" + curRegEx);
+			
+			// If there's a match to the current regular expression
+			if (matcher.matches(fileName)) {
+				
+				// Return true - a match is found
+				return true;
+			}
+		}
+		
+		// No match was found - return false
+		return false;
 	}
 }
