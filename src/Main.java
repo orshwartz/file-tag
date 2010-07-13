@@ -82,14 +82,11 @@ public class Main {
 			try {
 				tagRep.tagFile("file1",col);
 				tagRep.tagFile("file2",col2);
-				//tagRep.tagFile("file3",col3);
+				tagRep.tagFile("file3",col3);
 				
-			try {
-					tagRep.untagFile("file1", "shmop");
-				} catch (FileNotTaggedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+		
+				tagRep.unTagFileAll("file2");
+			
 				
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block

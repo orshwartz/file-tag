@@ -400,6 +400,82 @@ public class DataAccessLevel {
 		
 	}
 	
+	public void unTagFileAll(String file){
+		
+		connect();
+		PreparedStatement stmt;
+		string.setLength(0);
+		string.append("DELETE FROM attachments WHERE file_id IN ( ");
+		string.append("SELECT file_id FROM files WHERE filename ='");
+		string.append(file); 
+		string.append("')");
+		
+		try {
+			stmt = conn.prepareStatement(string.toString());
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		string.setLength(0);
+		string.append("DELETE FROM tags ");
+		string.append("WHERE tag_id NOT IN (");
+		string.append("SELECT tag_id FROM attachments)");
+		
+		try {
+			stmt = conn.prepareStatement(string.toString());
+			stmt.executeUpdate();
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		disconnect();
+		
+		// TODO : add tags with the algorithms;
+		
+	}
+	
+	
+	public void removeFile(String file){
+		
+		
+		connect();
+		PreparedStatement stmt;
+		
+		string.setLength(0);
+		string.append("DELETE FROM files WHERE ");
+		string.append("filename = '");
+		string.append(file);
+		string.append("'");
+		
+		try {
+			stmt = conn.prepareStatement(string.toString());
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		string.setLength(0);
+		string.append("DELETE FROM tags ");
+		string.append("WHERE tag_id NOT IN (");
+		string.append("SELECT tag_id FROM attachments)");
+		
+		try {
+			stmt = conn.prepareStatement(string.toString());
+			stmt.executeUpdate();
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+
+		disconnect();
+	}
+	
 	
 	
 	

@@ -12,6 +12,9 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.Observable;
 
+import listener.FileEvent;
+import listener.FileEvents;
+
 /**
  * This class represents a tag repository - which is a repository associating
  * files to tags and uses events to keep track of those files.
@@ -131,12 +134,28 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 		DAL.untagFile(file, tag);
 		
 	}
+	
+	@Override
+	public void unTagFileAll(String file){
+		DAL.unTagFileAll(file);
+	}
 
 	@Override
 	public void update(Observable o, Object arg) {
 		// TODO Auto-generated method stub
 		
-		
+		FileEvent event;
+		event = (FileEvent)arg;
+		switch(event.getEvent()){
+			case CREATED :
+					break;
+			case DELETED :
+					DAL.removeFile(event.getFile().toString());
+					break;
+			case MODIFIED :
+					DAL.unTagFileAll(event.getFile().toString());
+					break;
+		}
 		
 	}
 	
@@ -144,5 +163,13 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 		DAL.dropTables();
 	}
 
-
+	
+	
+	/* delete after we're done */
+	
+	public void removeFile(String file){
+		//TODO : delete after we're done
+		DAL.removeFile(file);
+	}
+	
 }
