@@ -23,4 +23,7 @@ public interface TagRepository {
 	public Collection<TagFreq> getTagListFreqOrdered();
 	
 	public void dropTables();
+	
+	public void removeFile(String file); // TODO : delete after we're done
+	public void unTagFileAll(String file);
 }
