@@ -113,8 +113,7 @@ public class ListenerImpl extends Listener {
 		}
 		
 		// Else, thread exists - resume is requested
-		else
-		{
+		else {
 			// Signal thread to resume work
 			listenerActive.set(true);
 			synchronized (watchThread) {
@@ -318,7 +317,6 @@ public class ListenerImpl extends Listener {
 					System.out.println(kind + "\t" + child); // TODO: Remove this line
 					
 					try {
-						
 						// If directory event occurred
 						if (Attributes.readBasicFileAttributes(child, NOFOLLOW_LINKS).isDirectory()) {					
 						
@@ -331,11 +329,6 @@ public class ListenerImpl extends Listener {
 							else if (kind == ENTRY_MODIFY) {
 								// TODO: Do something?
 							}
-							else if (kind == ENTRY_DELETE) {
-								
-								// TODO: Send folder to stopListeningTo? Deleted entries can't be verified as files or folders.
-								stopListeningTo(new File(child.toAbsolutePath().toString()));
-							}
 						}
 						
 						// Else, a file event occurred
@@ -345,9 +338,6 @@ public class ListenerImpl extends Listener {
 							if (checkRegex(child,
 										   listenedPaths.get(new File(child.getParent().toString())))) {
 								
-								// TODO: Remove this line...
-								System.out.println("COOKOO!: " + child + "\t" + listenedPaths.get(new File(child.getParent().toString())));
-								
 								// Notify observers of file changes
 								setChanged();
 								notifyObservers(new FileEvent(child,
@@ -356,10 +346,29 @@ public class ListenerImpl extends Listener {
 						}
 					} catch (NoSuchFileException e) {
 						
-						System.out.println(e.getFile());
+						// The exception was probably thrown when an element was deleted 
+						// and then we attempted to read the element's attributes - so make sure
+						if (kind == ENTRY_DELETE) {
+
+							// If element is a directory we're listening to
+							if (listenedPaths.containsKey(new File(child.toString()))) {
+								
+								// Stop listening to this folder
+								stopListeningTo(new File(child.toAbsolutePath().toString()));
+							}
+							
+							// Else, element might be a deleted file
+							else {
+								
+								// Notify observers of file changes
+								setChanged();
+								notifyObservers(new FileEvent(child,
+													  		  fileEventsMap.get(kind)));								
+							}
+						}
 					} catch (IOException e) {
 
-						// Ignore to keep sample readable TODO: Ignore?
+						// Ignore to keep sample readable TODO: Really?! Ignore?
 					}
 				}
 
