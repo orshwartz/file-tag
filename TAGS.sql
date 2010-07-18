@@ -3,4 +3,4 @@ CREATE TABLE tags (
 	tag VARCHAR(150) NOT NULL,
 	PRIMARY KEY(tag_id),
 	UNIQUE(tag)
-)
+);
