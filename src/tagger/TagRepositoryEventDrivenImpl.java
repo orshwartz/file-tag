@@ -3,10 +3,7 @@
  */
 package tagger;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.sql.Connection;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
@@ -22,17 +19,8 @@ import listener.FileEvents;
  */
 public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 
-	/**
-	 * 
-	 */
-
-    private static Statement stmt = null;
-    private DataAccessLevel DAL = null;
-    private Connection conn;
-    
-    private int tag_id;
-    
-	private final static Locale dfltLocal = Locale.getDefault();
+	private DataAccessLevel DAL = null;
+    private final static Locale dfltLocal = Locale.getDefault();
 	
 	/**
 	 * <CODE>TagRepositoryEventDrivenImpl</CODE> constructor.
@@ -40,10 +28,8 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 	public TagRepositoryEventDrivenImpl() {
 		// TODO Auto-generated constructor stub
 		
-		tag_id = 1;
-		
 		DAL = new DataAccessLevel();
-		conn = DAL.getConnection(); // get connection
+		DAL.getConnection();
 		
 		System.out.println(this.getClass().getName() + " up.");
 	}
