@@ -18,7 +18,7 @@ import java.util.LinkedList;
 import org.apache.derby.tools.ij;
 
 /**
- * @author Itai Evron
+ * @author Itay Evron
  * 
  */
 public class DataAccessLevel {
@@ -350,6 +350,83 @@ public class DataAccessLevel {
 		disconnect();
 
 	}
+	
+	public void unTagFileAll(String file){
+		
+		connect();
+		PreparedStatement stmt;
+		string.setLength(0);
+		string.append("DELETE FROM attachments WHERE file_id IN ( ");
+		string.append("SELECT file_id FROM files WHERE filename ='");
+		string.append(file); 
+		string.append("')");
+		
+		try {
+			stmt = conn.prepareStatement(string.toString());
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		string.setLength(0);
+		string.append("DELETE FROM tags ");
+		string.append("WHERE tag_id NOT IN (");
+		string.append("SELECT tag_id FROM attachments)");
+		
+		try {
+			stmt = conn.prepareStatement(string.toString());
+			stmt.executeUpdate();
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		disconnect();
+		
+		// TODO : add tags with the algorithms;
+		
+	}
+	
+	public void removeFile(String file){
+		
+		
+		connect();
+		PreparedStatement stmt;
+		
+		string.setLength(0);
+		string.append("DELETE FROM files WHERE ");
+		string.append("filename = '");
+		string.append(file);
+		string.append("'");
+		
+		try {
+			stmt = conn.prepareStatement(string.toString());
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		string.setLength(0);
+		string.append("DELETE FROM tags ");
+		string.append("WHERE tag_id NOT IN (");
+		string.append("SELECT tag_id FROM attachments)");
+		
+		try {
+			stmt = conn.prepareStatement(string.toString());
+			stmt.executeUpdate();
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+
+		disconnect();
+	}
+	
+	
 
 	/**
 	 * @param file
@@ -511,8 +588,6 @@ public class DataAccessLevel {
 			System.out.println(string);
 			stmt = conn.prepareStatement(string.toString());
 			ResultSet results = stmt.executeQuery();
-
-			System.out.println("nani?");  // TODO: Remove this weird message
 			
 			while (results.next()) {
 				
@@ -529,8 +604,41 @@ public class DataAccessLevel {
 		
 		return files;
 	}
+	
+	public Collection<TagFreq> getTagListFreqOrdered(){
+		
+		connect();
+		
+		TagFreq tagFreq;
+		PreparedStatement stmt;
+		StringBuilder part = new StringBuilder();
+		Collection<TagFreq> tagFreqs = new LinkedList<TagFreq>();
+		
+		string.setLength(0);
+		string.append("SELECT tag,tag_frequency FROM freq_desc_tags NATURAL JOIN tags");
+		
+		try {
+			stmt = conn.prepareStatement(string.toString());
+			ResultSet results = stmt.executeQuery();
+			
+			while(results.next()){
+				
+				tagFreq = new TagFreq(results.getInt(2), results.getString(1)) ;
+				tagFreqs.add(tagFreq);
+				
+			}
+			
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		disconnect();
+		return tagFreqs;
+	}
 
-	public void searchAttachments(Collection<Integer> incInts,
+	/*public void searchAttachments(Collection<Integer> incInts,
 								  Collection<Integer> excInts) {
 
 		Iterator<Integer> incIt = incInts.iterator();
@@ -539,7 +647,7 @@ public class DataAccessLevel {
 		string.setLength(0);
 
 		string.append("SELECT file_id FROM attachments WHERE (tag_id = '");
-	}
+	}*/ //TODO: I'm not sure that we need this method
 
 	public void dropTables() {
 		connect();
