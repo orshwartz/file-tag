@@ -78,14 +78,21 @@ public class DataAccessLevel {
 	public void loadTables(){
 
 		string = new StringBuilder();
+		ResultSet results = null;
+		DatabaseMetaData dbmd = null;
+			try {
+				dbmd = conn.getMetaData();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		
-		
+			
 			/* ------------- */
 		
 		try { // load three tables to database
 			
-			DatabaseMetaData dbmd = conn.getMetaData();
-			ResultSet results = dbmd.getTables(null, "ME", "TAGS", null);
+			results = dbmd.getTables(null, "ME", "TAGS", null);
 			// add TAGS table, if needed
 			if(!results.next())
 			{
@@ -178,14 +185,20 @@ public class DataAccessLevel {
 		
 		try{
 			
+			results = dbmd.getTables(null, "ME", "FREQ_DESC_TAGS", null);
 			
-			string.setLength(0);
-			string.append("CREATE VIEW freq_desc_tags (tag_id, tag_frequency) AS ");
-			string.append("SELECT tag_id, COUNT(tag_id) FROM attachments ");
-			string.append("GROUP BY tag_id ORDER BY COUNT(tag_id) DESC");
+			if(!results.next())
+			{
+				System.out.println("gomelitis\n");
 			
-			stmt = conn.prepareStatement(string.toString());
-			stmt.execute();
+				string.setLength(0);
+				string.append("CREATE VIEW freq_desc_tags (tag_id, tag_frequency) AS ");
+				string.append("SELECT tag_id, COUNT(tag_id) FROM attachments ");
+				string.append("GROUP BY tag_id ORDER BY COUNT(tag_id) DESC");
+			
+				stmt = conn.prepareStatement(string.toString());
+				stmt.execute();
+			}
 			
 		}catch (SQLException e){
 			// TODO Auto-generated catch block
