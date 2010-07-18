@@ -79,19 +79,19 @@ public class Main {
 		col5.add("bb");
 		col5.add("aa");
 		
-			try {
-				tagRep.tagFile("file1",col);
-				tagRep.tagFile("file2",col2);
-				tagRep.tagFile("file3",col3);
+			//try {
+				//tagRep.tagFile("file1",col);
+				//tagRep.tagFile("file2",col2);
+				//tagRep.tagFile("file3",col3);
 				
 		
-				tagRep.unTagFileAll("file2");
+				//tagRep.unTagFileAll("file2");
 			
 				
-			} catch (FileNotFoundException e) {
+			//} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+				//e.printStackTrace();
+			//}
 
 		//files = tagRep.searchByTag(col4, col5);
 			//tagRep.getTagListFreqOrdered();
