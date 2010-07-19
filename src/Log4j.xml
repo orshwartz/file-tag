@@ -12,7 +12,7 @@
 		<param name="File" value="fileTag.log" />
 		<param name="Append" value="true" />
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%d{dd/mm/yyyy HH:mm:ss} %m%n" />
+			<param name="ConversionPattern" value="%d{dd/MM/yyyy HH:mm:ss} %m%n" />
 		</layout>
 	</appender>
 	
