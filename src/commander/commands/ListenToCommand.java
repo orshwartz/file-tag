@@ -2,13 +2,7 @@ package commander.commands;
 
 import java.io.IOException;
 
-import javax.swing.JOptionPane;
-import javax.swing.plaf.OptionPaneUI;
-
-import org.eclipse.swt.widgets.MessageBox;
-
 import listener.ListenedDirectory;
-import commander.commands.TSCommand;
 
 public class ListenToCommand extends TSCommand {
 
