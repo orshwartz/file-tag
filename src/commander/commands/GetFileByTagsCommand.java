@@ -2,10 +2,6 @@ package commander.commands;
 
 import java.util.Collection;
 
-import tagger.TagRepository;
-
-import commander.commands.TSCommand;
-
 /**
  * @author Or Shwartz
  */
