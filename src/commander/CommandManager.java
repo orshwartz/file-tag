@@ -6,6 +6,12 @@ import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.xml.XmlBeanFactory;
+import org.springframework.core.io.ClassPathResource;
+
+import commander.commands.*;
+
 import listener.Listener;
 import log.Log;
 import tagger.TagRepository;
@@ -20,18 +26,21 @@ public class CommandManager implements Observer {
 	public enum CmdCodes {
 		LOG_WRITE_MESSAGE,
 		LOG_GET_MESSAGES,
-		GUI_TAG_NEW_FILE,
 		LSTNR_ACTIVATE,
 		LSTNR_DEACTIVATE,
 		LSTNR_LISTEN_TO,
-		LSTNR_STOP_LISTENING_TO
+		LSTNR_STOP_LISTENING_TO,
+		TAGGER_GET_FILES_BY_TAGS,
+		TAGGER_GET_TAGS_BY_FREQ,
+		TAGGER_TAG_FILE,
+		TOTAL_COMMAND_CODES
 	}
 	
 	private TagRepository tagRep = null;
 	private Log log = null;
 	private MainAppGUI gui = null;
 	private Listener listener = null;
-	private HashMap<CmdCodes, Command> commandMappings = null;
+	private HashMap<CmdCodes, TSCommand> commandMappings = null;
 	
 	/**
 	 * @param tagRep
@@ -46,43 +55,16 @@ public class CommandManager implements Observer {
 		
 		// TODO: Remove this stub message
 		System.out.println(this.getClass().getName() + " up.");
-		
+
 		// Set sub-system components
 		setListener(listener);
 		setLog(log);
 		setGui(gui);
 		setTagRepository(tagRep);
 		
+		// Setup commands for sub-systems
+		TSCommand.setCommandedSubsystems(log, listener, tagRep);
 		initCmdMappings();
-	}
-
-	/**
-	 * 
-	 */
-	private void initCmdMappings() {
-		System.out.println("initCmdMappings");
-		commandMappings = new HashMap<CmdCodes, Command>();
-		
-		// Add all the commands to the hashmap
-		commandMappings.put(CmdCodes.LOG_WRITE_MESSAGE,
-							new WriteMessageCommand());
-		commandMappings.put(CmdCodes.GUI_TAG_NEW_FILE,
-							new RequestTagCommand());
-		commandMappings.put(CmdCodes.LSTNR_ACTIVATE,
-							new ActivateListenerCommand());
-		commandMappings.put(CmdCodes.LSTNR_DEACTIVATE,
-							new DeactivateListenerCommand());
-		/* TODO: Add rest of the commands to the hashmap here...
-		 * 
-		 * 
-		 * 
-		 * 
-		 * 
-		 * 
-		 * 
-		 * 
-		 * 
-		 */
 	}
 
 	/**
@@ -95,7 +77,7 @@ public class CommandManager implements Observer {
 	public CommandManager(TagRepository tagRep,
 			  			  Listener listener,
 			  			  Log log) {
-
+	
 		// TODO: Remove this stub message
 		System.out.println(this.getClass().getName() + " up.");
 		
@@ -103,14 +85,67 @@ public class CommandManager implements Observer {
 		setListener(listener);
 		setLog(log);
 		setTagRepository(tagRep);
-
+	
+		// Setup commands for sub-systems
+		TSCommand.setCommandedSubsystems(log, listener, tagRep);
 		initCmdMappings();
 	}
-	
-	
-	public void runCommand(CmdCodes command){
-		commandMappings.get(command).execute();
 
+	/**
+	 * This method sets the mapping of command objects to enumerated codes.
+	 */
+	private void initCmdMappings() {
+		
+		commandMappings =
+			new HashMap<CmdCodes, TSCommand>(CmdCodes.TOTAL_COMMAND_CODES.ordinal());
+		
+		// Add all the commands to the hashmap
+		commandMappings.put(CmdCodes.LOG_WRITE_MESSAGE,
+							new WriteMessageCommand());
+		commandMappings.put(CmdCodes.LOG_GET_MESSAGES,
+							new GetMessagesCommand());
+		commandMappings.put(CmdCodes.LSTNR_ACTIVATE,
+							new ActivateListenerCommand());
+		commandMappings.put(CmdCodes.LSTNR_DEACTIVATE,
+							new DeactivateListenerCommand());
+		commandMappings.put(CmdCodes.LSTNR_LISTEN_TO,
+							new ListenToCommand());
+		commandMappings.put(CmdCodes.LSTNR_STOP_LISTENING_TO,
+							new StopListenToCommand());
+		commandMappings.put(CmdCodes.TAGGER_GET_FILES_BY_TAGS,
+							new GetFileByTagsCommand());
+		commandMappings.put(CmdCodes.TAGGER_GET_TAGS_BY_FREQ,
+							new GetTagsByFreqCommand());
+		commandMappings.put(CmdCodes.TAGGER_TAG_FILE,
+							new TagFileCommand());
+		/* TODO: Add rest of the commands to the hashmap here...
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 */
+		
+		// TODO: Remove this debug message
+		System.out.printf("DEBUG DEBUG DEBUG *** %d/%d (Mapped/Codes) *** DEBUG DEBUG DEBUG\n",
+						  commandMappings.size(),
+						  CmdCodes.TOTAL_COMMAND_CODES.ordinal());
+	}
+
+	/**
+	 * Receives <CODE>command</CODE> to execute and its <CODE>parameters</CODE>
+	 * and runs it. The result is returned.
+	 * @param command code to execute.
+	 * @param parameters for the command as an object array, for generality.
+	 * One should read the actual subsystem commands to know the signature.
+	 */
+	public Object runCommand(CmdCodes command, Object[] parameters){
+		
+		return commandMappings.get(command).execute(parameters);
 	}
 
 	/**
@@ -129,7 +164,7 @@ public class CommandManager implements Observer {
 	 * @param code of the requested command
 	 * @return
 	 */
-	public Command getCommand(CmdCodes code) {
+	public TSCommand getCommand(CmdCodes code) {
 		
 		// Return command object matching the code
 		return commandMappings.get(code);
@@ -139,6 +174,7 @@ public class CommandManager implements Observer {
 	 * @param tagRep The tag repository to set.
 	 */
 	public void setTagRepository(TagRepository tagRep) {
+
 		this.tagRep = tagRep;
 	}
 
@@ -146,6 +182,7 @@ public class CommandManager implements Observer {
 	 * @param log the log to set
 	 */
 	public void setLog(Log log) {
+	
 		this.log = log;
 	}
 
@@ -153,6 +190,7 @@ public class CommandManager implements Observer {
 	 * @param gui the gui to set
 	 */
 	public void setGui(MainAppGUI gui) {
+	
 		this.gui = gui;
 	}
 
@@ -160,6 +198,7 @@ public class CommandManager implements Observer {
 	 * @param listener the listener to set
 	 */
 	public void setListener(Listener listener) {
+	
 		this.listener = listener;
 	}
 }
