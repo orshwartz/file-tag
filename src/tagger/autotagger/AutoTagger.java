@@ -38,4 +38,10 @@ public interface AutoTagger {
 	 * @return Name of algorithm creator.
 	 */
 	String getAuthor();
+	
+	/**
+	 * Returns the name of the algorithm.
+	 * @return Algorithm name.
+	 */
+	String getName();
 }
