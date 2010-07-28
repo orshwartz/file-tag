@@ -6,15 +6,22 @@ import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.xml.XmlBeanFactory;
-import org.springframework.core.io.ClassPathResource;
-
-import commander.commands.*;
-
 import listener.Listener;
 import log.Log;
 import tagger.TagRepository;
+
+import commander.commands.ActivateListenerCommand;
+import commander.commands.DeactivateListenerCommand;
+import commander.commands.GetFileByTagsCommand;
+import commander.commands.GetMessagesCommand;
+import commander.commands.GetTagsByFreqCommand;
+import commander.commands.ListenToCommand;
+import commander.commands.StopListenToCommand;
+import commander.commands.TSCommand;
+import commander.commands.TagFileCommand;
+import commander.commands.WriteMessageCommand;
+
+import static commander.CommandManager.CmdCodes.*;
 
 /**
  * This class is responsible for holding system commands,
@@ -97,26 +104,26 @@ public class CommandManager implements Observer {
 	private void initCmdMappings() {
 		
 		commandMappings =
-			new HashMap<CmdCodes, TSCommand>(CmdCodes.TOTAL_COMMAND_CODES.ordinal());
+			new HashMap<CmdCodes, TSCommand>(TOTAL_COMMAND_CODES.ordinal());
 		
 		// Add all the commands to the hashmap
-		commandMappings.put(CmdCodes.LOG_WRITE_MESSAGE,
+		commandMappings.put(LOG_WRITE_MESSAGE,
 							new WriteMessageCommand());
-		commandMappings.put(CmdCodes.LOG_GET_MESSAGES,
+		commandMappings.put(LOG_GET_MESSAGES,
 							new GetMessagesCommand());
-		commandMappings.put(CmdCodes.LSTNR_ACTIVATE,
+		commandMappings.put(LSTNR_ACTIVATE,
 							new ActivateListenerCommand());
-		commandMappings.put(CmdCodes.LSTNR_DEACTIVATE,
+		commandMappings.put(LSTNR_DEACTIVATE,
 							new DeactivateListenerCommand());
-		commandMappings.put(CmdCodes.LSTNR_LISTEN_TO,
+		commandMappings.put(LSTNR_LISTEN_TO,
 							new ListenToCommand());
-		commandMappings.put(CmdCodes.LSTNR_STOP_LISTENING_TO,
+		commandMappings.put(LSTNR_STOP_LISTENING_TO,
 							new StopListenToCommand());
-		commandMappings.put(CmdCodes.TAGGER_GET_FILES_BY_TAGS,
+		commandMappings.put(TAGGER_GET_FILES_BY_TAGS,
 							new GetFileByTagsCommand());
-		commandMappings.put(CmdCodes.TAGGER_GET_TAGS_BY_FREQ,
+		commandMappings.put(TAGGER_GET_TAGS_BY_FREQ,
 							new GetTagsByFreqCommand());
-		commandMappings.put(CmdCodes.TAGGER_TAG_FILE,
+		commandMappings.put(TAGGER_TAG_FILE,
 							new TagFileCommand());
 		/* TODO: Add rest of the commands to the hashmap here...
 		 * 
@@ -133,7 +140,7 @@ public class CommandManager implements Observer {
 		// TODO: Remove this debug message
 		System.out.printf("DEBUG DEBUG DEBUG *** %d/%d (Mapped/Codes) *** DEBUG DEBUG DEBUG\n",
 						  commandMappings.size(),
-						  CmdCodes.TOTAL_COMMAND_CODES.ordinal());
+						  TOTAL_COMMAND_CODES.ordinal());
 	}
 
 	/**
