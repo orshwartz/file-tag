@@ -6,35 +6,33 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-final class ClassDumpLoader extends ClassLoader {
+/**
+ * Loads a class from its file, without regard to directory/package
+ * correlation. The class file is read and loaded.
+ * @author Or Shwartz
+ */
+public class ClassDumpLoader extends ClassLoader {
 	
-	private final File classPath;
-
 	/**
-	 * Constructor for <CODE>ClassDumpLoader</CODE>.
-	 * @param classPath - path to search classes loaded classes.
+	 * <CODE>ClassDumpLoader</CODE> constructor.
 	 */
-	public ClassDumpLoader(String classPath) {
-
-		// Save class path object
-		this.classPath = new File(classPath);
+	public ClassDumpLoader() {
 	}
 
 	/**
-	 * Loads a class from its file TODO: Doc this.
+	 * Loads a class from its file, without regard to directory/package correlation.
 	 * @see java.lang.ClassLoader#findClass(java.lang.String)
 	 */
 	@Override
-	protected Class<?> findClass(String name) throws ClassNotFoundException {
+	protected Class<?> findClass(String filename) throws ClassNotFoundException {
 		
-		File classFile = // TODO: Check how to locate the class well (Maybe settle for file path, and then maybe remove the constructor)
-			new File(classPath + "/" + name.replace('.', '/') + ".class");
+		File classFile = new File(filename);
 		
 		// If class file doesn't exist
 		if (!classFile.exists()) {
 			
 			// Throw class not found exception
-			throw new ClassNotFoundException(name);
+			throw new ClassNotFoundException(filename);
 		}
 		
 		try {
@@ -53,14 +51,13 @@ final class ClassDumpLoader extends ClassLoader {
 				length = inStream.read(array);
 			}
 			
-			// Didn't work because name was somewhat inconsistent with location... or something
-			// like that. Instead... I pass null as the name and it doesn't care! Woohoo!
-//			return defineClass(name, outStream.toByteArray(), 0, outStream.size());
+			// Create the class from its binary, without regard to its name or package
 			return defineClass(null, outStream.toByteArray(), 0, outStream.size());
 			
 		} catch (IOException exception) {
 			
-			throw new ClassNotFoundException(name, exception);
+			throw new ClassNotFoundException("Error reading file: " + filename,
+											 exception);
 		}
 	}
 	
@@ -69,16 +66,14 @@ final class ClassDumpLoader extends ClassLoader {
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		
-		ClassDumpLoader cdl = new ClassDumpLoader("c:/TEMP");
+		ClassDumpLoader cdl = new ClassDumpLoader();
 		
 		try {
 			Class<AutoTagger> autoTaggerClass =
-				(Class<AutoTagger>) cdl.loadClass("TaggerBySize");
+				(Class<AutoTagger>) cdl.loadClass("c:/temp/TaggerBySize.class");
 			
 			AutoTagger autoTagger = autoTaggerClass.newInstance();
-			
-////////// It works!!! It doesn't care that it's c:\temp\TaggerBySize.class
-////////// even though it's the class is tagger.autotagger.TaggerBySize
+
 			System.out.println(autoTagger.getAuthor());
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
