@@ -15,10 +15,10 @@ import com.sun.org.apache.bcel.internal.classfile.JavaClass;
  * tagging algorithms.
  * @author Or Shwartz
  */
-public class AutoTaggerLoader extends ClassLoader {
+public class AutoTaggerLoader {
 
 	@SuppressWarnings("unchecked")
-	public static AutoTagger getAutoTagger(File autoTaggerFile) {
+	public static AutoTagger getAutoTagger(File autoTaggerFile) throws ClassNotFoundException {
 		
 		Class<AutoTagger> classAutoTagger = null;
 		AutoTagger autoTagger = null;
@@ -58,8 +58,25 @@ public class AutoTaggerLoader extends ClassLoader {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			// Class file might not be located according to its package
+			// name, so attempt reading its class file
+			ClassDumpLoader classDumpLoader = new ClassDumpLoader();
+			try {
+				classAutoTagger =
+					(Class<AutoTagger>)classDumpLoader.findClass(autoTaggerFile.getAbsolutePath());
+				
+				autoTagger = classAutoTagger.newInstance();
+			} catch (ClassNotFoundException e1) {
+				
+				throw e1;
+			} catch (InstantiationException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IllegalAccessException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		} catch (ClassFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
