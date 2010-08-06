@@ -15,7 +15,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.cloudgarden.resource.SWTResourceManager;
 import commander.CommandManager;
-import commander.CommandManager.CmdCodes;
+import static commander.CommandManager.CmdCodes.*;
 
 
 
@@ -90,13 +90,13 @@ public class ControlsWindow {
     			switch (e.type) {
     	          case SWT.Selection:
     	        	  if(listenerOnOff == false){
-    	        		  commander.runCommand(CmdCodes.LSTNR_ACTIVATE);
+    	        		  commander.runCommand(LSTNR_ACTIVATE, null);
     	        		  listenerOnOff = true;
     	        		  lstBtn.setText("Deactivate Listener");
     	        		  
     	        	  }
     	        	  else{
-    	        		  commander.runCommand(CmdCodes.LSTNR_DEACTIVATE);
+    	        		  commander.runCommand(LSTNR_DEACTIVATE, null);
     	        		  listenerOnOff = false;
     	        		  lstBtn.setText("Activate Listener");
     	        	  }
