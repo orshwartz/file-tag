@@ -1,8 +1,4 @@
-/**
- * 
- */
 package commander.commands;
-
 
 /**
  * This command writes a certain message to the log.
@@ -11,14 +7,13 @@ package commander.commands;
 public class WriteMessageCommand extends TSCommand {
 
 	/**
+	 * Receives a string and writes it to the log.
 	 * @see commander.commands.Command#execute(java.lang.Object[])
 	 */
 	@Override
 	public Object execute(Object[] params) {
 		
 		// Write a message to the log
-		//log.LogImpl.getInstance().writeMessage(params[0].toString());
-		
 		getLog().writeMessage((String)params[0]);
 		
 		return null;
