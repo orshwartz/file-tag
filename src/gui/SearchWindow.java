@@ -2,6 +2,7 @@ package gui;
 
 import static commander.CommandManager.CmdCodes.TAGGER_GET_FILES_BY_TAGS;
 import static commander.CommandManager.CmdCodes.TAGGER_GET_TAGS_BY_FREQ;
+import static commander.CommandManager.CmdCodes.TAGGER_GET_FREQ_OF_ONE_TAG;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,6 +44,9 @@ public class SearchWindow {
 	private List lstResults;
 	private Button btnExcludeTag;
 	private List lstIncludedTags;
+	
+	private Button btnReturnLeft;
+	private Button btnReturnRight;
 
 	private static Shell window;
 	public SearchWindow(CommandManager commander) {
@@ -102,6 +106,7 @@ public class SearchWindow {
 						
 						// Remove tag from available tags list
 						lstAvailableTags.remove(curTag);
+						
 					}
 				}
 			});
@@ -128,6 +133,7 @@ public class SearchWindow {
 						
 						// Remove tag from available tags list
 						lstAvailableTags.remove(curTag);
+						
 					}
 				}});
 		}
@@ -158,6 +164,65 @@ public class SearchWindow {
 				}
 			});
 		}
+		
+		{
+			btnReturnLeft = new Button(window, SWT.PUSH | SWT.CENTER);
+			btnReturnLeft.setText("Remove >>");
+			btnReturnLeft.setBounds(74, 243, 70, 30);
+			btnReturnLeft.addListener(SWT.Selection, new Listener() {
+
+				@Override
+				public void handleEvent(Event arg0) {
+					// TODO Auto-generated method stub
+					
+					String[] tag =
+						lstIncludedTags.getSelection();
+					
+					
+					if (tag.length > 0 ){	
+						// Add tag to included tags list
+						lstAvailableTags.add(commander.getCommand(TAGGER_GET_FREQ_OF_ONE_TAG).execute(tag)
+								.toString());
+						
+						// Remove tag from available tags list
+						lstIncludedTags.remove(tag[0]);
+					}
+					
+				}
+			
+			});
+		}
+		{
+			btnReturnRight = new Button(window, SWT.PUSH | SWT.CENTER);
+			btnReturnRight.setText("<< Remove");
+			btnReturnRight.setBounds(634, 243, 70, 30);
+			btnReturnRight.addListener(SWT.Selection, new Listener() {
+
+				@Override
+				public void handleEvent(Event arg0) {
+					// TODO Auto-generated method stub
+					
+					String[] tag =
+						lstExcludedTags.getSelection();
+					
+					
+					if(	tag.length > 0) {	
+						// Add tag to included tags list
+					lstAvailableTags.add(commander.getCommand(TAGGER_GET_FREQ_OF_ONE_TAG).execute(tag)
+							.toString());
+					
+						// Remove tag from available tags list
+						lstExcludedTags.remove(tag[0]);
+					}
+					
+				}
+			
+			});
+			
+			
+		}
+		
+		
 		{
 			lstResults = new List(window, SWT.NONE);
 			lstResults.setBounds(12, 282, 749, 182);

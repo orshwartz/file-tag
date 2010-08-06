@@ -22,8 +22,9 @@ public class Main {
 
 	/**
 	 * @param args
+	 * @throws FileNotFoundException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
 		// TODO Auto-generated method stub
 		
 		BeanFactory beanFactory =
@@ -63,6 +64,7 @@ public class Main {
 		col.add("shmip");
 		col.add("shmop");
 		
+		col2.add("kzomel");
 		col2.add("zz");
 		col2.add("dd");
 		col2.add("aa");
@@ -80,10 +82,11 @@ public class Main {
 		col5.add("aa");
 		
 			//try {
-				//tagRep.tagFile("file1",col);
-				//tagRep.tagFile("file2",col2);
-				//tagRep.tagFile("file3",col3);
+				tagRep.tagFile("file1",col);
+				tagRep.tagFile("file2",col2);
+				tagRep.tagFile("file3",col3);
 				
+				System.out.println(tagRep.getTagFreq("kzomel").toString());
 		
 				//tagRep.unTagFileAll("file2");
 			
