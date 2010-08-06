@@ -637,6 +637,33 @@ public class DataAccessLevel {
 		disconnect();
 		return tagFreqs;
 	}
+	
+	public TagFreq getTagFreq(String tag){
+		
+		connect();
+		
+		TagFreq tagFreq = null;
+		PreparedStatement stmt;
+		StringBuilder part = new StringBuilder();
+		string.setLength(0);
+		string.append("SELECT tag,tag_frequency FROM freq_desc_tags NATURAL JOIN tags ");
+		string.append("WHERE tag = '" + tag + "'");
+		
+		try {
+			stmt = conn.prepareStatement(string.toString());
+			ResultSet results = stmt.executeQuery();
+			
+			results.next();
+			
+				tagFreq = new TagFreq(results.getInt(2), results.getString(1)) ;		
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return tagFreq;
+	}
 
 	/*public void searchAttachments(Collection<Integer> incInts,
 								  Collection<Integer> excInts) {

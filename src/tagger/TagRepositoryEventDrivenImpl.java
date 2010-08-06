@@ -82,6 +82,12 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 
 		return DAL.getTagListFreqOrdered();
 	}
+	
+	public TagFreq getTagFreq(String tag){
+		
+		return DAL.getTagFreq(tag);
+		
+	}
 
 	/**
 	 * This method removes a tag from the repository.

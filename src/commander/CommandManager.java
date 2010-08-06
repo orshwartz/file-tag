@@ -13,6 +13,7 @@ import tagger.TagRepository;
 import commander.commands.ActivateListenerCommand;
 import commander.commands.DeactivateListenerCommand;
 import commander.commands.GetFileByTagsCommand;
+import commander.commands.GetFreqOfOneTagCommand;
 import commander.commands.GetMessagesCommand;
 import commander.commands.GetTagsByFreqCommand;
 import commander.commands.ListenToCommand;
@@ -40,6 +41,7 @@ public class CommandManager implements Observer {
 		TAGGER_GET_FILES_BY_TAGS,
 		TAGGER_GET_TAGS_BY_FREQ,
 		TAGGER_TAG_FILE,
+		TAGGER_GET_FREQ_OF_ONE_TAG,
 		TOTAL_COMMAND_CODES
 	}
 	
@@ -123,6 +125,9 @@ public class CommandManager implements Observer {
 							new GetFileByTagsCommand());
 		commandMappings.put(TAGGER_GET_TAGS_BY_FREQ,
 							new GetTagsByFreqCommand());
+		commandMappings.put(TAGGER_GET_FREQ_OF_ONE_TAG,
+				new GetFreqOfOneTagCommand());
+		
 		commandMappings.put(TAGGER_TAG_FILE,
 							new TagFileCommand());
 		/* TODO: Add rest of the commands to the hashmap here...
