@@ -3,14 +3,18 @@
  */
 package tagger;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Observable;
+import java.util.TreeSet;
 
 import listener.FileEvent;
-import listener.FileEvents;
+import tagger.autotagger.AutoTagger;
 
 /**
  * This class represents a tag repository - which is a repository associating
@@ -21,6 +25,7 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 
 	private DataAccessLevel DAL = null;
     private final static Locale dfltLocal = Locale.getDefault();
+    private Collection<AutoTagger> autoTaggers = new ArrayList<AutoTagger>();
 	
 	/**
 	 * <CODE>TagRepositoryEventDrivenImpl</CODE> constructor.
@@ -126,33 +131,80 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 		DAL.unTagFileAll(file);
 	}
 
+	/**
+	 * Update this Observer with file events. The argument received should be a <CODE>{@link FileEvent}</CODE> object.
+	 * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
+	 */
 	@Override
 	public void update(Observable o, Object arg) {
 		// TODO Auto-generated method stub
 		
-		FileEvent event;
-		event = (FileEvent)arg;
-		switch(event.getEvent()){
-			case CREATED :
-					break;
-			case DELETED :
-					DAL.removeFile(event.getFile().toString());
-					break;
-			case MODIFIED :
-					DAL.unTagFileAll(event.getFile().toString());
-					break;
+		FileEvent event = (FileEvent)arg;
+		Path file = ((FileEvent)arg).getFile();
+		
+		switch (event.getEvent()) {
+			case MODIFIED:
+
+				// Remove tags for file (and re-tag it using fall-thru to file creation event)
+				DAL.unTagFileAll(file.toString());
+
+			case CREATED:
+
+				Collection<String> fileTags = new TreeSet<String>(); // XXX: Consider a different data structure if tagging is slow
+
+				// For each tagging algorithm
+				for (AutoTagger curAutoTagger : autoTaggers) {
+					
+					try {
+						// Get tags for file
+						Collection<String> tagsForFile =
+							curAutoTagger.autoTag(new File(file.toString()));
+
+						// Perform safety check on returned result
+						if (tagsForFile != null) {
+						
+							// Add automatically generated tags of file to collection
+							fileTags.addAll(tagsForFile); // XXX: Consider using just a path or just a file, if tagging is slow
+						}
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				
+				// Tag the file with generated tags
+				DAL.tagFile(file.toString(), fileTags);
+				
+				break;
+			case DELETED:
+
+				// The file was deleted, so delete it
+				DAL.removeFile(file.toString());
+				
+				break;
 		}
 		
 	}
 	
+	/**
+	 * Sets the automatic tagging to use the given automatic taggers.
+	 * @param autoTaggers Automatic taggers to use.
+	 */
+	@Override
+	public void setAutoTaggers(Collection<AutoTagger> autoTaggers) {
+		
+		// Set automatic taggers to use
+		this.autoTaggers = autoTaggers;
+	}
+	
 	public void dropTables(){
 		DAL.dropTables();
-	}
-
+	}	
 	
-	
-	/* delete after we're done */
-	
+	/* delete after we're done */	
 	public void removeFile(String file){
 		//TODO : delete after we're done
 		DAL.removeFile(file);
