@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collection;
 
+import tagger.autotagger.AutoTagger;
+
 /**
  * This interface represents required methods from a Tag Repository,
  * enabling the tagging of files, removing tags, creating tags, getting
@@ -21,6 +23,8 @@ public interface TagRepository {
 	public Collection<String> searchByTag(Collection<String> includedTags,
 										Collection<String> excludedTags);
 	public Collection<TagFreq> getTagListFreqOrdered();
+	
+	void setAutoTaggers(Collection<AutoTagger> autoTaggers);
 	
 	public void dropTables();
 	
