@@ -37,7 +37,7 @@ public class LogImpl implements Log {
 	/**
 	 * Log constructor. Sets up required files for logging.
 	 */
-	private LogImpl() {
+	public LogImpl() {
 
 		// TODO: Remove this stub message
 		System.out.println(this.getClass().getName() + " up.");
@@ -46,25 +46,6 @@ public class LogImpl implements Log {
 		DOMConfigurator.configure("src\\Log4j.xml");
 		logger = Logger.getLogger("FileTagger");
 	}
-	
-	/**
-	 * LogHolder is loaded on the first execution of
-	 * LogImpl.getInstance() or the first access to LogHolder.INSTANCE,
-	 * not before.
-	 */
-	private static class LogHolder {
-		
-		private static final LogImpl INSTANCE = new LogImpl();
-	}
-
-	/**
-	 * @return an instance of this log.
-	 */
-	public static LogImpl getInstance() {
-
-		return LogHolder.INSTANCE;
-	}
-
 	
 	/**
 	 * @see log.Log#clearLog()
@@ -146,7 +127,6 @@ public class LogImpl implements Log {
 		
 		// Write the message to the main log file, using Log4J
 		logger.info(message);
-		
 	}
 
 }
