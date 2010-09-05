@@ -10,7 +10,6 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.LabelProviderChangedEvent;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Listener;
 
 /**
  * This class provides the labels for the file tree
@@ -24,9 +23,6 @@ class FileTreeLabelProvider implements ILabelProvider {
 	private Image file;
 
 	private Image folder;
-
-	// Label provider state: preserve case of file names/directories
-	boolean preserveCase;
 
 	/**
 	 * Constructs a FileTreeLabelProvider
@@ -52,8 +48,7 @@ class FileTreeLabelProvider implements ILabelProvider {
 	 * @param preserveCase
 	 *            the preserve case attribute
 	 */
-	public void setPreserveCase(boolean preserveCase) {
-		this.preserveCase = preserveCase;
+	public void setPreserveCase() {
 
 		// Since this attribute affects how the labels are computed,
 		// notify all the listeners of the change.
@@ -72,6 +67,7 @@ class FileTreeLabelProvider implements ILabelProvider {
 	 *            the node
 	 * @return Image
 	 */
+	@Override
 	public Image getImage(Object arg0) {
 		// If the node represents a directory, return the directory image.
 		// Otherwise, return the file image.
@@ -85,6 +81,7 @@ class FileTreeLabelProvider implements ILabelProvider {
 	 *            the node
 	 * @return String
 	 */
+	@Override
 	public String getText(Object arg0) {
 		// Get the name of the file
 		String text = ((File) arg0).getName();
@@ -95,7 +92,7 @@ class FileTreeLabelProvider implements ILabelProvider {
 		}
 
 		// Check the case settings before returning the text
-		return preserveCase ? text : text.toUpperCase();
+		return text;
 	}
 
 	/**
@@ -104,6 +101,7 @@ class FileTreeLabelProvider implements ILabelProvider {
 	 * @param arg0
 	 *            the listener
 	 */
+	@Override
 	public void addListener(ILabelProviderListener arg0) {
 		listeners.add(arg0);
 	}
@@ -111,6 +109,7 @@ class FileTreeLabelProvider implements ILabelProvider {
 	/**
 	 * Called when this LabelProvider is being disposed
 	 */
+	@Override
 	public void dispose() {
 		// Dispose the images
 		if (folder != null)
@@ -129,6 +128,7 @@ class FileTreeLabelProvider implements ILabelProvider {
 	 *            the property
 	 * @return boolean
 	 */
+	@Override
 	public boolean isLabelProperty(Object arg0, String arg1) {
 		return false;
 	}
@@ -139,6 +139,7 @@ class FileTreeLabelProvider implements ILabelProvider {
 	 * @param arg0
 	 *            the listener to remove
 	 */
+	@Override
 	public void removeListener(ILabelProviderListener arg0) {
 		listeners.remove(arg0);
 	}
