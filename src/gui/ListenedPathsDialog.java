@@ -1,8 +1,17 @@
 package gui;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+
+import listener.ListenedDirectory;
+
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.ICheckStateListener;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -15,6 +24,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+
+import com.cloudgarden.resource.SWTResourceManager;
 
 
 /**
@@ -41,7 +52,10 @@ public class ListenedPathsDialog extends Dialog {
 	private List lstRegularExpressions;
 	private CheckboxTreeViewer checkboxTreeViewer;
 	private Label lblRegularExpressions;
-	private String[] checkedPaths;
+	
+	private String[] checkedPaths = null;
+	
+	HashMap<File, ListenedDirectory> listenedDirs = null;
 
 	/**
 	* Auto-generated main method to display this 
@@ -52,7 +66,21 @@ public class ListenedPathsDialog extends Dialog {
 			Display display = Display.getDefault();
 			Shell shell = new Shell(display);
 			ListenedPathsDialog inst = new ListenedPathsDialog(shell, SWT.NONE);
-			String[] checkedPaths = inst.open();
+			
+			HashMap<File, ListenedDirectory> listenedDirs = new HashMap<File, ListenedDirectory>();
+			Collection<String> regexes = new ArrayList<String>();
+			regexes.add(".*\\.txt");
+			regexes.add(".*\\.mp3");
+			regexes.add(".*\\.pdf");
+			regexes.add(".*\\.doc");
+			File dir = new File("C:\\TEMP");
+			listenedDirs.put(dir, new ListenedDirectory(dir, regexes));
+			dir = new File("C:\\Vered&Or"); 
+			listenedDirs.put(dir, new ListenedDirectory(dir, regexes));
+			dir = new File("D:/DELL");
+			listenedDirs.put(dir, new ListenedDirectory(dir, regexes));
+
+			String[] checkedPaths = inst.open(listenedDirs);
 			if (checkedPaths != null) {
 				for (String string : checkedPaths) {
 					System.out.println(string);
@@ -101,7 +129,7 @@ public class ListenedPathsDialog extends Dialog {
 		this.checkedPaths = checkedPaths;
 	}
 	
-	public String[] open() {
+	public String[] open(final HashMap<File, ListenedDirectory> realListenedDirs) {
 		try {
 			Shell parent = getParent();
 			dialogShell = new Shell(parent, SWT.DIALOG_TRIM |
@@ -109,6 +137,20 @@ public class ListenedPathsDialog extends Dialog {
 											SWT.RESIZE |
 											SWT.MAX);
 
+			{
+				//Register as a resource user - SWTResourceManager will
+				//handle the obtaining and disposing of resources
+				SWTResourceManager.registerResourceUser(dialogShell);
+			}
+
+			// Duplicate the hashmap
+			listenedDirs =
+				new HashMap<File, ListenedDirectory>(realListenedDirs.keySet().size());		
+			for (ListenedDirectory curListenedDir : realListenedDirs.values()) {
+				
+				listenedDirs.put(curListenedDir.getDirectory(), curListenedDir);
+			}
+			
 			GridLayout dialogShellLayout = new GridLayout();
 			dialogShellLayout.numColumns = 3;
 			dialogShell.setLayout(dialogShellLayout);
@@ -124,7 +166,7 @@ public class ListenedPathsDialog extends Dialog {
 				GridData lblRegularExpressionsLData = new GridData();
 				lblRegularExpressionsLData.horizontalSpan = 2;
 				lblRegularExpressions.setLayoutData(lblRegularExpressionsLData);
-				lblRegularExpressions.setText("Regular expressions");
+				lblRegularExpressions.setText("File filters");
 			}
 //			{
 //				GridData treePathsLData = new GridData();
@@ -149,20 +191,64 @@ public class ListenedPathsDialog extends Dialog {
 				checkboxTreeViewer.addCheckStateListener(new ICheckStateListener() {
 					@Override
 					public void checkStateChanged(CheckStateChangedEvent event) {
+
+// TODO: Reconsider using this implementation
+//						// If the item is checked...
+//						if (event.getChecked()) {
+//							// ...check all its children
+//							checkboxTreeViewer.setSubtreeChecked(event.getElement(), true);
+//						}
+//						// Else, item is unchecked so...
+//						else {
+//							// ...uncheck all its children
+//							checkboxTreeViewer.setSubtreeChecked(event.getElement(), false);					
+//						}
+
 						// If the item is checked...
 						if (event.getChecked()) {
-							// ...check all its children
-							checkboxTreeViewer.setSubtreeChecked(event.getElement(), true);
+
 						}
 						// Else, item is unchecked so...
 						else {
-							// ...uncheck all its children
-							checkboxTreeViewer.setSubtreeChecked(event.getElement(), false);					
+					
 						}
 						
 						setCheckedPaths(convertObjArrayToStrArray(checkboxTreeViewer.getCheckedElements()));
 					}
 				});
+				checkboxTreeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+
+					@Override
+					public void selectionChanged(SelectionChangedEvent arg0) {
+						
+						String selection = arg0.getSelection().toString();
+						String selectedDir = selection.substring(1,selection.length()-1);  
+						ListenedDirectory listenedDir = listenedDirs.get(new File(selectedDir));
+						
+						lstRegularExpressions.removeAll();
+						
+						// If selected directory is listened to
+						if (listenedDir != null) {
+							
+							// For each regular expression of listened directory
+							for (String curRegex : listenedDir.getRegularExpressions()) {
+								
+								// Add the regular expression the the displayed list
+								lstRegularExpressions.add(curRegex);
+							}
+						}
+					}
+				});
+				
+				// For each listened directory
+				Collection<ListenedDirectory> listenedDirsValues = listenedDirs.values();
+				for (ListenedDirectory listenedDirectory : listenedDirsValues) {
+					
+					// Mark directory as listened in the tree
+					checkboxTreeViewer.setChecked(
+							listenedDirectory.getDirectory(),
+							true);
+				}
 			}
 			{
 				GridData lstRegularExpressionsLData = new GridData();
@@ -170,7 +256,7 @@ public class ListenedPathsDialog extends Dialog {
 				lstRegularExpressionsLData.horizontalAlignment = GridData.FILL;
 				lstRegularExpressionsLData.grabExcessVerticalSpace = true;
 				lstRegularExpressionsLData.grabExcessHorizontalSpace = true;
-				lstRegularExpressions = new List(dialogShell, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+				lstRegularExpressions = new List(dialogShell, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.MULTI);
 				lstRegularExpressions.setLayoutData(lstRegularExpressionsLData);
 				lstRegularExpressions.addListener(SWT.Selection, new Listener() {
 
@@ -194,12 +280,23 @@ public class ListenedPathsDialog extends Dialog {
 				cmpstRemoveAddRegex.setLayout(cmpstRemoveAddRegexLayout);
 				{
 					btnRemoveRegex = new Button(cmpstRemoveAddRegex, SWT.PUSH | SWT.CENTER);
-					GridData btnRemoveLData = new GridData();
-					btnRemoveLData.horizontalAlignment = GridData.FILL;
-					btnRemoveRegex.setLayoutData(btnRemoveLData);
+					GridData btnRemoveRegexLData = new GridData();
+					btnRemoveRegexLData.horizontalAlignment = GridData.FILL;
+					btnRemoveRegex.setLayoutData(btnRemoveRegexLData);
 					btnRemoveRegex.setText("-");
 					btnRemoveRegex.setToolTipText("Remove selected regular expressions.");
 					btnRemoveRegex.setEnabled(false);
+					btnRemoveRegex.addListener(SWT.Selection, new Listener() {
+
+						@Override
+						public void handleEvent(Event arg0) {
+
+							// Remove selected regular expressions and disable the
+							// button (because nothing will be selected)
+							lstRegularExpressions.remove(lstRegularExpressions.getSelectionIndices());
+							btnRemoveRegex.setEnabled(false);
+						}
+					});
 				}
 				{
 					btnAddRegex = new Button(cmpstRemoveAddRegex, SWT.PUSH | SWT.CENTER);
@@ -207,6 +304,17 @@ public class ListenedPathsDialog extends Dialog {
 					btnAddRegex.setLayoutData(btnAddRegexLData);
 					btnAddRegex.setText("+");
 					btnAddRegex.setToolTipText("Add a new regular expression.");
+					btnAddRegex.addListener(SWT.Selection, new Listener() {
+
+						@Override
+						public void handleEvent(Event arg0) {
+							
+							RegexInputDialog regexInputDialog =
+								new RegexInputDialog(dialogShell, SWT.NONE);
+							String newRegex = regexInputDialog.open();
+							System.out.println(newRegex);
+						}
+					});
 				}
 			}
 			{
@@ -215,6 +323,14 @@ public class ListenedPathsDialog extends Dialog {
 				btnOKLData.horizontalAlignment = GridData.END;
 				btnOK.setLayoutData(btnOKLData);
 				btnOK.setText("OK");
+				btnOK.addListener(SWT.Selection, new Listener() {
+
+					@Override
+					public void handleEvent(Event arg0) {
+						
+						// TODO: Apply changes...
+					}
+				});
 			}
 			{
 				btnCancel = new Button(dialogShell, SWT.PUSH | SWT.CENTER);
@@ -222,13 +338,21 @@ public class ListenedPathsDialog extends Dialog {
 				btnCancelLData.horizontalSpan = 2;
 				btnCancel.setLayoutData(btnCancelLData);
 				btnCancel.setText("Cancel");
+				btnCancel.addListener(SWT.Selection, new Listener() {
+
+					@Override
+					public void handleEvent(Event arg0) {
+						
+						// TODO: Discard changes...
+					}
+				});
 			}
 			dialogShell.layout();
 			dialogShell.pack();			
 			dialogShell.setSize(500, 500);
-			dialogShell.setMinimumSize(250, 200);
-
+			dialogShell.setMinimumSize(250, 250);
 			dialogShell.open();
+			
 			Display display = dialogShell.getDisplay();
 			while (!dialogShell.isDisposed()) {
 				if (!display.readAndDispatch())

@@ -50,7 +50,6 @@ public class CheckFileTree extends FileTree {
 		// Preserve letter casing for contents
 		FileTreeLabelProvider ftlp =
 			(FileTreeLabelProvider)tv.getLabelProvider();
-		ftlp.setPreserveCase(true);
 
 		// When user checks a checkbox in the tree, check all its children
 		// and vice versa
@@ -84,6 +83,9 @@ public class CheckFileTree extends FileTree {
 	 */
 	public static void main(String[] args) {
 		
-		new CheckFileTree().run();
+		CheckFileTree cft = new CheckFileTree();
+		cft.run();
+		System.out.println(cft.getChosenPaths());
+		cft.dispose();
 	}
 }
