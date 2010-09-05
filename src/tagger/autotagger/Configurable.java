@@ -6,5 +6,5 @@ package tagger.autotagger;
  */
 public interface Configurable {
 
-	void showConfigurationGUI();
+	void showConfigurationGUI(); // TODO: Consider "throws Exception"
 }
