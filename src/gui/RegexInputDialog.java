@@ -146,6 +146,20 @@ public class RegexInputDialog extends org.eclipse.swt.widgets.Dialog {
 						btnOK.setEnabled(isRegexValid);
 					}
 				});
+				txtRegex.addListener(SWT.KeyUp, new Listener() {
+
+					@Override
+					public void handleEvent(Event arg0) {
+						
+						// If "enter" key hit and expression can be submitted
+						if ((arg0.keyCode == SWT.CR || arg0.keyCode == SWT.KEYPAD_CR) &&
+							btnOK.isEnabled()) {
+							
+							// Fake a click on the "OK" button
+							btnOK.getListeners(SWT.Selection)[0].handleEvent(arg0);
+						}
+					}
+				});
 			}
 			{
 				GridData lblRegexValidityStatusLData = new GridData();
