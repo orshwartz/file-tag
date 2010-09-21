@@ -4,11 +4,14 @@
 package gui;
 
 
+import java.io.File;
+import java.util.HashMap;
+
+import listener.ListenedDirectory;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowData;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -18,6 +21,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.cloudgarden.resource.SWTResourceManager;
 import commander.CommandManager;
+import commander.CommandManager.CmdCodes;
 
 
 /**
@@ -43,13 +47,13 @@ public class MainAppGUI {
 	static Display display = null;
 	private Button btnOptionsAndSettings;
 	private Button btnSearch;
+	private Button btnControl;
 	private Label lblControlAndMonitor;
 	private Label lblOptionsAndSettings;
 	private Label lblSearch;
-	private Button btnControl;
+
 	
 	private static ControlsWindow controlsWindow = null;
-	private static OptionsWindow optionsWindow = null;
 	private static SearchWindow searchWindow = null;
 	
 	/**
@@ -59,14 +63,14 @@ public class MainAppGUI {
 
 		// TODO Auto-generated constructor stub
 		
-		this.commander = commander;
+		MainAppGUI.commander = commander;
+		
+		createSShell();
 		
 		controlsWindow = new ControlsWindow(commander);
-		optionsWindow = new OptionsWindow(commander);
 		searchWindow = new SearchWindow(commander);
 		
 		System.out.println(this.getClass().getName() + " up.");
-		createSShell();
 	}
 
 	public void displayGUI() {
@@ -97,7 +101,15 @@ public class MainAppGUI {
 			//handle the obtaining and disposing of resources
 			SWTResourceManager.registerResourceUser(sShell);
 		}
-		
+		sShell.addListener(SWT.Close, new Listener() {
+
+			@Override
+			public void handleEvent(Event arg0) {
+				
+				// Dispose of the window
+				sShell.dispose();
+			}
+		});
 		sShell.setText("Tig-Tag-Toe");
 		GridLayout sShellLayout = new GridLayout();
 		sShellLayout.makeColumnsEqualWidth = true;
@@ -111,6 +123,37 @@ public class MainAppGUI {
 			btnOptionsAndSettings.setLayoutData(btnOptionsAndSettingsLData);
 			btnOptionsAndSettings.setText("Options and Settings");
 			btnOptionsAndSettings.setImage(SWTResourceManager.getImage("gui/res/preferences_system.png"));
+			btnOptionsAndSettings.addListener(SWT.Selection, new Listener() {
+
+				@SuppressWarnings("unchecked")
+				@Override
+				public void handleEvent(Event arg0) {
+					
+					ListenedPathsDialog listenedPathsDialog = new ListenedPathsDialog(sShell, SWT.None);
+					ListenedPathsDelta pathsDelta =
+						listenedPathsDialog.open(
+							(HashMap<File, ListenedDirectory>) commander.getCommand(
+									CmdCodes.LSTNR_GET_LISTENED_DIRS).execute(null));
+					
+					// Listen to newly added directories
+					for (ListenedDirectory curListenedDir : pathsDelta.getAddedListenedDirectories()) {
+						Object[] params = new Object[] {curListenedDir};
+						commander.getCommand(CmdCodes.LSTNR_LISTEN_TO).execute(params);
+					}
+					
+					// Stop listening to removed directories
+					for (File curFile : pathsDelta.getRemovedListenedDirectories()) {
+						Object[] params = new Object[] {curFile};
+						commander.getCommand(CmdCodes.LSTNR_STOP_LISTENING_TO).execute(params);
+					}
+					
+					// Update regular expressions for directories
+					for (ListenedDirectory curListenedDir : pathsDelta.getModifiedListenedDirectories()) {
+						Object[] params = new Object[] {curListenedDir};
+						commander.getCommand(CmdCodes.LSTNR_LISTEN_TO).execute(params);
+					}
+				}
+			});
 		}
 		{
 			lblOptionsAndSettings = new Label(sShell, SWT.NONE);
@@ -154,41 +197,24 @@ public class MainAppGUI {
 		/* -------- Listen to buttons ---------------*/
 		
 		
-		btnControl.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event e) {
-				switch (e.type) {
-		          case SWT.Selection:
-		        	  
-		        	  controlsWindow.makeWindow();
-		        	  controlsWindow.open();
-				}	
-			   }
-		});
-		
-		btnOptionsAndSettings.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event e) {
-				switch (e.type) {
-		          case SWT.Selection:
-		        	  
-		        	  optionsWindow.makeWindow();
-		        	  optionsWindow.open();
-				}	
-			   }
-		});
+//		btnControl.addListener(SWT.Selection, new Listener() {
+//			public void handleEvent(Event e) {
+//				switch (e.type) {
+//		          case SWT.Selection:
+//		        	  
+//		        	  controlsWindow.makeWindow();
+//		        	  controlsWindow.open();
+//				}	
+//			   }
+//		});
 		
 		btnSearch.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event e) {
-				switch (e.type) {
-		          case SWT.Selection:
-		        	  
-		        	  searchWindow.makeWindow();
-		        	  searchWindow.open();
-				}	
-			   }
+
+				searchWindow.open();
+			}
 		});
-		
-		
-		
+				
 		sShell.pack();
 	}
 }
