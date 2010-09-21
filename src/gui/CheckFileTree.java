@@ -47,10 +47,6 @@ public class CheckFileTree extends FileTree {
 		tv.setLabelProvider(new FileTreeLabelProvider());
 		tv.setInput("root"); // pass a non-null that will be ignored
 
-		// Preserve letter casing for contents
-		FileTreeLabelProvider ftlp =
-			(FileTreeLabelProvider)tv.getLabelProvider();
-
 		// When user checks a checkbox in the tree, check all its children
 		// and vice versa
 		tv.addCheckStateListener(new ICheckStateListener() {
