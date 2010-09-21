@@ -2,6 +2,7 @@ package listener;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Observable;
 
 /**
@@ -41,6 +42,14 @@ public abstract class Listener extends Observable {
 	 */
 	public abstract void stopListeningTo(File dir);
 
+	/**
+	 * Gets a copy of the listened directories and the regular
+	 * expression filters for the files in these directories.
+	 * 
+	 * @return the listenedPaths
+	 */
+	public abstract Map<File, ListenedDirectory> getListenedPaths();
+	
 	/**
 	 * Performs listener finalization actions. Should be called when
 	 * the listener is no longer needed.
