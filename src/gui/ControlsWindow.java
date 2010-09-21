@@ -1,5 +1,7 @@
 package gui;
 
+import static commander.CommandManager.CmdCodes.LSTNR_ACTIVATE;
+import static commander.CommandManager.CmdCodes.LSTNR_DEACTIVATE;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -7,17 +9,12 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 import com.cloudgarden.resource.SWTResourceManager;
 import commander.CommandManager;
-import static commander.CommandManager.CmdCodes.*;
-
-
 
 /**
  * 
