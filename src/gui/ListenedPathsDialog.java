@@ -1,15 +1,20 @@
 package gui;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.nio.file.NotDirectoryException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import listener.ListenedDirectory;
 
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.ICheckStateListener;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
@@ -53,14 +58,13 @@ public class ListenedPathsDialog extends Dialog {
 	private CheckboxTreeViewer checkboxTreeViewer;
 	private Label lblRegularExpressions;
 	
-	private String[] checkedPaths = null;
-	
-	HashMap<File, ListenedDirectory> listenedDirs = null;
+	private ListenedPathsDelta pathsDelta = null;
 
 	/**
 	* Auto-generated main method to display this 
 	* org.eclipse.swt.widgets.Dialog inside a new Shell.
 	*/
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		try {
 			Display display = Display.getDefault();
@@ -68,7 +72,7 @@ public class ListenedPathsDialog extends Dialog {
 			ListenedPathsDialog inst = new ListenedPathsDialog(shell, SWT.NONE);
 			
 			HashMap<File, ListenedDirectory> listenedDirs = new HashMap<File, ListenedDirectory>();
-			Collection<String> regexes = new ArrayList<String>();
+			ArrayList<String> regexes = new ArrayList<String>();
 			regexes.add(".*\\.txt");
 			regexes.add(".*\\.mp3");
 			regexes.add(".*\\.pdf");
@@ -76,15 +80,24 @@ public class ListenedPathsDialog extends Dialog {
 			File dir = new File("C:\\TEMP");
 			listenedDirs.put(dir, new ListenedDirectory(dir, regexes));
 			dir = new File("C:\\Vered&Or"); 
-			listenedDirs.put(dir, new ListenedDirectory(dir, regexes));
+			listenedDirs.put(dir, new ListenedDirectory(dir, (Collection<String>) regexes.clone()));
 			dir = new File("D:/DELL");
-			listenedDirs.put(dir, new ListenedDirectory(dir, regexes));
+			listenedDirs.put(dir, new ListenedDirectory(dir, (Collection<String>) regexes.clone()));
 
-			String[] checkedPaths = inst.open(listenedDirs);
-			if (checkedPaths != null) {
-				for (String string : checkedPaths) {
-					System.out.println(string);
-				}
+			ListenedPathsDelta pathsDelta = inst.open(listenedDirs);
+			
+			// TODO: Process changes to listened paths
+			System.out.println("\n***NEW***");
+			for (ListenedDirectory curListenedDir : pathsDelta.getAddedListenedDirectories()) {
+				System.out.println(curListenedDir.toString());
+			}
+			System.out.println("\n***REMOVED***");
+			for (File curFile : pathsDelta.getRemovedListenedDirectories()) {
+				System.out.println(curFile.toString());
+			}
+			System.out.println("\n***MODIFIED***");
+			for (ListenedDirectory curListenedDir : pathsDelta.getModifiedListenedDirectories()) {
+				System.out.println(curListenedDir.toString());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -95,6 +108,20 @@ public class ListenedPathsDialog extends Dialog {
 		super(parent, style);
 	}
 
+	/**
+	 * Converts a single selection of a file from the checkbox tree viewer
+	 * to a file object.
+	 * @param selection the <CODE>ISelection</CODE> object to convert.
+	 * @return The file object for the matching selection.
+	 */
+	private File convertISelectionToFile(ISelection selection) {
+		
+		String strSelection = selection.toString();
+		
+		return new File(strSelection.substring(1,
+											   strSelection.length()-1));
+	}
+	
 	/**
 	 * Converts an array of objects to array of strings, using
 	 * their toString method.
@@ -124,12 +151,46 @@ public class ListenedPathsDialog extends Dialog {
 	 * Saves the checked paths.
 	 * @param checkedPaths Checked paths to save.
 	 */
-	private void setCheckedPaths(String[] checkedPaths) {
+	private void setPathsDelta(ListenedPathsDelta checkedPaths) {
 		
-		this.checkedPaths = checkedPaths;
+		this.pathsDelta = checkedPaths;
 	}
 	
-	public String[] open(final HashMap<File, ListenedDirectory> realListenedDirs) {
+	/**
+	 * @param listenedDirsOriginal The current status of listened directories, which will
+	 * be displayed and also the returned delta will be calculated from.
+	 * @return an object containing the user entered data in the form of the
+	 * differences between what data was before and the new data.
+	 */
+	@SuppressWarnings("unchecked")
+	public ListenedPathsDelta open(final HashMap<File, ListenedDirectory> listenedDirsOriginal) {
+
+		final HashMap<File, ListenedDirectory> listenedDirsNew =
+			(HashMap<File, ListenedDirectory>) listenedDirsOriginal.clone();
+		
+		// Clone the collection of regular expressions since we're going to
+		// edit it and we don't want changes in the collection to be reflected
+		// in the original collection
+		Collection<ListenedDirectory> newListenedDirs =
+			listenedDirsNew.values();
+		for (ListenedDirectory curListenedDir : newListenedDirs) {
+
+			Collection<String> newRegexes =
+				new ArrayList<String>(curListenedDir.getRegularExpressions());
+			try {
+				ListenedDirectory clonedListenedDirectory =
+					new ListenedDirectory(curListenedDir.getDirectory(),
+										  newRegexes);
+				listenedDirsNew.put(curListenedDir.getDirectory(),
+									clonedListenedDirectory);
+			} catch (Exception e) {
+
+				// Ignore, not supposed to happen in this case but do display
+				// stack trace in case it does, somehow
+				e.printStackTrace();
+			}
+		}
+		
 		try {
 			Shell parent = getParent();
 			dialogShell = new Shell(parent, SWT.DIALOG_TRIM |
@@ -141,14 +202,6 @@ public class ListenedPathsDialog extends Dialog {
 				//Register as a resource user - SWTResourceManager will
 				//handle the obtaining and disposing of resources
 				SWTResourceManager.registerResourceUser(dialogShell);
-			}
-
-			// Duplicate the hashmap
-			listenedDirs =
-				new HashMap<File, ListenedDirectory>(realListenedDirs.keySet().size());		
-			for (ListenedDirectory curListenedDir : realListenedDirs.values()) {
-				
-				listenedDirs.put(curListenedDir.getDirectory(), curListenedDir);
 			}
 			
 			GridLayout dialogShellLayout = new GridLayout();
@@ -203,17 +256,78 @@ public class ListenedPathsDialog extends Dialog {
 //							// ...uncheck all its children
 //							checkboxTreeViewer.setSubtreeChecked(event.getElement(), false);					
 //						}
-
+						
 						// If the item is checked...
 						if (event.getChecked()) {
+							
+							// If item is already listened to
+							File checkedDir = (File) event.getElement();
+							if (listenedDirsOriginal.containsKey(checkedDir)) {
+								
+								// Use the original regular expressions
+								listenedDirsNew.put(checkedDir,
+													listenedDirsOriginal.get(checkedDir));
+							}
+							
+							// Else, item was not already listened to
+							else {
+								try {
+									// Set no filter, using an "everything" filter
+									Collection<String> regexes = new ArrayList<String>(5);
+									regexes.add(".*");
+									listenedDirsNew.put(checkedDir,
+														new ListenedDirectory(checkedDir,
+																			  regexes));
+								} catch (Exception e) {
+									
+									// Ignore it
+									return;
+									
+									// XXX: Maybe something better needs to be done?
+								}
+							}
 
+							// If checked element is also selected, update regex display
+							File selectedElement =
+								convertISelectionToFile(checkboxTreeViewer.getSelection());
+							if (event.getElement().equals(selectedElement)) {
+
+								// Clear the displayed regular expressions list
+								lstRegularExpressions.removeAll();
+								
+								// For each regular expression
+								Collection<String> curRegexes =
+									((ListenedDirectory)listenedDirsNew.get(checkedDir)).
+										getRegularExpressions();
+								for (String curRegex : curRegexes) {
+									
+									// Add regular expression to displayed list of
+									// regular expressions
+									lstRegularExpressions.add(curRegex);
+								}
+								
+								// Enable regex addition button
+								btnAddRegex.setEnabled(true);
+							}
 						}
 						// Else, item is unchecked so...
 						else {
-					
+							
+							// If unchecked element is also selected
+							File selectedElement =
+								convertISelectionToFile(checkboxTreeViewer.getSelection());
+							if (event.getElement().equals(selectedElement)) {
+								
+								// Clear the list of regular expressions
+								lstRegularExpressions.removeAll();
+								
+								// Remove directory from wanted listened directories
+								listenedDirsNew.remove(selectedElement);
+							}
+							
+							// Disable regex addition button
+							btnAddRegex.setEnabled(false);
 						}
-						
-						setCheckedPaths(convertObjArrayToStrArray(checkboxTreeViewer.getCheckedElements()));
 					}
 				});
 				checkboxTreeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -221,19 +335,26 @@ public class ListenedPathsDialog extends Dialog {
 					@Override
 					public void selectionChanged(SelectionChangedEvent arg0) {
 						
-						String selection = arg0.getSelection().toString();
-						String selectedDir = selection.substring(1,selection.length()-1);  
-						ListenedDirectory listenedDir = listenedDirs.get(new File(selectedDir));
+						File selectedDir = convertISelectionToFile(arg0.getSelection());  
+
+						// Check if directory is checked (if it is - it must be in the new dirs)
+						boolean dirIsChecked = listenedDirsNew.containsKey(selectedDir);
 						
+						// If directory is checked, enable addition of filters -
+						// otherwise, disable it
+						btnAddRegex.setEnabled(dirIsChecked);
+						
+						// Clear current list of regular expressions
 						lstRegularExpressions.removeAll();
 						
-						// If selected directory is listened to
-						if (listenedDir != null) {
+						// If directory is checked
+						if (dirIsChecked) {
 							
-							// For each regular expression of listened directory
-							for (String curRegex : listenedDir.getRegularExpressions()) {
-								
-								// Add the regular expression the the displayed list
+							// Display regexes of listened directory
+							Collection<String> regexes =
+								((ListenedDirectory)listenedDirsNew.get(selectedDir)).
+								getRegularExpressions();
+							for (String curRegex : regexes) {
 								lstRegularExpressions.add(curRegex);
 							}
 						}
@@ -241,7 +362,7 @@ public class ListenedPathsDialog extends Dialog {
 				});
 				
 				// For each listened directory
-				Collection<ListenedDirectory> listenedDirsValues = listenedDirs.values();
+				Collection<ListenedDirectory> listenedDirsValues = listenedDirsOriginal.values();
 				for (ListenedDirectory listenedDirectory : listenedDirsValues) {
 					
 					// Mark directory as listened in the tree
@@ -263,10 +384,11 @@ public class ListenedPathsDialog extends Dialog {
 					@Override
 					public void handleEvent(Event arg0) {
 						
+						// Enable removal button if anything is selected and it's not
+						// the "everything" filter
 						btnRemoveRegex.setEnabled(
-							lstRegularExpressions.getSelectionCount() == 0?
-								false :
-								true);
+							(lstRegularExpressions.getSelectionCount() != 0) &&
+							!lstRegularExpressions.getSelection()[0].equals(".*"));
 					}
 				});
 			}
@@ -291,9 +413,26 @@ public class ListenedPathsDialog extends Dialog {
 						@Override
 						public void handleEvent(Event arg0) {
 
-							// Remove selected regular expressions and disable the
-							// button (because nothing will be selected)
+							// Remove selected regular expressions from hash table
+							ListenedDirectory selectedListenedDir =
+								listenedDirsNew.get(convertISelectionToFile(checkboxTreeViewer.getSelection()));
+							Collection<String> regexesOfSelection = selectedListenedDir.getRegularExpressions();
+							for (int curSelIdx : lstRegularExpressions.getSelectionIndices()) {
+								regexesOfSelection.remove(lstRegularExpressions.getItem(curSelIdx));
+							}
+							
+							// Remove selected regular expressions from display
 							lstRegularExpressions.remove(lstRegularExpressions.getSelectionIndices());
+							
+							// If no regular expressions are left
+							if (lstRegularExpressions.getItemCount() == 0) {
+								
+								// Add the "everything" filter (display and hash map)
+								regexesOfSelection.add(".*");
+								lstRegularExpressions.add(".*");
+							}
+							
+							// Disable button (because nothing will be selected)
 							btnRemoveRegex.setEnabled(false);
 						}
 					});
@@ -309,10 +448,49 @@ public class ListenedPathsDialog extends Dialog {
 						@Override
 						public void handleEvent(Event arg0) {
 							
+							// Get a new regular expression file filter from the user
 							RegexInputDialog regexInputDialog =
 								new RegexInputDialog(dialogShell, SWT.NONE);
 							String newRegex = regexInputDialog.open();
-							System.out.println(newRegex);
+
+							// If regular expression was not entered
+							if (newRegex == null) {
+								
+								// Stop process
+								return;
+							}
+							
+							// Stop process if entered regular expression already exists on the list
+							for (String curRegex : lstRegularExpressions.getItems()) {
+								
+								if (curRegex.equals(newRegex)) {
+									
+									return;
+								}
+							}
+							
+							// Get selected directory
+							File selectedDir =
+								convertISelectionToFile(checkboxTreeViewer.getSelection());
+							
+							// If the only filter is the "everything" filter
+							Collection<String> newRegexes =
+								listenedDirsNew.get(selectedDir).getRegularExpressions();
+							if (lstRegularExpressions.getItemCount() == 1 &&
+								lstRegularExpressions.getItems()[0].equals(".*")) {
+								
+								// Remove filter from display
+								lstRegularExpressions.remove(0);
+								
+								// Remove filter from wanted listened directories hash map
+								newRegexes.remove(".*");
+							}
+
+							// Add new regular expression to displayed list
+							lstRegularExpressions.add(newRegex);
+							
+							// Add new regular expression to wanted listened directory filters
+							newRegexes.add(newRegex);
 						}
 					});
 				}
@@ -328,7 +506,50 @@ public class ListenedPathsDialog extends Dialog {
 					@Override
 					public void handleEvent(Event arg0) {
 						
-						// TODO: Apply changes...
+						// Calculate list of removed listened directories
+						Set<File> removedListenedDirs =
+							((HashMap<File, ListenedDirectory>)listenedDirsOriginal.clone()).keySet();
+						removedListenedDirs.removeAll(listenedDirsNew.keySet());
+						
+						// Calculate list of added listened directories
+						HashMap<File, ListenedDirectory> addedListenedDirs =
+							(HashMap<File, ListenedDirectory>) listenedDirsNew.clone();
+						addedListenedDirs.keySet().removeAll(listenedDirsOriginal.keySet());
+
+						// Calculate possibly modified listened directories (from intersection of original and new)
+						HashMap<File, ListenedDirectory> modifiedListenedDirs =
+							(HashMap<File, ListenedDirectory>) listenedDirsNew.clone();
+						modifiedListenedDirs.keySet().retainAll(listenedDirsOriginal.keySet());
+						
+						// Remove listened directories which have no change
+						Set<File> unchangedListenedDirs = new HashSet<File>();
+						for (ListenedDirectory curListenedDir : modifiedListenedDirs.values()) {
+							
+							// Get original regular expression filters for directory
+							File curDir = curListenedDir.getDirectory();
+							Collection<String> origRegexes =
+								listenedDirsOriginal.get(curDir).getRegularExpressions();
+							Collection<String> newRegexes =
+								curListenedDir.getRegularExpressions();
+
+							// If original and new regular expressions are equal sets
+							if (origRegexes.containsAll(newRegexes) &&
+								newRegexes.containsAll(origRegexes)) {
+								
+								// Add directory to set of unchanged directories
+								unchangedListenedDirs.add(curListenedDir.getDirectory());
+							}
+						}
+						modifiedListenedDirs.keySet().removeAll(unchangedListenedDirs);
+						
+						// Return changes to listened paths
+						pathsDelta = new ListenedPathsDelta(addedListenedDirs.values(),
+															removedListenedDirs,
+															modifiedListenedDirs.values());
+						setPathsDelta(pathsDelta);
+						
+						// Close dialog
+						dialogShell.close();
 					}
 				});
 			}
@@ -343,7 +564,14 @@ public class ListenedPathsDialog extends Dialog {
 					@Override
 					public void handleEvent(Event arg0) {
 						
-						// TODO: Discard changes...
+						// Return no changes
+						pathsDelta =
+							new ListenedPathsDelta(new ArrayList<ListenedDirectory>(0),
+												   new ArrayList<File>(0),
+												   new ArrayList<ListenedDirectory>(0));
+						
+						// Close dialog
+						dialogShell.close();
 					}
 				});
 			}
@@ -362,7 +590,6 @@ public class ListenedPathsDialog extends Dialog {
 			e.printStackTrace();
 		}
 		
-		return checkedPaths;
+		return pathsDelta;
 	}
-	
 }
