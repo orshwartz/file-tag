@@ -13,6 +13,7 @@ import tagger.TagRepository;
 import commander.commands.ActivateListenerCommand;
 import commander.commands.DeactivateListenerCommand;
 import commander.commands.GetFileByTagsCommand;
+import commander.commands.GetListenedDirsCommand;
 import commander.commands.GetMessagesCommand;
 import commander.commands.GetTagsByFreqCommand;
 import commander.commands.ListenToCommand;
@@ -30,6 +31,11 @@ import static commander.CommandManager.CmdCodes.*;
  */
 public class CommandManager implements Observer {
 	
+	/**
+	 * Codes for tagging system commands - used as keys to get concrete
+	 * command objects through the <CODE>getCommand</CODE> method.
+	 * @author Or Shwartz
+	 */
 	public enum CmdCodes {
 		LOG_WRITE_MESSAGE,
 		LOG_GET_MESSAGES,
@@ -37,6 +43,7 @@ public class CommandManager implements Observer {
 		LSTNR_DEACTIVATE,
 		LSTNR_LISTEN_TO,
 		LSTNR_STOP_LISTENING_TO,
+		LSTNR_GET_LISTENED_DIRS,
 		TAGGER_GET_FILES_BY_TAGS,
 		TAGGER_GET_TAGS_BY_FREQ,
 		TAGGER_TAG_FILE,
@@ -107,24 +114,16 @@ public class CommandManager implements Observer {
 			new HashMap<CmdCodes, TSCommand>(TOTAL_COMMAND_CODES.ordinal());
 		
 		// Add all the commands to the hashmap
-		commandMappings.put(LOG_WRITE_MESSAGE,
-							new WriteMessageCommand());
-		commandMappings.put(LOG_GET_MESSAGES,
-							new GetMessagesCommand());
-		commandMappings.put(LSTNR_ACTIVATE,
-							new ActivateListenerCommand());
-		commandMappings.put(LSTNR_DEACTIVATE,
-							new DeactivateListenerCommand());
-		commandMappings.put(LSTNR_LISTEN_TO,
-							new ListenToCommand());
-		commandMappings.put(LSTNR_STOP_LISTENING_TO,
-							new StopListenToCommand());
-		commandMappings.put(TAGGER_GET_FILES_BY_TAGS,
-							new GetFileByTagsCommand());
-		commandMappings.put(TAGGER_GET_TAGS_BY_FREQ,
-							new GetTagsByFreqCommand());
-		commandMappings.put(TAGGER_TAG_FILE,
-							new TagFileCommand());
+		commandMappings.put(LOG_WRITE_MESSAGE, new WriteMessageCommand());
+		commandMappings.put(LOG_GET_MESSAGES, new GetMessagesCommand());
+		commandMappings.put(LSTNR_ACTIVATE, new ActivateListenerCommand());
+		commandMappings.put(LSTNR_DEACTIVATE, new DeactivateListenerCommand());
+		commandMappings.put(LSTNR_LISTEN_TO, new ListenToCommand());
+		commandMappings.put(LSTNR_STOP_LISTENING_TO, new StopListenToCommand());
+		commandMappings.put(LSTNR_GET_LISTENED_DIRS, new GetListenedDirsCommand());
+		commandMappings.put(TAGGER_GET_FILES_BY_TAGS, new GetFileByTagsCommand());
+		commandMappings.put(TAGGER_GET_TAGS_BY_FREQ, new GetTagsByFreqCommand());
+		commandMappings.put(TAGGER_TAG_FILE, new TagFileCommand());
 		/* TODO: Add rest of the commands to the hashmap here...
 		 * 
 		 * 
