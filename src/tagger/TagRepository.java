@@ -23,7 +23,6 @@ public interface TagRepository {
 	public Collection<String> searchByTag(Collection<String> includedTags,
 										Collection<String> excludedTags);
 	public Collection<TagFreq> getTagListFreqOrdered();
-	public TagFreq getTagFreq(String tag);
 	
 	void setAutoTaggers(Collection<AutoTagger> autoTaggers);
 	

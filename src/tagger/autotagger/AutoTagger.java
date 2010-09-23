@@ -1,8 +1,6 @@
 package tagger.autotagger;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Collection;
 
 /**
@@ -18,8 +16,9 @@ public interface AutoTagger {
 	 * Tags matching the file are determined by implementing algorithm.
 	 * @param file for which tags should be returned.
 	 * @return tags for file, determined by implementing algorithm.
+	 * @throws Exception If any problem occurred during attempt to retrieve tags.
 	 */
-	Collection<String> autoTag(File file) throws FileNotFoundException, IOException;
+	Collection<String> autoTag(File file) throws Exception;
 	
 	/**
 	 * Get a description of the algorithm.

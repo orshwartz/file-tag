@@ -8,9 +8,8 @@ import java.util.Collection;
 
 /**
  * This class represents a directory available for listening,
- * enabling the possibility to define recursive listening for
- * sub-folders and also define regular expressions for files
- * that should be watched.
+ * enabling definition of regular expressions for files that
+ * should be watched.
  * @author Or Shwartz
  */
 public class ListenedDirectory {
@@ -40,7 +39,7 @@ public class ListenedDirectory {
 		else if (!directory.exists())
 		{
 			// Throw Exception - the directory must exist in order to be
-			// listened
+			// listened to
 			throw new FileNotFoundException();
 		}
 		
@@ -56,9 +55,24 @@ public class ListenedDirectory {
 	}
 
 	/**
+	 * Returns an editable view of the regular expressions for the
+	 * directory.
 	 * @return the regularExpressions
 	 */
 	public Collection<String> getRegularExpressions() {
 		return regularExpressions;
+	}
+
+	/**
+	 * Return the directory as a string in the following format:<BR>
+	 * <I>
+	 * path: [regex1, regex2, regex3,...]
+	 * </I>
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+
+		return directory.toString() + ": " + regularExpressions.toString();
 	}
 }

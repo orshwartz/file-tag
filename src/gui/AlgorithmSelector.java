@@ -1,14 +1,12 @@
 package gui;
 
 import java.io.File;
-import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
@@ -18,12 +16,17 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Widget;
+
+import tagger.autotagger.AutoTagger;
+import tagger.autotagger.AutoTaggerLoader;
+import tagger.autotagger.Configurable;
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo
@@ -51,30 +54,18 @@ public class AlgorithmSelector extends org.eclipse.swt.widgets.Dialog {
 	private Button btnOK;
 	private Text txtDescription;
 	private CLabel lblAuthorData;
-	private TableItem tableItem1;
-	private TableItem tableItem2;
 	private Group grpDescription;
-
-	/**
-	* Auto-generated main method to display this 
-	* org.eclipse.swt.widgets.Dialog inside a new Shell.
-	*/
-	public static void main(String[] args) {
-		try {
-			Display display = Display.getDefault();
-			Shell shell = new Shell(display);
-			AlgorithmSelector inst = new AlgorithmSelector(shell, SWT.NULL);
-			inst.open(new File(".").toPath());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+	SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	AutoTagger selectedAutoTagger = null;
 
 	public AlgorithmSelector(Shell parent, int style) {
 		super(parent, style);
 	}
 
-	public void open(Path pluginDirectory) {
+	public Collection<AutoTagger> open(File[] possiblePlugins) {
+
+		Collection<AutoTagger> chosenAutoTaggers =
+			new ArrayList<AutoTagger>(possiblePlugins.length);
 		
 		try {
 			Shell parent = getParent();
@@ -87,7 +78,7 @@ public class AlgorithmSelector extends org.eclipse.swt.widgets.Dialog {
 				FormData lblReleaseDateLData = new FormData();
 				lblReleaseDateLData.left =  new FormAttachment(0, 1000, 12);
 				lblReleaseDateLData.top =  new FormAttachment(0, 1000, 181);
-				lblReleaseDateLData.width = 75;
+				lblReleaseDateLData.width = 81;
 				lblReleaseDateLData.height = 21;
 				lblReleaseDate.setLayoutData(lblReleaseDateLData);
 				lblReleaseDate.setText("Release Date:");
@@ -97,7 +88,7 @@ public class AlgorithmSelector extends org.eclipse.swt.widgets.Dialog {
 				FormData lblVersionLData = new FormData();
 				lblVersionLData.left =  new FormAttachment(0, 1000, 12);
 				lblVersionLData.top =  new FormAttachment(0, 1000, 162);
-				lblVersionLData.width = 48;
+				lblVersionLData.width = 52;
 				lblVersionLData.height = 21;
 				lblVersion.setLayoutData(lblVersionLData);
 				lblVersion.setText("Version:");
@@ -148,6 +139,7 @@ public class AlgorithmSelector extends org.eclipse.swt.widgets.Dialog {
 				btnConfigLData.height = 25;
 				btnConfig.setLayoutData(btnConfigLData);
 				btnConfig.setText("Configure...");
+				btnConfig.setEnabled(false);
 			}
 			{
 				grpDescription = new Group(dialogShell, SWT.NONE);
@@ -164,7 +156,7 @@ public class AlgorithmSelector extends org.eclipse.swt.widgets.Dialog {
 				grpDescription.setLayoutData(group1LData);
 				grpDescription.setText("Description");
 				{
-					txtDescription = new Text(grpDescription, SWT.MULTI);
+					txtDescription = new Text(grpDescription, SWT.MULTI | SWT.WRAP);
 					GridData txtDesciptionLData = new GridData();
 					txtDesciptionLData.horizontalAlignment = GridData.CENTER;
 					txtDesciptionLData.widthHint = 392;
@@ -184,42 +176,71 @@ public class AlgorithmSelector extends org.eclipse.swt.widgets.Dialog {
 				table1LData.height = 101;
 				tblPlugins = new Table(dialogShell, SWT.CHECK | SWT.BORDER | SWT.V_SCROLL);
 				tblPlugins.setLayoutData(table1LData);
-				tblPlugins.addFocusListener(new FocusListener() {
-
-					@Override
-					public void focusGained(FocusEvent arg0) {
-						
-						System.out.println("Focus gained.");
-					}
-					
-					@Override
-					public void focusLost(FocusEvent arg0) {
-						
-						System.out.println("Focus lost.");
-					}
-				});
-				{
-					tableItem1 = new TableItem(tblPlugins, SWT.NONE);
-					tableItem1.setText("tableItem1");
-					tableItem2 = new TableItem(tblPlugins, SWT.CHECK);
-					tableItem2.setText("tableItem2");
-				}
-				tblPlugins.addSelectionListener(new SelectionAdapter() {
-					
+				tblPlugins.addSelectionListener(new SelectionListener() {
+				
 					@Override
 					public void widgetDefaultSelected(SelectionEvent arg0) {
-						
-						System.out.println("widgetDefaultSelected");
+				
+						// Ignore double click
 					}
-					
+				
 					@Override
 					public void widgetSelected(SelectionEvent arg0) {
+
+						try {
+							selectedAutoTagger =
+								AutoTaggerLoader.getAutoTagger((File)arg0.item.getData());
+						} catch (ClassNotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 						
-						System.out.println(tblPlugins.getSelectionIndex());
-						
-						System.out.println("widgetSelected");
+						// Display data for selected plug-in
+						txtDescription.setText(selectedAutoTagger.getDescription());
+						lblAuthorData.setText(selectedAutoTagger.getAuthor());
+						lblVersionData.setText(selectedAutoTagger.getVersion().toString());
+						lblReleaseDateData.setText(dateFormat.format(selectedAutoTagger.getVersion().getDate()));
+
+						// If algorithm can be configured by GUI
+						if (selectedAutoTagger instanceof Configurable) {
+
+							// Enable configuration by GUI
+							btnConfig.setEnabled(true);
+							if (btnConfig.getListeners(SWT.Selection).length > 0) {							
+								btnConfig.removeListener(SWT.Selection, btnConfig.getListeners(SWT.Selection)[0]);
+							}
+							btnConfig.addListener(SWT.Selection, new Listener() {
+
+								@Override
+								public void handleEvent(Event arg0) {
+									
+									// Use selected plug-in's GUI configuration when this button is clicked
+									((Configurable)selectedAutoTagger).showConfigurationGUI();
+								}
+							});
+						}
+						else {
+							// Disable configuration by GUI - not available
+							btnConfig.setEnabled(false);
+						}
 					}
 				});
+				{	
+					// If received a valid list
+					if (possiblePlugins != null) {
+						
+						// Populate plug-in list
+						TableItem curTableItem = null;
+						for (File curPluginFile : possiblePlugins) {
+							
+							curTableItem = new TableItem(tblPlugins, SWT.NONE);
+							AutoTagger curAutoTagger =
+								AutoTaggerLoader.getAutoTagger(curPluginFile);
+							curTableItem.setText(curAutoTagger.getName());
+							curTableItem.setData(curPluginFile);
+						}
+					}
+				}
 			}
 			{
 				btnOK = new Button(dialogShell, SWT.PUSH | SWT.CENTER);
@@ -231,6 +252,13 @@ public class AlgorithmSelector extends org.eclipse.swt.widgets.Dialog {
 				btnOK.setLayoutData(button1LData);
 				btnOK.setText("OK");
 				btnOK.setToolTipText("Add an auto-tagging algorithm.");
+				btnOK.addListener(SWT.Selection, new Listener() {
+
+					@Override
+					public void handleEvent(Event arg0) {
+						// TODO: Set selected algorithms and exit, maybe save them too - to show them selected when window is opened
+					}
+				});
 			}
 			{
 				btnCancel = new Button(dialogShell, SWT.PUSH | SWT.CENTER);
@@ -241,16 +269,61 @@ public class AlgorithmSelector extends org.eclipse.swt.widgets.Dialog {
 				button2LData.height = 25;
 				btnCancel.setLayoutData(button2LData);
 				btnCancel.setText("Cancel");
+				btnCancel.addListener(SWT.Selection, new Listener() {
+
+					@Override
+					public void handleEvent(Event arg0) {
+					
+						// TODO: Just close the window... dispose or something
+						dialogShell.close();
+					}
+				});
 			}
 			dialogShell.layout();
 			dialogShell.pack();			
 			dialogShell.setLocation(getParent().toDisplay(100, 100));
 			dialogShell.open();
+			dialogShell.addListener(SWT.Close, new Listener() {
+
+				@Override
+				public void handleEvent(Event arg0) {
+					
+					dialogShell.dispose();
+				}
+			});
 			Display display = dialogShell.getDisplay();
 			while (!dialogShell.isDisposed()) {
 				if (!display.readAndDispatch())
 					display.sleep();
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Return chosen automatic taggers
+		return chosenAutoTaggers;
+	}
+	
+	/**
+	* Auto-generated main method to display this 
+	* org.eclipse.swt.widgets.Dialog inside a new Shell.
+	*/
+	public static void main(String[] args) {
+		try {
+			Display display = Display.getDefault();
+			Shell shell = new Shell(display);
+			AlgorithmSelector algSelector = new AlgorithmSelector(shell, SWT.NULL);
+			
+			File[] pluginList =
+				new File[] {
+					new File("c:/temp/TaggerBySize.class"),
+					new File("c:/temp/TaggerByASCIIContents.class"),
+					new File("c:/temp/TaggerByPathKeywords.class"),
+					new File("c:/temp/TaggerByMetadata.class")
+				};
+			
+			// Show the dialog
+			algSelector.open(pluginList);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
