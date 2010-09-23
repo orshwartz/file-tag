@@ -33,6 +33,8 @@ public class DataAccessLevel {
 	private ResultSet results;
 	private PreparedStatement stmt;
 	private Iterator<String> it;
+	
+	private boolean connCheck;
 
 	
 
@@ -48,6 +50,9 @@ public class DataAccessLevel {
 		connect();
 		loadTables();
 		disconnect();
+		
+		connCheck = false;
+		System.out.println("cons");
 	}
 
 	/**
@@ -56,7 +61,7 @@ public class DataAccessLevel {
 	public void connect() {
 
 		try {
-			System.out.println("Connecting to database...");
+			System.out.println("Connecting to database ...");
 			Class.forName(jdbcDriver).newInstance();
 
 			// Get a connection
@@ -64,6 +69,34 @@ public class DataAccessLevel {
 		} catch (Exception except) {
 			except.printStackTrace();
 		}
+	}
+	
+	
+	public void makeConnection(){
+		
+		new Thread( new Runnable(){
+
+			@Override
+			public void run() {
+				connect();
+				connCheck = true;
+				
+				
+				try {
+					Thread.sleep(60000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				disconnect();
+				connCheck = false;
+				
+			}
+			
+		}).start();
+			
+		while(connCheck == false){}
 	}
 
 	/**
@@ -177,8 +210,10 @@ public class DataAccessLevel {
 				e.printStackTrace();
 				}
 		}
+		
+		disconnect();
 
-			disconnect();
+			
 	} // 	public void addTags(Collection<String> tags)
 
 	
@@ -191,6 +226,7 @@ public class DataAccessLevel {
 	public void removeTag(String tag) throws TagNotFoundException {
 
 		connect();
+		
 			try {
 
 					// build the string for the command
@@ -206,7 +242,9 @@ public class DataAccessLevel {
 					e.printStackTrace();
 			}
 		
-			disconnect();
+		disconnect();
+		
+			
 	} // 	public void removeTag(String tag)
 
 	
@@ -218,6 +256,7 @@ public class DataAccessLevel {
 	public void renameTag(String oldName, String newName) {
 
 		connect();
+		
 		try {
 
 			// build the string for the command
@@ -235,7 +274,9 @@ public class DataAccessLevel {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-			disconnect();
+		
+		disconnect();
+			
 	} // 	public void renameTag(String oldName, String newName)
 
 	
@@ -247,22 +288,27 @@ public class DataAccessLevel {
 	 */
 	public void tagFile(String file, Collection<String> tags) {
 
-		connect();
+		
 		it = tags.iterator();
 
 		try {
+			if(!fileExists(file)){
+				connect();
+				// build the string for the command
+				string.setLength(0);
+				string.append("INSERT INTO files(filename,last_modified_epoch) ");
+				string.append("VALUES('");
+				string.append(file);
+				string.append("',3432)"); // FIXME : this is weird.
 
-			// build the string for the command
-			string.setLength(0);
-			string.append("INSERT INTO files(filename,last_modified_epoch) ");
-			string.append("VALUES('");
-			string.append(file);
-			string.append("',3432)"); // FIXME : this is weird.
-
-			stmt = conn.prepareStatement(string.toString());
-			stmt.executeUpdate();
-
+				stmt = conn.prepareStatement(string.toString());
+				System.out.println("println1");
+				stmt.executeUpdate();
+			}
+			connect();
+			System.out.println("println2");
 			while (it.hasNext()) {
+					System.out.println("println3");
 					String tag = it.next();
 
 					string.setLength(0);
@@ -285,7 +331,9 @@ public class DataAccessLevel {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-			disconnect();
+		
+		disconnect();
+			
 	}//		public void tagFile(String file, Collection<String> tags)
 
 	
@@ -296,7 +344,8 @@ public class DataAccessLevel {
 	 */
 	public void untagFile(String file, String tag) {
 		
-		connect();		
+		connect();
+		
 		try {
 			
 			// get tag id
@@ -338,11 +387,25 @@ public class DataAccessLevel {
 				stmt.executeUpdate();
 				stmt.close();
 
+			// delete any tag that left not tagged to some file
+			// build the string for the command
+			string.setLength(0);
+			string.append("DELETE FROM tags ");
+			string.append("WHERE tag_id NOT IN (");
+			string.append("SELECT tag_id FROM attachments)");
+				
+					
+				stmt = conn.prepareStatement(string.toString());
+				stmt.executeUpdate();
+				stmt.close();
+					
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		
 		disconnect();
+		
+		
 	} //	public void untagFile(String file, String tag)
 	
 	
@@ -400,6 +463,7 @@ public class DataAccessLevel {
 		
 		connect();
 		
+		
 		// remove the file
 		// build the string for the command
 		string.setLength(0);
@@ -430,8 +494,8 @@ public class DataAccessLevel {
 				e.printStackTrace();
 			}
 		
-
 		disconnect();
+		
 	}// 	public void removeFile(String file)
 	
 	
@@ -505,6 +569,7 @@ public class DataAccessLevel {
 	public boolean tagExists(String tag) {
 
 		connect();
+		
 
 		try {
 			
@@ -517,9 +582,11 @@ public class DataAccessLevel {
 				stmt = conn.prepareStatement(string.toString());
 				results = stmt.executeQuery();
 
-			if (results.next()) {	
+			if (results.next()) {
+				disconnect();
 				return true;
-			} else {
+			} else {	
+				disconnect();
 				return false;
 			}
 
@@ -527,9 +594,53 @@ public class DataAccessLevel {
 			e1.printStackTrace();
 		}
 
-		disconnect();
+		
 		return false;
 	}// 	public boolean tagExists(String tag)
+	
+	public boolean fileExists(String file) {
+
+		connect();
+
+		try {
+			
+			// build the string for the command
+			string.setLength(0);
+			string.append("SELECT * FROM files WHERE filename = '");
+			string.append(file);
+			string.append("'");
+
+				stmt = conn.prepareStatement(string.toString());
+				results = stmt.executeQuery();
+
+			if (results.next()) {
+				disconnect();
+				return true;
+			} else {
+				disconnect();
+				return false;
+			}
+
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+
+		
+		return false;
+	}// 	public boolean fileExists(String file)
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	
 	/**

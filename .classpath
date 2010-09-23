@@ -14,5 +14,6 @@
 	<classpathentry kind="lib" path="C:/Eclipse/eclipse/plugins/org.eclipse.jface.text_3.5.1.r351_v20090708-0800.jar"/>
 	<classpathentry kind="lib" path="C:/Eclipse/eclipse/plugins/org.eclipse.jface_3.5.1.M20090826-0800.jar"/>
 	<classpathentry kind="lib" path="C:/Eclipse/eclipse/plugins/org.eclipse.jsch.core_1.1.100.I20090430-0408.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

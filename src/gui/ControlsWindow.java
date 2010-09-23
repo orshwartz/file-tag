@@ -116,7 +116,6 @@ public class ControlsWindow {
     	        		  window.setSize(500,640);
     	        		  logOnOff = true;
     	        		  logBtn.setText("Hide Log");
-
     	        	  }
     	        	  
     	        	  else{

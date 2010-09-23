@@ -1,4 +1,6 @@
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -15,6 +17,7 @@ import tagger.FileNotTaggedException;
 import tagger.TagAlreadyExistsException;
 import tagger.TagNotFoundException;
 import tagger.TagRepositoryEventDriven;
+import tagger.autotagger.TaggerByPathKeywords;
 
 import commander.CommandManager;
 
@@ -57,7 +60,21 @@ public class Main {
 		Collection<String> col3 = new LinkedList();
 		Collection<String> col4 = new LinkedList();
 		Collection<String> col5 = new LinkedList();
+		Collection<String> col6 = new LinkedList();
+		Collection<String> col7 = new LinkedList();
+		
+		Collection<String> col8 = new LinkedList();
+		Collection<String> col9 = new LinkedList();
+		Collection<String> col10 = new LinkedList();
+		
+		
 		Collection<String> files = new LinkedList();
+		
+		Collection<String> tags = new LinkedList();
+		
+		File f = null;
+	    
+		
 		
 		col.add("gomel");
 		col.add("kzomel");
@@ -81,12 +98,24 @@ public class Main {
 		col5.add("bb");
 		col5.add("aa");
 		
+		col6.add("zizizizi");
+		col7.add("zizizizggggi");
+		
+		col8.add("ozzy");
+		col9.add("dio");
+		col10.add("ian");
+		
+		TaggerByPathKeywords w = new TaggerByPathKeywords();
+		
+		
+		
+		
 			//try {
-				tagRep.tagFile("file1",col);
-				tagRep.tagFile("file2",col2);
-				tagRep.tagFile("file3",col3);
+				//tagRep.tagFile("file1",col);
+				//tagRep.tagFile("file2",col2);
+				//tagRep.tagFile("file3",col3);
 				
-				System.out.println(tagRep.getTagFreq("kzomel").toString());
+				//System.out.println(tagRep.getTagFreq("kzomel").toString());
 		
 				//tagRep.unTagFileAll("file2");
 			
