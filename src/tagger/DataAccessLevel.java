@@ -27,9 +27,14 @@ public class DataAccessLevel {
 
 	private static final String dbURL = "jdbc:derby:myDB;create=true;user=me;password=mine";
 	private static final String jdbcDriver = "org.apache.derby.jdbc.EmbeddedDriver";
-	private StringBuilder string;
+	private StringBuilder string = new StringBuilder();
+	
+	private DatabaseMetaData dbmd;
+	private ResultSet results;
+	private PreparedStatement stmt;
+	private Iterator<String> it;
 
-	private PreparedStatement statement;
+	
 
 	private static final String tagsTableCreationScript = "TAGS.sql";
 	private static final String filesTableCreationScript = "FILES.sql";
@@ -57,7 +62,6 @@ public class DataAccessLevel {
 			// Get a connection
 			conn = DriverManager.getConnection(dbURL);
 		} catch (Exception except) {
-			// TODO Auto-generated catch block
 			except.printStackTrace();
 		}
 	}
@@ -67,27 +71,21 @@ public class DataAccessLevel {
 	 */
 	public void loadTables() {
 
-		string = new StringBuilder();
-
-		/* ------------- */
-
 		try { // load three tables to database
 
-			DatabaseMetaData dbmd = conn.getMetaData();
-			ResultSet results = dbmd.getTables(null, "ME", "TAGS", null);
+			dbmd = conn.getMetaData();
+			results = dbmd.getTables(null, "ME", "TAGS", null);
 
 			// add TAGS table, if needed
 			if (!results.next()) {
 				
-				try {
-					runScript(tagsTableCreationScript, "UTF-8", "UTF-8");
-				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+					try {
+						runScript(tagsTableCreationScript, "UTF-8", "UTF-8");
+					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					}
 			}
 
 			results = dbmd.getTables(null, "ME", "FILES", null);
@@ -95,15 +93,13 @@ public class DataAccessLevel {
 			// add FILES table, if needed
 			if (!results.next()) {
 				
-				try {
-					runScript(filesTableCreationScript, "UTF-8", "UTF-8");
-				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+					try {
+						runScript(filesTableCreationScript, "UTF-8", "UTF-8");
+					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					}
 			}
 
 			results = dbmd.getTables(null, "ME", "ATTACHMENTS", null);
@@ -114,20 +110,16 @@ public class DataAccessLevel {
 				try {
 					runScript(attachmentsTableCreationScript, "UTF-8", "UTF-8");
 				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
 		} catch (SQLException e) {
-			
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-	}
+	} // public void loadTables()
 
 	/**
 	 * @param script Filename to run
@@ -155,68 +147,73 @@ public class DataAccessLevel {
 		return result;
 	}
 
+	
 	/**
-	 * @param tags
-	 * @throws TagAlreadyExistsException
+	 * This method adds a given tag to the repository
+	 * @param tags - A collection of tags (Strings) to add into the repository
+	 * @throws TagAlreadyExistsException if one or more of the <CDOE>tags</CODE>
+	 *  in the collection is already inside the repository
 	 */
 	public void addTags(Collection<String> tags) throws TagAlreadyExistsException {
 
 		connect();
 
-		Iterator<String> it = tags.iterator();
+		it = tags.iterator();
 
 		while (it.hasNext()) {
-			try {
+				try {
 
-				// build the string for the command
-				string.setLength(0);
-				string.append("INSERT INTO tags(tag) VALUES('");
-				string.append(it.next());
-				string.append("')");
+					// build the string for the command
+					string.setLength(0);
+					string.append("INSERT INTO tags(tag) VALUES('");
+					string.append(it.next());
+					string.append("')");
 
-				PreparedStatement stmt = conn.prepareStatement(string.toString());
-
-				stmt.executeUpdate();
-				stmt.close();
-			} catch (SQLException e) {
+					stmt = conn.prepareStatement(string.toString());
+					stmt.executeUpdate();
+					stmt.close();
 				
-				// TODO Auto-generated catch block
+				} catch (SQLException e) {
 				e.printStackTrace();
-			}
+				}
 		}
 
-		disconnect();
-	}
+			disconnect();
+	} // 	public void addTags(Collection<String> tags)
 
+	
 	/**
-	 * @param tag
-	 * @throws TagNotFoundException
+	 * This method removes a given tag from the repository
+	 * @param tag - a single tag(String) to be removed from the repository
+	 * @throws TagNotFoundException if the requested tag is not in the
+	 * repository
 	 */
 	public void removeTag(String tag) throws TagNotFoundException {
 
 		connect();
-		try {
+			try {
 
-			// build the string for the command
-			string.setLength(0);
-			string.append("DELETE FROM tags WHERE tag = '");
-			string.append(tag);
-			string.append("'");
+					// build the string for the command
+					string.setLength(0);
+					string.append("DELETE FROM tags WHERE tag = '");
+					string.append(tag);
+					string.append("'");
 
-			PreparedStatement stmt = conn.prepareStatement(string.toString());
-			stmt.executeUpdate();
-			stmt.close();
-		} catch (SQLException e) {
-			
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		disconnect();
-	}
+					stmt = conn.prepareStatement(string.toString());
+					stmt.executeUpdate();
+					stmt.close();
+				} catch (SQLException e) {	
+					e.printStackTrace();
+			}
+		
+			disconnect();
+	} // 	public void removeTag(String tag)
 
+	
 	/**
-	 * @param oldName
-	 * @param newName
+	 * This method renames a given tag
+	 * @param oldName - the old name of the tag(String)
+	 * @param newName - the new name of the tag(String)
 	 */
 	public void renameTag(String oldName, String newName) {
 
@@ -231,25 +228,27 @@ public class DataAccessLevel {
 			string.append(oldName);
 			string.append("'");
 
-			PreparedStatement stmt = conn.prepareStatement(string.toString());
+			stmt = conn.prepareStatement(string.toString());
 			stmt.executeUpdate();
 			stmt.close();
-		} catch (SQLException e) {
 			
-			// TODO Auto-generated catch block
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		disconnect();
-	}
+			disconnect();
+	} // 	public void renameTag(String oldName, String newName)
 
+	
 	/**
-	 * @param file
-	 * @param tags
+	 * This method attaches a given collection of <CODE>tags</CODE>
+	 * into a given<CODE>file</CODE> 
+	 * @param file - the file that the <CODE>tags</CODE> would be attached to
+	 * @param tags - the collection of tags who will be attached to the <CODE>file</CODE>
 	 */
 	public void tagFile(String file, Collection<String> tags) {
 
 		connect();
-		Iterator<String> it = tags.iterator();
+		it = tags.iterator();
 
 		try {
 
@@ -258,77 +257,75 @@ public class DataAccessLevel {
 			string.append("INSERT INTO files(filename,last_modified_epoch) ");
 			string.append("VALUES('");
 			string.append(file);
-			string.append("',3432)");
+			string.append("',3432)"); // FIXME : this is weird.
 
-			PreparedStatement stmt = conn.prepareStatement(string.toString());
+			stmt = conn.prepareStatement(string.toString());
 			stmt.executeUpdate();
 
 			while (it.hasNext()) {
-				// stmt = conn.createStatement();
-				String tag = it.next();
+					String tag = it.next();
 
-				string.setLength(0);
-				string.append("INSERT INTO tags(tag) VALUES('");
-				string.append(tag);
-				string.append("')");
+					string.setLength(0);
+					string.append("INSERT INTO tags(tag) VALUES('");
+					string.append(tag);
+					string.append("')");
 				
-				try {
+					try {
 				
-					stmt = conn.prepareStatement(string.toString());
-					stmt.executeUpdate();
-				} catch (SQLException e) {
-					
-					// TODO Auto-generated catch block
+						stmt = conn.prepareStatement(string.toString());
+						stmt.executeUpdate();
+					} catch (SQLException e) {
 					e.printStackTrace();
-				}
-				makeAttachments(file, tag);
-			}
+					}
+					
+					makeAttachments(file, tag); // attach the tag into the file
+			} // while (it.hasNext()) {
+			
 			stmt.close();
 		} catch (SQLException e) {
-		
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		disconnect();
-	}
+			disconnect();
+	}//		public void tagFile(String file, Collection<String> tags)
 
+	
 	/**
-	 * @param file
-	 * @param tag
+	 * This method removes a given tag from a given file
+	 * @param file - the file that the <CODE>tag</CODE> would be removed from
+	 * @param tag - the tag that will be the removed
 	 */
 	public void untagFile(String file, String tag) {
 		
-		// get tag id
 		connect();		
 		try {
+			
 			// get tag id
-
 			// build the string for the command
 			string.setLength(0);
 			string.append("SELECT * FROM tags WHERE tag = '");
 			string.append(tag);
 			string.append("'");
 
-			PreparedStatement stmt = conn.prepareStatement(string.toString());
-			ResultSet results = stmt.executeQuery();
-			results.next();
-			int tagId = results.getInt(1);
+				stmt = conn.prepareStatement(string.toString());
+				results = stmt.executeQuery();
+				results.next();
+			
+			int tagId = results.getInt(1); // get the tag
 
 			// get file id
-
 			// build the string for the command
 			string.setLength(0);
 			string.append("SELECT * FROM files WHERE filename = '");
 			string.append(file);
 			string.append("'");
 
-			stmt = conn.prepareStatement(string.toString());
-			results = stmt.executeQuery();
-			results.next();
-			int fileId = results.getInt(1);
+				stmt = conn.prepareStatement(string.toString());
+				results = stmt.executeQuery();
+				results.next();
+				
+			int fileId = results.getInt(1); // get the file
 
 			// remove from attachments
-
 			// build the string for the command
 			string.setLength(0);
 			string.append("DELETE FROM attachments WHERE ");
@@ -337,135 +334,149 @@ public class DataAccessLevel {
 			string.append("AND file_id = ");
 			string.append(fileId);
 
-			stmt = conn.prepareStatement(string.toString());
-			stmt.executeUpdate();
-
-			stmt.close();
+				stmt = conn.prepareStatement(string.toString());
+				stmt.executeUpdate();
+				stmt.close();
 
 		} catch (SQLException e) {
-			
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		disconnect();
-
-	}
+	} //	public void untagFile(String file, String tag)
 	
+	
+	/**
+	 * This method removes all of the tags that are attached to a given file
+	 * @param file - The given file
+	 */
 	public void unTagFileAll(String file){
 		
 		connect();
-		PreparedStatement stmt;
+		
+		// delete all the tags of this file
+		// build the string for the command
 		string.setLength(0);
 		string.append("DELETE FROM attachments WHERE file_id IN ( ");
 		string.append("SELECT file_id FROM files WHERE filename ='");
 		string.append(file); 
 		string.append("')");
 		
-		try {
-			stmt = conn.prepareStatement(string.toString());
-			stmt.executeUpdate();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			try {
+				stmt = conn.prepareStatement(string.toString());
+				stmt.executeUpdate();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		
+		// delete any tag that left not tagged to some file
+		// build the string for the command
 		string.setLength(0);
 		string.append("DELETE FROM tags ");
 		string.append("WHERE tag_id NOT IN (");
 		string.append("SELECT tag_id FROM attachments)");
 		
-		try {
-			stmt = conn.prepareStatement(string.toString());
-			stmt.executeUpdate();
-			stmt.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			try {
+				stmt = conn.prepareStatement(string.toString());
+				stmt.executeUpdate();
+				stmt.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		
 		disconnect();
 		
-		// TODO : add tags with the algorithms;
+		// TODO : add tags with the algorithms(?);
 		
-	}
+	}//		public void unTagFileAll(String file)
 	
+	
+	/**
+	 * This method removes a given file from the repository
+	 * @param file - The file that will be removed
+	 */
 	public void removeFile(String file){
 		
 		
 		connect();
-		PreparedStatement stmt;
 		
+		// remove the file
+		// build the string for the command
 		string.setLength(0);
 		string.append("DELETE FROM files WHERE ");
 		string.append("filename = '");
 		string.append(file);
 		string.append("'");
 		
-		try {
-			stmt = conn.prepareStatement(string.toString());
-			stmt.executeUpdate();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			try {
+				stmt = conn.prepareStatement(string.toString());
+				stmt.executeUpdate();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		
+		// delete any tag that left not tagged to some file
+		// build the string for the command
 		string.setLength(0);
 		string.append("DELETE FROM tags ");
 		string.append("WHERE tag_id NOT IN (");
 		string.append("SELECT tag_id FROM attachments)");
 		
-		try {
-			stmt = conn.prepareStatement(string.toString());
-			stmt.executeUpdate();
-			stmt.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			try {
+				stmt = conn.prepareStatement(string.toString());
+				stmt.executeUpdate();
+				stmt.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		
 
 		disconnect();
-	}
+	}// 	public void removeFile(String file)
 	
 	
 
 	/**
-	 * @param file
-	 * @param tag
+	 * This method make the attachments between a given <CODE>file</CODE> 
+	 * and a given <CODE>tag</CODE>
+	 * @param file - the given file
+	 * @param tag - the given tag(String)
 	 */
 	public void makeAttachments(String file, String tag) {
 
 		try {
 
 			// get tag id
-
 			// build the string for the command
 			string.setLength(0);
 			string.append("SELECT * FROM tags WHERE tag = '");
 			string.append(tag);
 			string.append("'");
 
-			statement = conn.prepareStatement(string.toString());
-			ResultSet results = statement.executeQuery();
-			results.next();
+				stmt = conn.prepareStatement(string.toString());
+				results = stmt.executeQuery();
+				results.next();
+				
 			int tagId = results.getInt(1);
 			System.out.println("tag id is " + tagId);
 
+			
 			// get file id
-
 			// build the string for the command
 			string.setLength(0);
 			string.append("SELECT * FROM files WHERE filename = '");
 			string.append(file);
 			string.append("'");
 
-			statement = conn.prepareStatement(string.toString());
-			results = statement.executeQuery();
-			results.next();
+				stmt = conn.prepareStatement(string.toString());
+				results = stmt.executeQuery();
+				results.next();
+				
 			int fileId = results.getInt(1);
 			System.out.println("file name is " + fileId);
 
+			
 			// insert into attachments
-
 			// build the string for the command
 			string.setLength(0);
 			string.append("INSERT INTO attachments VALUES(");
@@ -474,55 +485,57 @@ public class DataAccessLevel {
 			string.append(fileId);
 			string.append(")");
 
-			statement = conn.prepareStatement("insert into ATTACHMENTS values("
-					+ tagId + "," + fileId + ")");
-			statement.executeUpdate();
-
-			statement.close();
-		} catch (SQLException e) {
+				stmt = conn.prepareStatement("insert into ATTACHMENTS values("
+						+ tagId + "," + fileId + ")");
+				stmt.executeUpdate();
+				stmt.close();
 			
-			// TODO Auto-generated catch block
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
-	}
+	}// 	public void makeAttachments(String file, String tag)
 
+	
+	/**
+	 * This method checks if a given tag exists within the repository
+	 * @param tag - the given tag(String)
+	 * @return true if the tag exists in the TAGS table, false otherwise
+	 */
 	public boolean tagExists(String tag) {
 
 		connect();
 
 		try {
+			
+			// build the string for the command
 			string.setLength(0);
 			string.append("SELECT * FROM tags WHERE tag = '");
 			string.append(tag);
 			string.append("'");
 
-			statement = conn.prepareStatement(string.toString());
-			ResultSet results = statement.executeQuery();
+				stmt = conn.prepareStatement(string.toString());
+				results = stmt.executeQuery();
 
-			if (results.next()) {
-				
+			if (results.next()) {	
 				return true;
 			} else {
-			
 				return false;
 			}
 
 		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
 		disconnect();
-		
 		return false;
+	}// 	public boolean tagExists(String tag)
 
-	}
-
+	
 	/**
 	 * Connection getter.
 	 * 
-	 * @return
+	 * @return The connection
 	 */
 	public Connection getConnection() {
 
@@ -547,97 +560,153 @@ public class DataAccessLevel {
 
 		Collection<String> files = new LinkedList<String>();
 
+		
 		int i = 0;
-		int size = includedTags.size();
-		PreparedStatement stmt;
-		string.setLength(0);
-		string.append("SELECT filename FROM files WHERE file_id IN ");
-		string.append("(SELECT file_id FROM tags NATURAL JOIN attachments ");
-		string.append("WHERE ");
 
-		for (String curTag : includedTags) {
+		int sizeInc = includedTags.size();
+		int sizeExc = excludedTags.size();
+		
+		if(sizeInc !=0 || sizeExc !=0){
+			// select the files that fulfill the specified request
+			// build the string for the command
+			string.setLength(0);
+			string.append("SELECT filename FROM files WHERE file_id IN ");
+			string.append("(SELECT file_id FROM tags NATURAL JOIN attachments ");
+			if(sizeInc != 0){
+				string.append("WHERE ");
+
+				for (String curTag : includedTags) {
 			
-			++i;
-			string.append("tag = '");
-			string.append(curTag);
-			string.append("' ");
-			if (i < size)
-				string.append("OR ");
-		}
+						++i;
+			
+						// include those tags
+						// build the string for the command
+						string.append("tag = '");
+						string.append(curTag);
+						string.append("' ");
+						if (i < sizeInc)
+							string.append("OR ");// this tag OR this tag ..
+						
+				} // for
+			} // if(sizeInc != 0){
 
+		if(sizeExc !=0){
+			
 		i = 0;
-		size = excludedTags.size();
 
-		string.append("EXCEPT ");
-		string.append("SELECT file_id FROM tags NATURAL JOIN attachments ");
-		string.append("WHERE ");
+			// except those tags ..
+			// build the string for the command
+			string.append("EXCEPT ");
+			string.append("SELECT file_id FROM tags NATURAL JOIN attachments ");
+			string.append("WHERE ");
 
-		for (String curTag : excludedTags) {
+			for (String curTag : excludedTags) {
 			
-			++i;
-			string.append("tag = '");
-			string.append(curTag);
-			string.append("' ");
-			if (i < size)
-				string.append("OR ");
+					++i;
+			
+					// exclude those tags
+					// build the string for the command
+					string.append("tag = '");
+					string.append(curTag);
+					string.append("' ");
+					if (i < sizeExc)
+						string.append("OR "); // this tag OR this tag ..
+					else // if we reached the end of the list
+						string.append(")");
+			} // for
+		}// if(sizeExc !=0){
 			else
-				string.append(")");
-		}
-
-		try {
-			System.out.println(string);
-			stmt = conn.prepareStatement(string.toString());
-			ResultSet results = stmt.executeQuery();
-			
-			while (results.next()) {
+				string.append(")");// if there no tags to exclude
 				
-				files.add(results.getString(1));
+			try {
+				
+					System.out.println(string); // TODO : println for testing
+					stmt = conn.prepareStatement(string.toString());
+					results = stmt.executeQuery();
+			
+					while (results.next()) {
+						files.add(results.getString(1)); // add the files we found
+					}
+
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
 
-		} catch (SQLException e) {
-			
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		disconnect();
+		}// if(sizeInc !=0 && sizeExc !=0)
 		
-		return files;
-	}
+		
+		disconnect();
+		return files; // return the requested files
+		
+	} // 	public Collection<String> searchByTag( ... )
 	
+	
+	
+	
+	/**
+	 * This method returns the frequencies of all the tags in the repository
+	 * @return A Collection of all the frequencies of the tags in the repository
+	 */
 	public Collection<TagFreq> getTagListFreqOrdered(){
 		
 		connect();
 		
 		TagFreq tagFreq;
-		PreparedStatement stmt;
-		StringBuilder part = new StringBuilder();
 		Collection<TagFreq> tagFreqs = new LinkedList<TagFreq>();
 		
+		// build the string for the command
 		string.setLength(0);
 		string.append("SELECT tag,tag_frequency FROM freq_desc_tags NATURAL JOIN tags");
 		
 		try {
 			stmt = conn.prepareStatement(string.toString());
-			ResultSet results = stmt.executeQuery();
+			results = stmt.executeQuery();
 			
 			while(results.next()){
-				
 				tagFreq = new TagFreq(results.getInt(2), results.getString(1)) ;
 				tagFreqs.add(tagFreq);
-				
 			}
 			
 			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 		disconnect();
 		return tagFreqs;
 	}
+	
+	/**
+	 * This method returns the frequency of a given tag in the repository
+	 * @param tag - the given tag
+	 * @return the frequency of the given tag (TagFreq)
+	 */
+	public TagFreq getTagFreq(String tag){
+		
+		connect();
+		
+		TagFreq tagFreq = null;
+		
+		string.setLength(0);
+		string.append("SELECT tag,tag_frequency FROM freq_desc_tags NATURAL JOIN tags ");
+		string.append("WHERE tag = '" + tag + "'");
+		
+		try {
+			stmt = conn.prepareStatement(string.toString());
+			results = stmt.executeQuery();
+			
+			results.next();
+			
+				tagFreq = new TagFreq(results.getInt(2), results.getString(1)) ;		
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return tagFreq;
+	}
 
+	
 	/*public void searchAttachments(Collection<Integer> incInts,
 								  Collection<Integer> excInts) {
 
@@ -649,54 +718,56 @@ public class DataAccessLevel {
 		string.append("SELECT file_id FROM attachments WHERE (tag_id = '");
 	}*/ //TODO: I'm not sure that we need this method
 
+	
 	public void dropTables() {
+		
+		/* TODO : I made this method only for convenience
+		 				It can be removed later */
 		connect();
 
 		try {
+			
 			string.setLength(0);
 			string.append("DROP TABLE tags");
-			PreparedStatement stmt;
-			stmt = conn.prepareStatement(string.toString());
-			stmt.executeUpdate();
+			
+				stmt = conn.prepareStatement(string.toString());
+				stmt.executeUpdate();
 
 			string.setLength(0);
 			string.append("DROP TABLE files");
-			stmt = conn.prepareStatement(string.toString());
-			stmt.executeUpdate();
+			
+				stmt = conn.prepareStatement(string.toString());
+				stmt.executeUpdate();
 
 			string.setLength(0);
 			string.append("DROP TABLE attachments");
-			stmt = conn.prepareStatement(string.toString());
-			stmt.executeUpdate();
+			
+				stmt = conn.prepareStatement(string.toString());
+				stmt.executeUpdate();
 
 		} catch (SQLException e) {
-			
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		disconnect();
 	}
 
+	
 	/**
 	 * Disconnect from the DB.
 	 */
 	public void disconnect() {
 
 		try {
-			
 			System.out.println("Task done. Disconnecting...");
-			
-			if (statement != null) {
-			
-				statement.close();
-			}
-			
-			if (conn != null) {
-			
-				DriverManager.getConnection(dbURL + ";shutdown=true");
-				conn.close();
-			}
+				if (stmt != null) {
+						stmt.close();
+				}
+				
+				if (conn != null) {
+					DriverManager.getConnection(dbURL + ";shutdown=true");
+					conn.close();
+				}
 			
 		} catch (SQLException sqlExcept) {
 			// TODO: Do something?

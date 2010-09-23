@@ -4,7 +4,12 @@
 package gui;
 
 
+import static commander.CommandManager.CmdCodes.LSTNR_GET_LISTENED_DIRS;
+import static commander.CommandManager.CmdCodes.LSTNR_LISTEN_TO;
+import static commander.CommandManager.CmdCodes.LSTNR_STOP_LISTENING_TO;
+
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.HashMap;
 
 import listener.ListenedDirectory;
@@ -17,11 +22,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
 import com.cloudgarden.resource.SWTResourceManager;
 import commander.CommandManager;
-import commander.CommandManager.CmdCodes;
 
 
 /**
@@ -123,35 +129,79 @@ public class MainAppGUI {
 			btnOptionsAndSettings.setLayoutData(btnOptionsAndSettingsLData);
 			btnOptionsAndSettings.setText("Options and Settings");
 			btnOptionsAndSettings.setImage(SWTResourceManager.getImage("gui/res/preferences_system.png"));
+
+			Menu mnuOptions = new Menu(sShell, SWT.POP_UP);
+			
+			MenuItem mnuListenedPaths = new MenuItem(mnuOptions, SWT.PUSH);
+			mnuListenedPaths.setText("Select listened paths");
+			mnuListenedPaths.addListener(SWT.Selection, new Listener() {
+
+				@SuppressWarnings("unchecked")
+				public void handleEvent(Event e) {
+					ListenedPathsDialog listenedPathsDialog = new ListenedPathsDialog(sShell, SWT.None);
+					ListenedPathsDelta pathsDelta =
+						listenedPathsDialog.open(
+							(HashMap<File, ListenedDirectory>) commander.getCommand(
+									LSTNR_GET_LISTENED_DIRS).execute(null));
+					
+					// Listen to newly added directories
+					for (ListenedDirectory curListenedDir : pathsDelta.getAddedListenedDirectories()) {
+						Object[] params = new Object[] {curListenedDir};
+						commander.getCommand(LSTNR_LISTEN_TO).execute(params);
+					}
+					
+					// Stop listening to removed directories
+					for (File curFile : pathsDelta.getRemovedListenedDirectories()) {
+						Object[] params = new Object[] {curFile};
+						commander.getCommand(LSTNR_STOP_LISTENING_TO).execute(params);
+					}
+					
+					// Update regular expressions for directories
+					for (ListenedDirectory curListenedDir : pathsDelta.getModifiedListenedDirectories()) {
+						Object[] params = new Object[] {curListenedDir};
+						commander.getCommand(LSTNR_LISTEN_TO).execute(params);
+					}					
+				}
+			});
+			MenuItem mnuAlgorithmSelector = new MenuItem(mnuOptions, SWT.PUSH);
+			mnuAlgorithmSelector.setText("Select tagging algorithms");
+			mnuAlgorithmSelector.addListener(SWT.Selection, new Listener() {
+
+				public void handleEvent(Event e) {
+
+					File pluginsDir =
+						new File("./plugins");System.out.println(pluginsDir.getAbsolutePath());
+					File[] possiblePlugins =
+						pluginsDir.listFiles(new FilenameFilter() {
+
+						/**
+						 * Accepts .class and .jar files.
+						 * @see java.io.FilenameFilter#accept(java.io.File, java.lang.String)
+						 */
+						@Override
+						public boolean accept(File dir, String name) {
+
+							return name.endsWith(".class") ||
+								   name.endsWith(".jar");
+						}
+					});
+					
+					AlgorithmSelector algSelector =
+						new AlgorithmSelector(sShell, SWT.DIALOG_TRIM |
+													  SWT.APPLICATION_MODAL);
+					
+					// Open the algorithm selection GUI with given possible plugins
+					algSelector.open(possiblePlugins);
+				}
+			});
+			btnOptionsAndSettings.setMenu(mnuOptions);
 			btnOptionsAndSettings.addListener(SWT.Selection, new Listener() {
 
 				@SuppressWarnings("unchecked")
 				@Override
 				public void handleEvent(Event arg0) {
 					
-					ListenedPathsDialog listenedPathsDialog = new ListenedPathsDialog(sShell, SWT.None);
-					ListenedPathsDelta pathsDelta =
-						listenedPathsDialog.open(
-							(HashMap<File, ListenedDirectory>) commander.getCommand(
-									CmdCodes.LSTNR_GET_LISTENED_DIRS).execute(null));
-					
-					// Listen to newly added directories
-					for (ListenedDirectory curListenedDir : pathsDelta.getAddedListenedDirectories()) {
-						Object[] params = new Object[] {curListenedDir};
-						commander.getCommand(CmdCodes.LSTNR_LISTEN_TO).execute(params);
-					}
-					
-					// Stop listening to removed directories
-					for (File curFile : pathsDelta.getRemovedListenedDirectories()) {
-						Object[] params = new Object[] {curFile};
-						commander.getCommand(CmdCodes.LSTNR_STOP_LISTENING_TO).execute(params);
-					}
-					
-					// Update regular expressions for directories
-					for (ListenedDirectory curListenedDir : pathsDelta.getModifiedListenedDirectories()) {
-						Object[] params = new Object[] {curListenedDir};
-						commander.getCommand(CmdCodes.LSTNR_LISTEN_TO).execute(params);
-					}
+					btnOptionsAndSettings.getMenu().setVisible(true);
 				}
 			});
 		}

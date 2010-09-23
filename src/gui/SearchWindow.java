@@ -1,7 +1,6 @@
 package gui;
 
-import static commander.CommandManager.CmdCodes.TAGGER_GET_FILES_BY_TAGS;
-import static commander.CommandManager.CmdCodes.TAGGER_GET_TAGS_BY_FREQ;
+import static commander.CommandManager.CmdCodes.*;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -127,6 +126,7 @@ public class SearchWindow {
 						
 						// Remove tag from available tags list
 						lstAvailableTags.remove(curTag);
+						
 					}
 					
 					// Enable search button
@@ -199,6 +199,7 @@ public class SearchWindow {
 						
 						// Remove tag from available tags list
 						lstAvailableTags.remove(curTag);
+						
 					}
 					
 					// Enable search button
@@ -246,7 +247,7 @@ public class SearchWindow {
 					}
 				}
 			});
-		}
+		}		
 		{
 			lblSearchResults = new Label(window, SWT.NONE);
 			GridData lblSearchResultsLData = new GridData();
