@@ -2,7 +2,6 @@ package gui;
 
 import java.io.File;
 
-import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
@@ -10,6 +9,7 @@ import org.eclipse.jface.viewers.Viewer;
  * This class provides the content for the tree in FileTree
  */
 class FileTreeContentProvider implements ITreeContentProvider {
+
 	/**
 	 * Gets the children of the specified object
 	 * 
@@ -17,6 +17,7 @@ class FileTreeContentProvider implements ITreeContentProvider {
 	 *            the parent object
 	 * @return Object[]
 	 */
+	@Override
 	public Object[] getChildren(Object arg0) {
 
 		// Return the files and subdirectories in this directory
@@ -30,6 +31,7 @@ class FileTreeContentProvider implements ITreeContentProvider {
 	 *            the object
 	 * @return Object
 	 */
+	@Override
 	public Object getParent(Object arg0) {
 
 		// Return this file's parent file
@@ -43,13 +45,16 @@ class FileTreeContentProvider implements ITreeContentProvider {
 	 *            the parent object
 	 * @return boolean
 	 */
+	@Override
 	public boolean hasChildren(Object arg0) {
 
 		// Get the children
 		Object[] obj = getChildren(arg0);
 
 		// Return whether the parent has children
-		return obj == null ? false : obj.length > 0;
+		return (obj == null)?
+					false :
+					obj.length > 0;
 	}
 
 	/**
@@ -59,6 +64,7 @@ class FileTreeContentProvider implements ITreeContentProvider {
 	 *            the input data
 	 * @return Object[]
 	 */
+	@Override
 	public Object[] getElements(Object arg0) {
 		// These are the root elements of the tree
 		// We don't care what arg0 is, because we just want all
@@ -69,6 +75,7 @@ class FileTreeContentProvider implements ITreeContentProvider {
 	/**
 	 * Disposes any created resources
 	 */
+	@Override
 	public void dispose() {
 		// Nothing to dispose
 	}
@@ -83,6 +90,7 @@ class FileTreeContentProvider implements ITreeContentProvider {
 	 * @param arg2
 	 *            the new input
 	 */
+	@Override
 	public void inputChanged(Viewer arg0, Object arg1, Object arg2) {
 		// Nothing to change
 	}

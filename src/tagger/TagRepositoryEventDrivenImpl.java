@@ -5,7 +5,6 @@ package tagger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -83,12 +82,6 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 		return DAL.getTagListFreqOrdered();
 	}
 	
-	public TagFreq getTagFreq(String tag){
-		
-		return DAL.getTagFreq(tag);
-		
-	}
-
 	/**
 	 * This method removes a tag from the repository.
 	 * TODO: Say what happens if tag is associated to files or doesn't exist.
@@ -172,12 +165,10 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 							// Add automatically generated tags of file to collection
 							fileTags.addAll(tagsForFile); // XXX: Consider using just a path or just a file, if tagging is slow
 						}
-					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					} catch (Exception e) {
+
+						// Problem with tagger, continue to next one
+						continue; // TODO: Consider attempting to report the problem somehow
 					}
 				}
 				
