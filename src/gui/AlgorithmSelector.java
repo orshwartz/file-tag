@@ -7,6 +7,8 @@ import java.util.Collection;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -60,8 +62,11 @@ public class AlgorithmSelector extends org.eclipse.swt.widgets.Dialog {
 		super(parent, style);
 	}
 
-	public void open(Collection<File> pluginFiles) {
+	public Collection<AutoTagger> open(File[] possiblePlugins) {
 
+		Collection<AutoTagger> chosenAutoTaggers =
+			new ArrayList<AutoTagger>(possiblePlugins.length);
+		
 		try {
 			Shell parent = getParent();
 			dialogShell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
@@ -171,16 +176,20 @@ public class AlgorithmSelector extends org.eclipse.swt.widgets.Dialog {
 				table1LData.height = 101;
 				tblPlugins = new Table(dialogShell, SWT.CHECK | SWT.BORDER | SWT.V_SCROLL);
 				tblPlugins.setLayoutData(table1LData);
-				tblPlugins.addListener(SWT.Selection, new Listener() {
-
+				tblPlugins.addSelectionListener(new SelectionListener() {
+				
 					@Override
-					public void handleEvent(Event event) {
-						
-						TableItem[] selection = tblPlugins.getSelection();
+					public void widgetDefaultSelected(SelectionEvent arg0) {
+				
+						// Ignore double click
+					}
+				
+					@Override
+					public void widgetSelected(SelectionEvent arg0) {
 
 						try {
 							selectedAutoTagger =
-								AutoTaggerLoader.getAutoTagger((File)(selection[0].getData()));
+								AutoTaggerLoader.getAutoTagger((File)arg0.item.getData());
 						} catch (ClassNotFoundException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -210,23 +219,26 @@ public class AlgorithmSelector extends org.eclipse.swt.widgets.Dialog {
 								}
 							});
 						}
-						else
-						{
+						else {
 							// Disable configuration by GUI - not available
-//							btnConfig.removeListener(SWT.Selection, btnConfig.getListeners(SWT.Selection)[0]);
 							btnConfig.setEnabled(false);
 						}
 					}
-
 				});
-				{					
-					// Populate plug-in list
-					TableItem curTableItem = null;
-					for (File curPluginFile : pluginFiles) {
+				{	
+					// If received a valid list
+					if (possiblePlugins != null) {
 						
-						curTableItem = new TableItem(tblPlugins, SWT.NONE);
-						curTableItem.setText(AutoTaggerLoader.getAutoTagger(curPluginFile).getName()); // XXX: Consider saving the classes to a data member, for later use (showing description, returning, etc...)
-						curTableItem.setData(curPluginFile);
+						// Populate plug-in list
+						TableItem curTableItem = null;
+						for (File curPluginFile : possiblePlugins) {
+							
+							curTableItem = new TableItem(tblPlugins, SWT.NONE);
+							AutoTagger curAutoTagger =
+								AutoTaggerLoader.getAutoTagger(curPluginFile);
+							curTableItem.setText(curAutoTagger.getName());
+							curTableItem.setData(curPluginFile);
+						}
 					}
 				}
 			}
@@ -263,7 +275,7 @@ public class AlgorithmSelector extends org.eclipse.swt.widgets.Dialog {
 					public void handleEvent(Event arg0) {
 					
 						// TODO: Just close the window... dispose or something
-						dialogShell.dispose();
+						dialogShell.close();
 					}
 				});
 			}
@@ -287,6 +299,9 @@ public class AlgorithmSelector extends org.eclipse.swt.widgets.Dialog {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		// Return chosen automatic taggers
+		return chosenAutoTaggers;
 	}
 	
 	/**
@@ -299,12 +314,15 @@ public class AlgorithmSelector extends org.eclipse.swt.widgets.Dialog {
 			Shell shell = new Shell(display);
 			AlgorithmSelector algSelector = new AlgorithmSelector(shell, SWT.NULL);
 			
-			Collection<File> pluginList = new ArrayList<File>();
-			pluginList.add(new File("c:/temp/TaggerBySize.class"));
-			pluginList.add(new File("c:/temp/TaggerByASCIIContents.class"));
-			pluginList.add(new File("c:/temp/TaggerByPathKeywords.class"));
-			pluginList.add(new File("c:/temp/TaggerByMetadata.class"));
+			File[] pluginList =
+				new File[] {
+					new File("c:/temp/TaggerBySize.class"),
+					new File("c:/temp/TaggerByASCIIContents.class"),
+					new File("c:/temp/TaggerByPathKeywords.class"),
+					new File("c:/temp/TaggerByMetadata.class")
+				};
 			
+			// Show the dialog
 			algSelector.open(pluginList);
 		} catch (Exception e) {
 			e.printStackTrace();

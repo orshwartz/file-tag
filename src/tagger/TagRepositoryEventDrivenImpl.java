@@ -81,7 +81,7 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 
 		return DAL.getTagListFreqOrdered();
 	}
-
+	
 	/**
 	 * This method removes a tag from the repository.
 	 * TODO: Say what happens if tag is associated to files or doesn't exist.
