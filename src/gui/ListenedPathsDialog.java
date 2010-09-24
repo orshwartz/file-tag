@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
-import antlr.StringUtils;
+
 
 import com.cloudgarden.resource.SWTResourceManager;
 
@@ -78,11 +78,11 @@ public class ListenedPathsDialog extends Dialog {
 			regexes.add(".*\\.mp3");
 			regexes.add(".*\\.pdf");
 			regexes.add(".*\\.doc");
-			File dir = new File("C:\\proj");
+			File dir = new File("C:\\TEMP");
 			listenedDirs.put(dir, new ListenedDirectory(dir, regexes));
-			dir = new File("C:\\proj2"); 
+			dir = new File("C:\\Vered&Or"); 
 			listenedDirs.put(dir, new ListenedDirectory(dir, (Collection<String>) regexes.clone()));
-			dir = new File("C:\\proj3");
+			dir = new File("D:/DELL");
 			listenedDirs.put(dir, new ListenedDirectory(dir, (Collection<String>) regexes.clone()));
 
 			ListenedPathsDelta pathsDelta = inst.open(listenedDirs);
