@@ -2,7 +2,6 @@ package gui;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,23 +28,17 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
-import antlr.StringUtils;
-
 import com.cloudgarden.resource.SWTResourceManager;
 
 
 /**
-* This code was edited or generated using CloudGarden's Jigloo
-* SWT/Swing GUI Builder, which is free for non-commercial
-* use. If Jigloo is being used commercially (ie, by a corporation,
-* company or business for any purpose whatever) then you
-* should purchase a license for each developer using Jigloo.
-* Please visit www.cloudgarden.com for details.
-* Use of Jigloo implies acceptance of these licensing terms.
-* A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
-* THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
-* LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
-*/
+ * This dialog enables selecting directories for listening and regular
+ * expressions as file filters for those directories. It receives the current
+ * situation of listened directories and their filters and it returns the requested
+ * changes (added directories, removed directories and directories with modified
+ * regular expression file filters).
+ * @author Or Shwartz
+ */
 public class ListenedPathsDialog extends Dialog {
 
 	private Shell dialogShell;
@@ -87,7 +80,7 @@ public class ListenedPathsDialog extends Dialog {
 
 			ListenedPathsDelta pathsDelta = inst.open(listenedDirs);
 			
-			// TODO: Process changes to listened paths
+			// Process changes to listened paths
 			System.out.println("\n***NEW***");
 			for (ListenedDirectory curListenedDir : pathsDelta.getAddedListenedDirectories()) {
 				System.out.println(curListenedDir.toString());
@@ -105,6 +98,11 @@ public class ListenedPathsDialog extends Dialog {
 		}
 	}
 
+	/**
+	 * Creates the dialog.
+	 * @param parent Parent of the dialog.
+	 * @param style Requested styles for the dialog.
+	 */
 	public ListenedPathsDialog(Shell parent, int style) {
 		super(parent, style);
 	}
@@ -121,31 +119,6 @@ public class ListenedPathsDialog extends Dialog {
 		
 		return new File(strSelection.substring(1,
 											   strSelection.length()-1));
-	}
-	
-	/**
-	 * Converts an array of objects to array of strings, using
-	 * their toString method.
-	 * @param objArray Array of objects.
-	 * @return The objects array converted to a string array.
-	 */
-	private String[] convertObjArrayToStrArray(Object[] objArray) {
-		
-		final int size =
-			((objArray != null)?
-					objArray.length :
-					0);
-		
-		String[] strArray = new String[size];
-		
-		// For each object
-		for (int curItemIdx = 0; curItemIdx < size; ++curItemIdx) {
-			
-			// Convert the object to a string
-			strArray[curItemIdx] = objArray[curItemIdx].toString();
-		}
-		
-		return strArray;
 	}
 	
 	/**
