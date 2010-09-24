@@ -10,6 +10,7 @@ import static commander.CommandManager.CmdCodes.LSTNR_STOP_LISTENING_TO;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.HashMap;
 
 import listener.ListenedDirectory;
@@ -58,7 +59,6 @@ public class MainAppGUI {
 	private Label lblOptionsAndSettings;
 	private Label lblSearch;
 
-	
 	private static ControlsWindow controlsWindow = null;
 	private static SearchWindow searchWindow = null;
 	
@@ -170,21 +170,32 @@ public class MainAppGUI {
 				public void handleEvent(Event e) {
 
 					File pluginsDir =
-						new File("./plugins");System.out.println(pluginsDir.getAbsolutePath());
+						new File("plugins");
+					try {
+						// Create directory for plugins
+						pluginsDir.toPath().createDirectory();
+					} catch (FileAlreadyExistsException e0) {
+					
+						// Ignore this - if directory exists there's not problem
+					} catch (Exception e1) {
+
+						// TODO Maybe report this somehow to the log
+						e1.printStackTrace();
+					}
 					File[] possiblePlugins =
 						pluginsDir.listFiles(new FilenameFilter() {
 
-						/**
-						 * Accepts .class and .jar files.
-						 * @see java.io.FilenameFilter#accept(java.io.File, java.lang.String)
-						 */
-						@Override
-						public boolean accept(File dir, String name) {
-
-							return name.endsWith(".class") ||
-								   name.endsWith(".jar");
-						}
-					});
+							/**
+							 * Accepts .class and .jar files.
+							 * @see java.io.FilenameFilter#accept(java.io.File, java.lang.String)
+							 */
+							@Override
+							public boolean accept(File dir, String name) {
+	
+								return name.endsWith(".class") ||
+									   name.endsWith(".jar");
+							}
+						});
 					
 					AlgorithmSelector algSelector =
 						new AlgorithmSelector(sShell, SWT.DIALOG_TRIM |
@@ -197,7 +208,6 @@ public class MainAppGUI {
 			btnOptionsAndSettings.setMenu(mnuOptions);
 			btnOptionsAndSettings.addListener(SWT.Selection, new Listener() {
 
-				@SuppressWarnings("unchecked")
 				@Override
 				public void handleEvent(Event arg0) {
 					
