@@ -77,11 +77,11 @@ public class ListenedPathsDialog extends Dialog {
 			regexes.add(".*\\.mp3");
 			regexes.add(".*\\.pdf");
 			regexes.add(".*\\.doc");
-			File dir = new File("C:\\TEMP");
+			File dir = new File("C:\\proj");
 			listenedDirs.put(dir, new ListenedDirectory(dir, regexes));
-			dir = new File("C:\\Vered&Or"); 
+			dir = new File("C:\\proj2"); 
 			listenedDirs.put(dir, new ListenedDirectory(dir, (Collection<String>) regexes.clone()));
-			dir = new File("D:/DELL");
+			dir = new File("C:\\proj3");
 			listenedDirs.put(dir, new ListenedDirectory(dir, (Collection<String>) regexes.clone()));
 
 			ListenedPathsDelta pathsDelta = inst.open(listenedDirs);
