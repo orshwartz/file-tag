@@ -15,6 +15,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
@@ -40,7 +41,7 @@ import tagger.autotagger.Configurable;
 * THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
 * LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
 */
-public class AlgorithmSelector extends org.eclipse.swt.widgets.Dialog {
+public class AlgorithmSelector extends Dialog {
 
 	private Shell dialogShell;
 	private Table tblPlugins;
@@ -176,6 +177,7 @@ public class AlgorithmSelector extends org.eclipse.swt.widgets.Dialog {
 				table1LData.height = 101;
 				tblPlugins = new Table(dialogShell, SWT.CHECK | SWT.BORDER | SWT.V_SCROLL);
 				tblPlugins.setLayoutData(table1LData);
+
 				tblPlugins.addSelectionListener(new SelectionListener() {
 				
 					@Override
@@ -187,11 +189,19 @@ public class AlgorithmSelector extends org.eclipse.swt.widgets.Dialog {
 					@Override
 					public void widgetSelected(SelectionEvent arg0) {
 
+						// Ignore checkbox clicks
+						if (arg0.detail == SWT.CHECK) {
+							
+							// Stop processing - it was just a check of a checkbox
+							return;
+						}
+						
 						try {
 							selectedAutoTagger =
 								AutoTaggerLoader.getAutoTagger((File)arg0.item.getData());
 						} catch (ClassNotFoundException e) {
-							// TODO Auto-generated catch block
+
+							// TODO: Maybe write to log or something
 							e.printStackTrace();
 						}
 						
@@ -275,7 +285,7 @@ public class AlgorithmSelector extends org.eclipse.swt.widgets.Dialog {
 					public void handleEvent(Event arg0) {
 					
 						// TODO: Just close the window... dispose or something
-						dialogShell.close();
+						dialogShell.dispose();
 					}
 				});
 			}
