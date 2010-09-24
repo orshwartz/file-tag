@@ -299,7 +299,11 @@ public class DataAccessLevel {
 				string.append("INSERT INTO files(filename,last_modified_epoch) ");
 				string.append("VALUES('");
 				string.append(file);
-				string.append("',3432)"); // FIXME : this is weird.
+				string.append("',"); // FIXME : this is weird.
+				
+				long epoch = System.currentTimeMillis()/1000;
+				string.append(epoch);
+				string.append(")");
 
 				stmt = conn.prepareStatement(string.toString());
 				System.out.println("println1");
