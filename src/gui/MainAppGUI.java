@@ -59,21 +59,19 @@ public class MainAppGUI {
 	private Label lblOptionsAndSettings;
 	private Label lblSearch;
 
-	private static ControlsWindow controlsWindow = null;
 	private static SearchWindow searchWindow = null;
 	
 	/**
-	 * @param commander TODO: Connect commands to actionListeners
+	 * This class is the main GUI controller for the application.
+	 * @param commander The is what contains all the commands the system enables,
+	 * so that the GUI can control different subsystems.
 	 */
 	public MainAppGUI(CommandManager commander) {
-
-		// TODO Auto-generated constructor stub
 		
 		MainAppGUI.commander = commander;
 		
 		createSShell();
 		
-		controlsWindow = new ControlsWindow(commander);
 		searchWindow = new SearchWindow(commander);
 		
 		System.out.println(this.getClass().getName() + " up.");
