@@ -129,6 +129,11 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 	public void unTagFileAll(String file){
 		DAL.unTagFileAll(file);
 	}
+	
+	@Override
+	public void deleteAll(){
+		DAL.deleteAll();
+	}
 
 	/**
 	 * Update this Observer with file events. The argument received should be a <CODE>{@link FileEvent}</CODE> object.

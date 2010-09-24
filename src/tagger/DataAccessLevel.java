@@ -309,7 +309,23 @@ public class DataAccessLevel {
 				System.out.println("println1");
 				stmt.executeUpdate();
 			}
+			else {
 			connect();
+				
+				string.setLength(0);
+				string.append("UPDATE files SET last_modified_epoch = ");
+				long epoch = System.currentTimeMillis()/1000;
+				string.append(epoch);
+				string.append("WHERE filename = '");
+				string.append(file);
+				string.append("'");
+				
+				stmt = conn.prepareStatement(string.toString());
+				stmt.executeUpdate();
+				stmt.close();
+				
+			}
+			
 			System.out.println("println2");
 			while (it.hasNext()) {
 					System.out.println("println3");
@@ -819,6 +835,72 @@ public class DataAccessLevel {
 		}
 		
 		return tagFreq;
+	}
+	
+	/**
+	 * This method deletes all of the tags and files located in the DB
+	 */
+	public void deleteAll(){
+		connect();
+		
+		
+		// delete all tags
+		try {
+			string.setLength(0);
+			string.append("DELETE FROM tags");
+			stmt = conn.prepareStatement(string.toString());
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		// delete all files
+		try {
+			string.setLength(0);
+			string.append("DELETE FROM files");
+			stmt = conn.prepareStatement(string.toString());
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		disconnect();
+	}
+	
+	public long getTime(String file){
+		
+		connect();
+		
+		long epoch = 0;
+		
+		string.setLength(0);
+		string.append("SELECT last_modified_epoch FROM files ");
+		string.append("WHERE filename = '");
+		string.append(file);
+		string.append("'");
+		
+		try {
+			stmt = conn.prepareStatement(string.toString());
+			results = stmt.executeQuery();
+			results.next();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+			epoch = results.getInt(1);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println(epoch);
+		
+		disconnect();
+		return 0;
 	}
 
 	
