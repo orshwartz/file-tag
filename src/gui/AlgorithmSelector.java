@@ -20,6 +20,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
@@ -225,7 +226,22 @@ public class AlgorithmSelector extends Dialog {
 								public void handleEvent(Event arg0) {
 									
 									// Use selected plug-in's GUI configuration when this button is clicked
-									((Configurable)selectedAutoTagger).showConfigurationGUI();
+									try {
+										((Configurable)selectedAutoTagger).showConfigurationGUI();
+									} catch (Exception e) {
+										
+										MessageBox msgBox = new MessageBox(dialogShell, SWT.ERROR | SWT.OK);
+										msgBox.setText("Algorithm Configuration GUI Error");
+										msgBox.setMessage("A problem occurred while trying to display the " +
+														  "configuration GUI for the selected algorithm.\n\n" +
+														  "An exception was thrown with the details:\n" +
+														  e.getLocalizedMessage());
+										
+										// Show a message box with the error and disable the
+										// configuration GUI for now
+										msgBox.open();
+										btnConfig.setEnabled(false);
+									}
 								}
 							});
 						}
