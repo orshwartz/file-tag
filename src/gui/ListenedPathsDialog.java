@@ -1,9 +1,8 @@
 package gui;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.nio.file.NotDirectoryException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,6 +28,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+
+import antlr.StringUtils;
 
 import com.cloudgarden.resource.SWTResourceManager;
 
@@ -571,7 +572,7 @@ public class ListenedPathsDialog extends Dialog {
 												   new ArrayList<ListenedDirectory>(0));
 						
 						// Close dialog
-						dialogShell.close();
+						dialogShell.dispose();
 					}
 				});
 			}
@@ -580,6 +581,16 @@ public class ListenedPathsDialog extends Dialog {
 			dialogShell.setSize(500, 500);
 			dialogShell.setMinimumSize(250, 250);
 			dialogShell.open();
+			dialogShell.addListener(SWT.Close, new Listener() {
+
+				@Override
+				public void handleEvent(Event arg0) {
+					
+					// Fake a click on the cancel button since closing
+					// the window is like canceling the action
+					btnCancel.getListeners(SWT.Selection)[0].handleEvent(null);
+				}
+			});
 			
 			Display display = dialogShell.getDisplay();
 			while (!dialogShell.isDisposed()) {
