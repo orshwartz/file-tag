@@ -271,7 +271,14 @@ public class SearchWindow {
 
 				@Override
 				public void handleEvent(Event arg0) {
-				System.out.println(lstResults.getSelection()[0]);
+					
+				TSCommand getTagsCmd = commander.getCommand(TAGGER_GET_TAGS_OF_FILE);
+				Collection<String> tags = (Collection<String>) getTagsCmd.execute(lstResults.getSelection());
+				
+				list1.removeAll();
+				for(String str : tags){
+					list1.add(str);
+				}
 					
 				}
 				

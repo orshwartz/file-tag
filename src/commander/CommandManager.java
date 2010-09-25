@@ -16,6 +16,7 @@ import commander.commands.GetFileByTagsCommand;
 import commander.commands.GetListenedDirsCommand;
 import commander.commands.GetMessagesCommand;
 import commander.commands.GetTagsByFreqCommand;
+import commander.commands.GetTagsOfFileCommand;
 import commander.commands.ListenToCommand;
 import commander.commands.StopListenToCommand;
 import commander.commands.TSCommand;
@@ -47,6 +48,7 @@ public class CommandManager implements Observer {
 		TAGGER_GET_FILES_BY_TAGS,
 		TAGGER_GET_TAGS_BY_FREQ,
 		TAGGER_TAG_FILE,
+		TAGGER_GET_TAGS_OF_FILE,
 		TOTAL_COMMAND_CODES
 	}
 	
@@ -124,6 +126,8 @@ public class CommandManager implements Observer {
 		commandMappings.put(TAGGER_GET_FILES_BY_TAGS, new GetFileByTagsCommand());
 		commandMappings.put(TAGGER_GET_TAGS_BY_FREQ, new GetTagsByFreqCommand());
 		commandMappings.put(TAGGER_TAG_FILE, new TagFileCommand());
+		commandMappings.put(TAGGER_GET_TAGS_OF_FILE, new GetTagsOfFileCommand());
+
 		/* TODO: Add rest of the commands to the hashmap here...
 		 * 
 		 * 
