@@ -1,6 +1,5 @@
 package commander;
 
-import static commander.CommandManager.CmdCodes.*;
 import gui.MainAppGUI;
 
 import java.util.HashMap;
@@ -13,17 +12,18 @@ import tagger.TagRepository;
 
 import commander.commands.ActivateListenerCommand;
 import commander.commands.DeactivateListenerCommand;
-import commander.commands.GetAutoTaggersCommand;
 import commander.commands.GetFileByTagsCommand;
 import commander.commands.GetListenedDirsCommand;
 import commander.commands.GetMessagesCommand;
 import commander.commands.GetTagsByFreqCommand;
+import commander.commands.GetTagsOfFileCommand;
 import commander.commands.ListenToCommand;
-import commander.commands.ProcessFileChangeTaggingCommand;
-import commander.commands.SetAutoTaggersCommand;
 import commander.commands.StopListenToCommand;
 import commander.commands.TSCommand;
+import commander.commands.TagFileCommand;
 import commander.commands.WriteMessageCommand;
+
+import static commander.CommandManager.CmdCodes.*;
 
 /**
  * This class is responsible for holding system commands,
@@ -47,9 +47,8 @@ public class CommandManager implements Observer {
 		LSTNR_GET_LISTENED_DIRS,
 		TAGGER_GET_FILES_BY_TAGS,
 		TAGGER_GET_TAGS_BY_FREQ,
-		TAGGER_PROCESS_FILE_CHANGE_TAGGING,
-		TAGGER_SET_AUTO_TAGGERS,
-		TAGGER_GET_AUTO_TAGGERS,
+		TAGGER_TAG_FILE,
+		TAGGER_GET_TAGS_OF_FILE,
 		TOTAL_COMMAND_CODES
 	}
 	
@@ -60,11 +59,10 @@ public class CommandManager implements Observer {
 	private HashMap<CmdCodes, TSCommand> commandMappings = null;
 	
 	/**
-	 * Constructor for the command manager.
-	 * @param tagRep Tag repository to control through command manager.
-	 * @param listener Listener to control through command manager.
-	 * @param log Log to control through command manager.
-	 * @param gui GUI to control through command manager.
+	 * @param tagRep
+	 * @param listener
+	 * @param log
+	 * @param gui
 	 */
 	public CommandManager(TagRepository tagRep,
 						  Listener listener,
@@ -95,7 +93,10 @@ public class CommandManager implements Observer {
 	public CommandManager(TagRepository tagRep,
 			  			  Listener listener,
 			  			  Log log) {
-			
+	
+		// TODO: Remove this stub message
+		System.out.println(this.getClass().getName() + " up.");
+		
 		// Set sub-system components
 		setListener(listener);
 		setLog(log);
@@ -104,9 +105,6 @@ public class CommandManager implements Observer {
 		// Setup commands for sub-systems
 		TSCommand.setCommandedSubsystems(log, listener, tagRep);
 		initCmdMappings();
-		
-		// TODO: Remove this stub message
-		System.out.println(this.getClass().getName() + " up.");
 	}
 
 	/**
@@ -127,9 +125,9 @@ public class CommandManager implements Observer {
 		commandMappings.put(LSTNR_GET_LISTENED_DIRS, new GetListenedDirsCommand());
 		commandMappings.put(TAGGER_GET_FILES_BY_TAGS, new GetFileByTagsCommand());
 		commandMappings.put(TAGGER_GET_TAGS_BY_FREQ, new GetTagsByFreqCommand());
-		commandMappings.put(TAGGER_PROCESS_FILE_CHANGE_TAGGING, new ProcessFileChangeTaggingCommand());
-		commandMappings.put(TAGGER_SET_AUTO_TAGGERS, new SetAutoTaggersCommand());
-		commandMappings.put(TAGGER_GET_AUTO_TAGGERS, new GetAutoTaggersCommand());
+		commandMappings.put(TAGGER_TAG_FILE, new TagFileCommand());
+		commandMappings.put(TAGGER_GET_TAGS_OF_FILE, new GetTagsOfFileCommand());
+
 		/* TODO: Add rest of the commands to the hashmap here...
 		 * 
 		 * 
@@ -161,15 +159,15 @@ public class CommandManager implements Observer {
 	}
 
 	/**
-	 * This should be called when there's an update to a file in some directory.
+	 * This should be called when there is a file addition which
+	 * needs to be tagged, but because the file is new the tagger needs
+	 * more information from the user.
 	 * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
 	 */
 	@Override
 	public void update(Observable object, Object arg) {
 
-		// Pass this data to the tagger
-		Object[] params = new Object[] {arg};
-		getCommand(TAGGER_PROCESS_FILE_CHANGE_TAGGING).execute(params);
+		// TODO : Invoke GUI command for new file to tag (TBD)		
 	}
 
 	/**

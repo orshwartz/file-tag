@@ -41,6 +41,7 @@ public class SearchWindow {
 	private List lstAvailableTags;
 	private List lstExcludedTags;
 	private Button btnIncludeTag;
+	private List list1;
 	private Button btnSearch;
 	private Label lblSearchResults;
 	private Label lblExcludedTags;
@@ -256,15 +257,39 @@ public class SearchWindow {
 			lblSearchResults.setText("Search results");
 		}
 		{
-			lstResults = new List(window, SWT.BORDER);
+			lstResults = new List(window, SWT.SINGLE | SWT.V_SCROLL | SWT.BORDER);
 			GridData lstResultsLData = new GridData();
-			lstResultsLData.horizontalSpan = 5;
+			lstResultsLData.horizontalSpan = 4;
 			lstResultsLData.horizontalAlignment = GridData.FILL;
 			lstResultsLData.verticalAlignment = GridData.FILL;
 			lstResultsLData.grabExcessVerticalSpace = true;
 			lstResultsLData.grabExcessHorizontalSpace = true;
 			lstResults.setLayoutData(lstResultsLData);
 			lstResults.setBounds(12, 282, 749, 182);
+			
+			lstResults.addListener(SWT.Selection, new Listener(){
+
+				@Override
+				public void handleEvent(Event arg0) {
+					
+				TSCommand getTagsCmd = commander.getCommand(TAGGER_GET_TAGS_OF_FILE);
+				Collection<String> tags = (Collection<String>) getTagsCmd.execute(lstResults.getSelection());
+				
+				list1.removeAll();
+				for(String str : tags){
+					list1.add(str);
+				}
+					
+				}
+				
+			});
+		}
+		{
+			GridData list1LData = new GridData();
+			list1LData.horizontalAlignment = GridData.FILL;
+			list1LData.verticalAlignment = GridData.FILL;
+			list1 = new List(window, SWT.V_SCROLL | SWT.BORDER);
+			list1.setLayoutData(list1LData);
 		}
 
 		window.setSize(500, 400);
