@@ -13,10 +13,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import listener.FileEvent;
 import tagger.autotagger.AutoTagger;
+import tagger.autotagger.AutoTaggerLoader;
 
 /**
  * This class represents a tag repository - which is a repository associating
@@ -31,20 +33,15 @@ public class TagRepositoryImpl implements TagRepository {
 	private String FILENAME_PERSISTENCE = "tagger_persistence.bin";
 	
 	/**
-	 * <CODE>TagRepositoryEventDrivenImpl</CODE> constructor.
+	 * <CODE>TagRepositoryImpl</CODE> constructor.
 	 */
 	public TagRepositoryImpl() {
 		
 		DAL = new DataAccessLevel();
 		DAL.getConnection();
 		
-		try {
-			// Restore needed automatic algorithms
-			loadTaggerData();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		// Restore needed automatic algorithms
+		loadTaggerData();
 		
 		System.out.println(this.getClass().getName() + " up.");
 	}
@@ -184,7 +181,7 @@ public class TagRepositoryImpl implements TagRepository {
 						continue; // TODO: Consider attempting to report the problem somehow
 					}
 				}
-				
+
 				// Tag the file with generated tags
 				DAL.tagFile(file.toString(), fileTags);
 				
@@ -248,7 +245,13 @@ public class TagRepositoryImpl implements TagRepository {
 				new ObjectOutputStream(fileOutStream);
 			
 			// Save listened paths data to file
-			objOutStream.writeObject(autoTaggers);
+			Set<File> usedAlgoFilesSet = autoTaggers.keySet();
+			Collection<File> usedAlgoFilesCol =
+				new ArrayList<File>(usedAlgoFilesSet.size());
+			for (File curFile : usedAlgoFilesSet) {
+				usedAlgoFilesCol.add(curFile);
+			}
+			objOutStream.writeObject(usedAlgoFilesCol);
 			objOutStream.close();
 			
 		} catch (FileNotFoundException e) {
@@ -261,27 +264,38 @@ public class TagRepositoryImpl implements TagRepository {
 	}
 	
 	/**
-	 * Load listened directories and matching regular expressions from file. 
+	 * Load used algorithm filenames from file.  
 	 * @throws FileNotFoundException if persistence file doesn't exist.
 	 */
 	@SuppressWarnings("unchecked")
-	private void loadTaggerData() throws FileNotFoundException  {
-
-		File filePersistence =
-			new File(FILENAME_PERSISTENCE);
-		
-		FileInputStream fileInStream =
-			new FileInputStream(filePersistence);
+	private void loadTaggerData() {
 
 		try {
+			File filePersistence =
+				new File(FILENAME_PERSISTENCE);
+	
+			FileInputStream fileInStream;
+
+			fileInStream = new FileInputStream(filePersistence);
+
 			ObjectInputStream objInStream =
 				new ObjectInputStream(fileInStream);
 
 			// Read listened paths data from file
-			autoTaggers =
-				(Map<File, AutoTagger>)objInStream.readObject();
+			Collection<File> autoTaggerFiles =
+				(Collection<File>) objInStream.readObject();
 			objInStream.close();
-		
+			
+			// Load the automatic taggers
+			autoTaggers.clear();
+			for (File curFile : autoTaggerFiles) {
+				
+				autoTaggers.put(curFile,
+								AutoTaggerLoader.getAutoTagger(curFile));
+			}
+		} catch (FileNotFoundException e1) {
+
+			// Ignore - file probably does not exist YET
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -289,5 +303,5 @@ public class TagRepositoryImpl implements TagRepository {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}	
+	}
 }

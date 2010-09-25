@@ -1,13 +1,16 @@
 package tagger.autotagger;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Class representing a version. Useful for auto-tagging algorithms, etc.
  * @author Or Shwartz
  */
-public class Version implements Comparable<Version> {
+public class Version implements Comparable<Version>, Serializable {
 
+	private static final long serialVersionUID = 6430543322663676659L;
+	
 	private final int major;
 	private final int minor;
 	private final int micro;

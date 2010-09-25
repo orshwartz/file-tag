@@ -2,8 +2,8 @@ package gui;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
@@ -47,6 +47,8 @@ public class AlgorithmSelector extends Dialog {
 	private Shell dialogShell;
 	private Table tblPlugins;
 	private Button btnConfig;
+	private CLabel lblFileData;
+	private CLabel lblFile;
 	private CLabel lblReleaseDate;
 	private CLabel lblVersion;
 	private CLabel lblAuthor;
@@ -59,16 +61,21 @@ public class AlgorithmSelector extends Dialog {
 	private Group grpDescription;
 	SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 	AutoTagger selectedAutoTagger = null;
+	private Map<File, AutoTagger> chosenAutoTaggers = null;
 
 	public AlgorithmSelector(Shell parent, int style) {
 		super(parent, style);
 	}
 
-	public Collection<AutoTagger> open(File[] possiblePlugins) {
+	/**
+	 * Shows the GUI for automatic tagging algorithms selection. This GUI displays algorithm data as well.
+	 * @param availablePlugins The plugins available for loading.
+	 * @param curPlugins The plugins which should be marked as loaded already.
+	 * @return Files of chosen automatic taggers and their classes. <TT>null</TT> is returned
+	 * if the user chose to abandon changes. 
+	 */
+	public Map<File, AutoTagger> open(final File[] availablePlugins, File[] curPlugins) {
 
-		Collection<AutoTagger> chosenAutoTaggers =
-			new ArrayList<AutoTagger>(possiblePlugins.length);
-		
 		try {
 			Shell parent = getParent();
 			dialogShell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
@@ -189,28 +196,24 @@ public class AlgorithmSelector extends Dialog {
 				
 					@Override
 					public void widgetSelected(SelectionEvent arg0) {
-
-						// Ignore checkbox clicks
+						
+						// If a checkbox click
 						if (arg0.detail == SWT.CHECK) {
 							
-							// Stop processing - it was just a check of a checkbox
+							// Stop processing - no need to display any data
 							return;
 						}
 						
-						try {
-							selectedAutoTagger =
-								AutoTaggerLoader.getAutoTagger((File)arg0.item.getData());
-						} catch (ClassNotFoundException e) {
-
-							// TODO: Maybe write to log or something
-							e.printStackTrace();
-						}
+						// Get AutoTagger object of selected algorithm
+						selectedAutoTagger =
+							((FileAutoTaggerPair)arg0.item.getData()).getAutoTagger();
 						
 						// Display data for selected plug-in
 						txtDescription.setText(selectedAutoTagger.getDescription());
 						lblAuthorData.setText(selectedAutoTagger.getAuthor());
 						lblVersionData.setText(selectedAutoTagger.getVersion().toString());
 						lblReleaseDateData.setText(dateFormat.format(selectedAutoTagger.getVersion().getDate()));
+						lblFileData.setText(((FileAutoTaggerPair)arg0.item.getData()).getFile().getAbsolutePath());
 
 						// If algorithm can be configured by GUI
 						if (selectedAutoTagger instanceof Configurable) {
@@ -253,17 +256,27 @@ public class AlgorithmSelector extends Dialog {
 				});
 				{	
 					// If received a valid list
-					if (possiblePlugins != null) {
+					if (availablePlugins != null) {
 						
 						// Populate plug-in list
 						TableItem curTableItem = null;
-						for (File curPluginFile : possiblePlugins) {
+						for (File curPluginFile : availablePlugins) {
 							
 							curTableItem = new TableItem(tblPlugins, SWT.NONE);
 							AutoTagger curAutoTagger =
 								AutoTaggerLoader.getAutoTagger(curPluginFile);
 							curTableItem.setText(curAutoTagger.getName());
-							curTableItem.setData(curPluginFile);
+							curTableItem.setData(new FileAutoTaggerPair(curPluginFile,curAutoTagger));
+							
+							// Tick checkbox if algorithm should be loaded already
+							for (File curLoadedFile : curPlugins) {
+
+								if (curPluginFile.equals(curLoadedFile)) {
+
+									curTableItem.setChecked(true);
+									break;
+								}
+							}
 						}
 					}
 				}
@@ -277,36 +290,76 @@ public class AlgorithmSelector extends Dialog {
 				button1LData.height = 25;
 				btnOK.setLayoutData(button1LData);
 				btnOK.setText("OK");
-				btnOK.setToolTipText("Add an auto-tagging algorithm.");
+				btnOK.setToolTipText("Set marked algorithms for automatic tagging.");
 				btnOK.addListener(SWT.Selection, new Listener() {
 
 					@Override
 					public void handleEvent(Event arg0) {
-						// TODO: Set selected algorithms and exit, maybe save them too - to show them selected when window is opened
+
+						chosenAutoTaggers = new HashMap<File, AutoTagger>(availablePlugins.length);
+						
+						// For each table item
+						for (TableItem curTblItem : tblPlugins.getItems()) {
+							
+							// If algorithm is marked
+							if (curTblItem.getChecked()) {
+								
+								// Add it to map of chosen algorithms
+								FileAutoTaggerPair curData =
+									(FileAutoTaggerPair) curTblItem.getData();
+								chosenAutoTaggers.put(
+										curData.getFile(),
+										curData.getAutoTagger());
+							}
+						}
+						
+						// Dispose of the window - we're done here
+						dialogShell.dispose();
 					}
 				});
 			}
 			{
 				btnCancel = new Button(dialogShell, SWT.PUSH | SWT.CENTER);
-				FormData button2LData = new FormData();
-				button2LData.left =  new FormAttachment(0, 1000, 342);
-				button2LData.top =  new FormAttachment(0, 1000, 48);
-				button2LData.width = 74;
-				button2LData.height = 25;
-				btnCancel.setLayoutData(button2LData);
+				FormData btnCancelLData = new FormData();
+				btnCancelLData.left =  new FormAttachment(0, 1000, 342);
+				btnCancelLData.top =  new FormAttachment(0, 1000, 48);
+				btnCancelLData.width = 74;
+				btnCancelLData.height = 25;
+				btnCancel.setLayoutData(btnCancelLData);
 				btnCancel.setText("Cancel");
+				btnCancel.setToolTipText("Discard changes to algorithm selection.");
 				btnCancel.addListener(SWT.Selection, new Listener() {
 
 					@Override
 					public void handleEvent(Event arg0) {
 					
-						// TODO: Just close the window... dispose or something
+						// Just dispose of the window
 						dialogShell.dispose();
 					}
 				});
 			}
+			{
+				lblFile = new CLabel(dialogShell, SWT.NONE);
+				FormData lblFileLData = new FormData();
+				lblFileLData.left =  new FormAttachment(0, 1000, 12);
+				lblFileLData.top =  new FormAttachment(0, 1000, 199);
+				lblFileLData.width = 81;
+				lblFileLData.height = 21;
+				lblFile.setLayoutData(lblFileLData);
+				lblFile.setText("File:");
+			}
+			{
+				FormData lblFileDataLData = new FormData();
+				lblFileDataLData.left =  new FormAttachment(0, 1000, 91);
+				lblFileDataLData.top =  new FormAttachment(0, 1000, 199);
+				lblFileDataLData.width = 315;
+				lblFileDataLData.height = 21;
+				lblFileData = new CLabel(dialogShell, SWT.NONE);
+				lblFileData.setLayoutData(lblFileDataLData);
+			}
 			dialogShell.layout();
 			dialogShell.pack();			
+			dialogShell.setSize(432, 368);
 			dialogShell.setLocation(getParent().toDisplay(100, 100));
 			dialogShell.open();
 			dialogShell.addListener(SWT.Close, new Listener() {
@@ -347,11 +400,63 @@ public class AlgorithmSelector extends Dialog {
 					new File("c:/temp/TaggerByPathKeywords.class"),
 					new File("c:/temp/TaggerByMetadata.class")
 				};
+			File[] curPlugins =
+				new File[] {
+					new File("c:/temp/TaggerByMetadata.class"),
+					new File("c:/temp/TaggerByPathKeywords.class")
+				};
 			
 			// Show the dialog
-			algSelector.open(pluginList);
+			algSelector.open(pluginList,curPlugins);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * This inner class is used to simplify the saving of two object as data for each table item,
+	 * since we want to save a file name and also an autotagger object if one is created. This is so that
+	 * we don't have to create an <CODE>AutoTagger</CODE> object again if it already was created.
+	 * @author Or Shwartz
+	 */
+	private class FileAutoTaggerPair {
+
+		File file;
+		AutoTagger autoTagger;
+		
+		/**
+		 * Initializes the class with the file and the autotagger object. 
+		 * @param file The file of the automatic tagger.
+		 * @param autoTagger The automatic tagger object.
+		 */
+		public FileAutoTaggerPair(File file, AutoTagger autoTagger) {
+			
+			this.file = file;
+			this.autoTagger = autoTagger;
+		}
+
+		/**
+		 * Getter for the file.
+		 * @return the file
+		 */
+		public File getFile() {
+			return file;
+		}
+		
+		/**
+		 * Getter for the automatic tagger object.
+		 * @return the autoTagger
+		 */
+		public AutoTagger getAutoTagger() {
+			return autoTagger;
+		}
+
+		/**
+		 * Setter for <CODE>AutoTagger</CODE> object.
+		 * @param autoTagger the autoTagger to set
+		 */
+		public void setAutoTagger(AutoTagger autoTagger) {
+			this.autoTagger = autoTagger;
 		}
 	}
 }

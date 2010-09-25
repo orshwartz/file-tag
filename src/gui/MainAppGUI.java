@@ -4,14 +4,13 @@
 package gui;
 
 
-import static commander.CommandManager.CmdCodes.LSTNR_GET_LISTENED_DIRS;
-import static commander.CommandManager.CmdCodes.LSTNR_LISTEN_TO;
-import static commander.CommandManager.CmdCodes.LSTNR_STOP_LISTENING_TO;
+import static commander.CommandManager.CmdCodes.*;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.HashMap;
+import java.util.Map;
 
 import listener.ListenedDirectory;
 
@@ -26,6 +25,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
+
+import tagger.autotagger.AutoTagger;
 
 import com.cloudgarden.resource.SWTResourceManager;
 import commander.CommandManager;
@@ -169,6 +170,7 @@ public class MainAppGUI {
 			mnuAlgorithmSelector.setText("Select tagging algorithms");
 			mnuAlgorithmSelector.addListener(SWT.Selection, new Listener() {
 
+				@SuppressWarnings("unchecked")
 				public void handleEvent(Event e) {
 
 					File pluginsDir =
@@ -178,11 +180,13 @@ public class MainAppGUI {
 						pluginsDir.toPath().createDirectory();
 					} catch (FileAlreadyExistsException e0) {
 					
-						// Ignore this - if directory exists there's not problem
+						// Ignore this - if directory exists there's no problem
 					} catch (Exception e1) {
 
-						// TODO Maybe report this somehow to the log
-						e1.printStackTrace();
+						// Report problem to log
+						Object[] params =
+							new Object[] {"Error occurred during creation of plugins directory."};
+						commander.getCommand(LOG_WRITE_MESSAGE).execute(params);
 					}
 					File[] possiblePlugins =
 						pluginsDir.listFiles(new FilenameFilter() {
@@ -202,9 +206,37 @@ public class MainAppGUI {
 					AlgorithmSelector algSelector =
 						new AlgorithmSelector(sShell, SWT.DIALOG_TRIM |
 													  SWT.APPLICATION_MODAL);
-					
+
+					// Get loaded automatic taggers
+					Map<File, AutoTagger> usedAutotaggers =
+						(Map<File, AutoTagger>) commander.getCommand(TAGGER_GET_AUTO_TAGGERS).execute(null);
+
 					// Open the algorithm selection GUI with given possible plugins
-					algSelector.open(possiblePlugins);
+					Map<File,AutoTagger> chosenAutoTaggers =
+						algSelector.open(
+								possiblePlugins,
+								castObjArrayToFileArray(usedAutotaggers.keySet().toArray()));
+
+					// If user didn't abandon changes
+					if (chosenAutoTaggers != null) {
+						
+						// Set chosen automatic taggers
+						commander.getCommand(TAGGER_SET_AUTO_TAGGERS).execute(
+								new Object[] {chosenAutoTaggers});
+					}
+				}
+
+				private File[] castObjArrayToFileArray(Object[] objArray) {
+					
+					File[] fileArray = new File[objArray.length];
+					
+					// Cast each object in the object array to file
+					for (int i = 0; i < objArray.length; i++) {
+						
+						fileArray[i] = (File)objArray[i];
+					}
+					
+					return fileArray;
 				}
 			});
 			btnOptionsAndSettings.setMenu(mnuOptions);

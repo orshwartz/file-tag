@@ -1,11 +1,13 @@
 package tagger.autotagger;
 
+import java.io.Serializable;
+
 /**
  * A class implementing this should enable the configuration of an algorithm by
  * displaying a GUI. 
  * @author Or Shwartz
  */
-public interface Configurable {
+public interface Configurable extends Serializable {
 
 	/**
 	 * Displays the configuration GUI.
