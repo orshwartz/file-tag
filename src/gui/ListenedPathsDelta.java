@@ -64,4 +64,24 @@ public class ListenedPathsDelta {
 	
 		return modifiedListenedDirectories;
 	} 
+	
+	/**
+	 * Formats the object to a string like this:<BR>
+	 * [<BR>
+	 * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Added: ...<BR>
+	 * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Modified: ...<BR>
+	 * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Removed: ...<BR>
+	 * ]
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		
+		return
+			"[\n" +
+			"\tAdded: " + addedListenedDirectories.toString() + "\n" +
+			"\tModified: " + modifiedListenedDirectories.toString() + "\n" +
+			"\tRemoved: " + removedListenedDirectories.toString() + "\n" +
+			"]";
+	}
 }

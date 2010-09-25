@@ -2,7 +2,6 @@ package gui;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,8 +27,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-
-
 
 import com.cloudgarden.resource.SWTResourceManager;
 
@@ -88,18 +85,7 @@ public class ListenedPathsDialog extends Dialog {
 			ListenedPathsDelta pathsDelta = inst.open(listenedDirs);
 			
 			// TODO: Process changes to listened paths
-			System.out.println("\n***NEW***");
-			for (ListenedDirectory curListenedDir : pathsDelta.getAddedListenedDirectories()) {
-				System.out.println(curListenedDir.toString());
-			}
-			System.out.println("\n***REMOVED***");
-			for (File curFile : pathsDelta.getRemovedListenedDirectories()) {
-				System.out.println(curFile.toString());
-			}
-			System.out.println("\n***MODIFIED***");
-			for (ListenedDirectory curListenedDir : pathsDelta.getModifiedListenedDirectories()) {
-				System.out.println(curListenedDir.toString());
-			}
+			System.out.println(pathsDelta.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -150,11 +136,11 @@ public class ListenedPathsDialog extends Dialog {
 	
 	/**
 	 * Saves the checked paths.
-	 * @param checkedPaths Checked paths to save.
+	 * @param pathsDelta Checked paths to save.
 	 */
-	private void setPathsDelta(ListenedPathsDelta checkedPaths) {
-		
-		this.pathsDelta = checkedPaths;
+	private void setPathsDelta(ListenedPathsDelta pathsDelta) {
+
+		this.pathsDelta = pathsDelta;
 	}
 	
 	/**
@@ -547,10 +533,9 @@ public class ListenedPathsDialog extends Dialog {
 						pathsDelta = new ListenedPathsDelta(addedListenedDirs.values(),
 															removedListenedDirs,
 															modifiedListenedDirs.values());
-						setPathsDelta(pathsDelta);
-						
+
 						// Close dialog
-						dialogShell.close();
+						dialogShell.dispose();
 					}
 				});
 			}
@@ -599,8 +584,8 @@ public class ListenedPathsDialog extends Dialog {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		
+		}		
+
 		return pathsDelta;
 	}
 }
