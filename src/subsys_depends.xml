@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 	<bean id="log" class="log.LogImpl">
 	</bean>
-	<bean id="tagger" class="tagger.TagRepositoryEventDrivenImpl">
+	<bean id="tagger" class="tagger.TagRepositoryImpl">
 	</bean>
 	<bean id="listener" class="listener.ListenerImpl">
 	</bean>

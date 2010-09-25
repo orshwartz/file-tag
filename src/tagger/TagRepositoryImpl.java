@@ -1,15 +1,18 @@
-/**
- * 
- */
 package tagger;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Locale;
-import java.util.Observable;
+import java.util.Map;
 import java.util.TreeSet;
 
 import listener.FileEvent;
@@ -20,20 +23,28 @@ import tagger.autotagger.AutoTagger;
  * files to tags and uses events to keep track of those files.
  * @author Or Shwartz
  */
-public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
+public class TagRepositoryImpl implements TagRepository {
 
 	private DataAccessLevel DAL = null;
     private final static Locale dfltLocal = Locale.getDefault();
-    private Collection<AutoTagger> autoTaggers = new ArrayList<AutoTagger>();
+    private Map<File, AutoTagger> autoTaggers = new HashMap<File,AutoTagger>();
+	private String FILENAME_PERSISTENCE = "tagger_persistence.bin";
 	
 	/**
 	 * <CODE>TagRepositoryEventDrivenImpl</CODE> constructor.
 	 */
-	public TagRepositoryEventDrivenImpl() {
-		// TODO Auto-generated constructor stub
+	public TagRepositoryImpl() {
 		
 		DAL = new DataAccessLevel();
 		DAL.getConnection();
+		
+		try {
+			// Restore needed automatic algorithms
+			loadTaggerData();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		System.out.println(this.getClass().getName() + " up.");
 	}
@@ -57,7 +68,6 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 	 */
 	@Override
 	public void addTags(Collection<String> tags) throws TagAlreadyExistsException {
-		// TODO Auto-generated method stub
 		
 		Collection<String> fixedTags = new ArrayList<String>(tags.size());
 		
@@ -103,13 +113,12 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 	public Collection<String> searchByTag(Collection<String> includedTags,
 			Collection<String> excludedTags) {
 		
-		// TODO Auto-generated method stub
 		return DAL.searchByTag(includedTags, excludedTags);
 	}
 
 	@Override
 	public boolean tagExists(String tag) {
-		// TODO Auto-generated method stub
+
 		return DAL.tagExists(tag);
 	}
 
@@ -135,18 +144,16 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 		DAL.deleteAll();
 	}
 
+
 	/**
-	 * Update this Observer with file events. The argument received should be a <CODE>{@link FileEvent}</CODE> object.
-	 * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
+	 * TODO: Doc this method...
+	 * @param fileEvent
 	 */
-	@Override
-	public void update(Observable o, Object arg) {
-		// TODO Auto-generated method stub
+	public void processFileChangeTagging(FileEvent fileEvent) {
 		
-		FileEvent event = (FileEvent)arg;
-		Path file = ((FileEvent)arg).getFile();
+		Path file = fileEvent.getFile();
 		
-		switch (event.getEvent()) {
+		switch (fileEvent.getEvent()) {
 			case MODIFIED:
 
 				// Remove tags for file (and re-tag it using fall-thru to file creation event)
@@ -157,7 +164,8 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 				Collection<String> fileTags = new TreeSet<String>(); // XXX: Consider a different data structure if tagging is slow
 
 				// For each tagging algorithm
-				for (AutoTagger curAutoTagger : autoTaggers) {
+				Collection<AutoTagger> usedAlgorithms = autoTaggers.values();
+				for (AutoTagger curAutoTagger : usedAlgorithms) {
 					
 					try {
 						// Get tags for file
@@ -196,10 +204,25 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 	 * @param autoTaggers Automatic taggers to use.
 	 */
 	@Override
-	public void setAutoTaggers(Collection<AutoTagger> autoTaggers) {
+	public void setAutoTaggers(Map<File,AutoTagger> autoTaggers) {
 		
 		// Set automatic taggers to use
 		this.autoTaggers = autoTaggers;
+		
+		// Save list of auto taggers so that they can be loaded again in the future
+		saveTaggerData();
+	}
+	
+	/**
+	 * Gets the automatic taggers in use.
+	 * @return Automatic taggers used. This view of the automatic
+	 * taggers can be changed and will be affected in the tagger.
+	 */
+	@Override
+	public Map<File,AutoTagger> getAutoTaggers() {
+
+		// Return the automatic taggers in use
+		return autoTaggers;
 	}
 	
 	public void dropTables(){
@@ -212,4 +235,59 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 		DAL.removeFile(file);
 	}
 	
+	/**
+	 * Save used algorithm filenames to file.
+	 */
+	private void saveTaggerData() {
+
+		try {
+			FileOutputStream fileOutStream =
+				new FileOutputStream(FILENAME_PERSISTENCE );
+		
+			ObjectOutputStream objOutStream =
+				new ObjectOutputStream(fileOutStream);
+			
+			// Save listened paths data to file
+			objOutStream.writeObject(autoTaggers);
+			objOutStream.close();
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Load listened directories and matching regular expressions from file. 
+	 * @throws FileNotFoundException if persistence file doesn't exist.
+	 */
+	@SuppressWarnings("unchecked")
+	private void loadTaggerData() throws FileNotFoundException  {
+
+		File filePersistence =
+			new File(FILENAME_PERSISTENCE);
+		
+		FileInputStream fileInStream =
+			new FileInputStream(filePersistence);
+
+		try {
+			ObjectInputStream objInStream =
+				new ObjectInputStream(fileInStream);
+
+			// Read listened paths data from file
+			autoTaggers =
+				(Map<File, AutoTagger>)objInStream.readObject();
+			objInStream.close();
+		
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}	
 }

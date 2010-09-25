@@ -6,7 +6,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.ClassPathResource;
 
-import tagger.TagRepositoryEventDriven;
+import tagger.TagRepository;
 import web.WebServer;
 
 import commander.CommandManager;
@@ -25,7 +25,7 @@ public class Main {
 		
 		Log log = null;
 		MainAppGUI gui = null;
-		TagRepositoryEventDriven tagRep = null;
+		TagRepository tagRep = null;
 		Listener listener = null;
 		CommandManager commander = null;
 		WebServer webServer = null;
@@ -33,7 +33,7 @@ public class Main {
 		// Create subsystems as singletons using Spring Framework for
 		// dependency injection
 		log = (Log)beanFactory.getBean("log");
-		tagRep = (TagRepositoryEventDriven)beanFactory.getBean("tagger");
+		tagRep = (TagRepository)beanFactory.getBean("tagger");
 		listener = (Listener)beanFactory.getBean("listener");
 		commander = (CommandManager)beanFactory.getBean("commander");
 		gui = (MainAppGUI)beanFactory.getBean("gui");
@@ -42,10 +42,10 @@ public class Main {
 		// Set GUI for commander
 		commander.setGui(gui);
 
-		// Register tag repository as observer for file changes
-		// and commander as observer for unknown tagging issues
-		listener.addObserver(tagRep);
-		tagRep.addObserver(commander);
+		// Register commander as observer for file change issues (it is the
+		// "controller" of the application and will know what to do)
+//		listener.addObserver(tagRep); TODO: Remove this line if everything's OK
+		listener.addObserver(commander);
 		
 //		Collection<AutoTagger> autoTaggers = new ArrayList<AutoTagger>();
 //		try {
