@@ -130,6 +130,11 @@ public class TagRepositoryEventDrivenImpl extends TagRepositoryEventDriven {
 		DAL.unTagFileAll(file);
 	}
 	
+	public Collection<String> getTagsOfFile(String file){
+		
+		return DAL.getTagsOfFile(file);
+	}
+	
 	@Override
 	public void deleteAll(){
 		DAL.deleteAll();
