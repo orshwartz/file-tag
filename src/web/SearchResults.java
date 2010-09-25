@@ -26,6 +26,7 @@ import tagger.TagFreq;
 		@SuppressWarnings("unchecked")
 		protected void doGet(HttpServletRequest request, HttpServletResponse response) 	throws ServletException, IOException {
            
+			response.setCharacterEncoding("windows-1255");
 			response.setContentType("text/html");
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().println("<html charset='windows-1255'>");
