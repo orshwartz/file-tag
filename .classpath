@@ -11,5 +11,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/derby/derbyclient.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/derby/derbynet.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/derby/derbytools.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-6.1.18.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-util-6.1.18.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-2.5-20081211.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
