@@ -161,7 +161,8 @@ public class ListenerImpl extends Listener {
 	public void listenTo(ListenedDirectory dir) throws IOException {
 
 		if (!listenedPaths.containsKey(dir.getDirectory())) {
-			
+			// TODO: I don't remember why this condition is here with no code.
+			// Try to remember.
 		}
 		
 		WatchKey key =
@@ -196,6 +197,9 @@ public class ListenerImpl extends Listener {
 
 		// Enable trace after initial registration
 		this.trace = true;
+		
+		// Save new listened paths for next time
+		saveListenerData();
 	}
 
 	/**
@@ -222,6 +226,9 @@ public class ListenerImpl extends Listener {
 				break;
 			}
 		}
+		
+		// Save new listened paths for next time
+		saveListenerData();
 	}
 
 	// TODO: Add init method or something like... maybe in the ctor directly
