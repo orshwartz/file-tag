@@ -1,13 +1,4 @@
 import gui.MainAppGUI;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.NotDirectoryException;
-import java.util.ArrayList;
-import java.util.Collection;
-
-import listener.ListenedDirectory;
 import listener.Listener;
 import log.Log;
 
@@ -16,9 +7,7 @@ import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.ClassPathResource;
 
 import tagger.TagRepositoryEventDriven;
-import tagger.TagRepositoryEventDrivenImpl;
-import tagger.autotagger.AutoTagger;
-import tagger.autotagger.AutoTaggerLoader;
+import web.WebServer;
 
 import commander.CommandManager;
 
@@ -39,6 +28,7 @@ public class Main {
 		TagRepositoryEventDriven tagRep = null;
 		Listener listener = null;
 		CommandManager commander = null;
+		WebServer webServer = null;
 
 		// Create subsystems as singletons using Spring Framework for
 		// dependency injection
@@ -47,6 +37,7 @@ public class Main {
 		listener = (Listener)beanFactory.getBean("listener");
 		commander = (CommandManager)beanFactory.getBean("commander");
 		gui = (MainAppGUI)beanFactory.getBean("gui");
+		webServer = (WebServer)beanFactory.getBean("web");
 		
 		// Set GUI for commander
 		commander.setGui(gui);
@@ -55,22 +46,19 @@ public class Main {
 		// and commander as observer for unknown tagging issues
 		listener.addObserver(tagRep);
 		tagRep.addObserver(commander);
-
 		
-		
-		
-		Collection<AutoTagger> autoTaggers = new ArrayList<AutoTagger>();
-		try {
-			autoTaggers.add(AutoTaggerLoader.getAutoTagger(new File("c:/temp/TaggerBySize.class")));
-			autoTaggers.add(AutoTaggerLoader.getAutoTagger(new File("c:/temp/TaggerByASCIIContents.class")));
-			autoTaggers.add(AutoTaggerLoader.getAutoTagger(new File("c:/temp/TaggerByPathKeywords.class")));
-			autoTaggers.add(AutoTaggerLoader.getAutoTagger(new File("c:/temp/TaggerByMetadata.class")));
-			
-			((TagRepositoryEventDrivenImpl)tagRep).setAutoTaggers(autoTaggers);
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		Collection<AutoTagger> autoTaggers = new ArrayList<AutoTagger>();
+//		try {
+//			autoTaggers.add(AutoTaggerLoader.getAutoTagger(new File("c:/temp/TaggerBySize.class")));
+//			autoTaggers.add(AutoTaggerLoader.getAutoTagger(new File("c:/temp/TaggerByASCIIContents.class")));
+//			autoTaggers.add(AutoTaggerLoader.getAutoTagger(new File("c:/temp/TaggerByPathKeywords.class")));
+//			autoTaggers.add(AutoTaggerLoader.getAutoTagger(new File("c:/temp/TaggerByMetadata.class")));
+//			
+//			((TagRepositoryEventDrivenImpl)tagRep).setAutoTaggers(autoTaggers);
+//		} catch (ClassNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 //		try {
 //			ArrayList<String> filters = new ArrayList<String>();
@@ -195,6 +183,14 @@ public class Main {
 //		for (String str : (Collection<String>)commander.getCommand(LOG_GET_MESSAGES).execute(null)) {
 //			System.out.println(str);
 //		}
+		
+		try {
+			// Start the web server
+			webServer.start();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		gui.displayGUI();
 
