@@ -1,6 +1,7 @@
 package tagger.autotagger;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Collection;
 
 /**
@@ -9,7 +10,7 @@ import java.util.Collection;
  * algorithm used to return those tags.
  * @author Or Shwartz
  */
-public interface AutoTagger {
+public interface AutoTagger extends Serializable {
 
 	/**
 	 * Return tags for given <code>file</code>.
