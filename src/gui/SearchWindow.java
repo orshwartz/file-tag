@@ -49,8 +49,8 @@ public class SearchWindow {
 	private List lstResults;
 	private Button btnExcludeTag;
 	private List lstIncludedTags;
-
 	private static Shell window;
+	
 	public SearchWindow(CommandManager commander) {
 
 		this.commander = commander;

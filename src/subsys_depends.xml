@@ -24,4 +24,9 @@
 			<ref bean="commander"/>
 		</constructor-arg>
 	</bean>
+	<bean id="web" class="web.WebServer">
+		<constructor-arg index="0">
+			<ref bean="commander"/>
+		</constructor-arg>
+	</bean>
 </beans>
