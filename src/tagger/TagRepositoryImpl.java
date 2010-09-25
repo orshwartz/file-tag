@@ -136,6 +136,11 @@ public class TagRepositoryImpl implements TagRepository {
 		DAL.unTagFileAll(file);
 	}
 	
+	public Collection<String> getTagsOfFile(String file){
+		
+		return DAL.getTagsOfFile(file);
+	}
+	
 	@Override
 	public void deleteAll(){
 		DAL.deleteAll();
