@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<bean id="log" class="log.LogImpl">
+	</bean>
+	<bean id="tagger" class="tagger.TagRepositoryEventDrivenImpl">
+	</bean>
+	<bean id="listener" class="listener.ListenerImpl">
+	</bean>
+	<bean id="commander" class="commander.CommandManager">
+		<constructor-arg index="0">
+			<ref bean="tagger"/>
+		</constructor-arg>
+		<constructor-arg index="1">
+			<ref bean="listener"/>
+		</constructor-arg>
+		<constructor-arg index="2">
+			<ref bean="log"/>
+		</constructor-arg>
+	</bean>
+	<bean id="gui" class="gui.MainAppGUI">
+		<constructor-arg index="0">
+			<ref bean="commander"/>
+		</constructor-arg>
+	</bean>
+	<bean id="web" class="web.WebServer">
+		<constructor-arg index="0">
+			<ref bean="commander"/>
+		</constructor-arg>
+	</bean>
+</beans>
