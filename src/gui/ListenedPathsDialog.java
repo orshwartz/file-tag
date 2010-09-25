@@ -110,40 +110,6 @@ public class ListenedPathsDialog extends Dialog {
 	}
 	
 	/**
-	 * Converts an array of objects to array of strings, using
-	 * their toString method.
-	 * @param objArray Array of objects.
-	 * @return The objects array converted to a string array.
-	 */
-	private String[] convertObjArrayToStrArray(Object[] objArray) {
-		
-		final int size =
-			((objArray != null)?
-					objArray.length :
-					0);
-		
-		String[] strArray = new String[size];
-		
-		// For each object
-		for (int curItemIdx = 0; curItemIdx < size; ++curItemIdx) {
-			
-			// Convert the object to a string
-			strArray[curItemIdx] = objArray[curItemIdx].toString();
-		}
-		
-		return strArray;
-	}
-	
-	/**
-	 * Saves the checked paths.
-	 * @param pathsDelta Checked paths to save.
-	 */
-	private void setPathsDelta(ListenedPathsDelta pathsDelta) {
-
-		this.pathsDelta = pathsDelta;
-	}
-	
-	/**
 	 * @param listenedDirsOriginal The current status of listened directories, which will
 	 * be displayed and also the returned delta will be calculated from.
 	 * @return an object containing the user entered data in the form of the
