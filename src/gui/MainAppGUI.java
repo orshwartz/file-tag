@@ -60,6 +60,8 @@ public class MainAppGUI {
 	private Label lblSearch;
 
 	private static SearchWindow searchWindow = null;
+	private static MonitorWindow monitorWindow = null;
+	
 	
 	/**
 	 * This class is the main GUI controller for the application.
@@ -73,6 +75,8 @@ public class MainAppGUI {
 		createSShell();
 		
 		searchWindow = new SearchWindow(commander);
+		monitorWindow = new MonitorWindow(commander);
+		
 		
 		System.out.println(this.getClass().getName() + " up.");
 	}
@@ -255,16 +259,19 @@ public class MainAppGUI {
 		/* -------- Listen to buttons ---------------*/
 		
 		
-//		btnControl.addListener(SWT.Selection, new Listener() {
-//			public void handleEvent(Event e) {
-//				switch (e.type) {
-//		          case SWT.Selection:
-//		        	  
-//		        	  controlsWindow.makeWindow();
-//		        	  controlsWindow.open();
-//				}	
-//			   }
-//		});
+		btnControl.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event e) {
+				switch (e.type) {
+		          case SWT.Selection:
+		        	  
+		        	  //controlsWindow.makeWindow();
+		        	  //controlsWindow.open();
+		        	 
+		        	  monitorWindow.open();
+		        	  
+				}	
+			   }
+		});
 		
 		btnSearch.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event e) {
