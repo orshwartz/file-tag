@@ -24,6 +24,7 @@ import commander.commands.ProcessFileChangeTaggingCommand;
 import commander.commands.SetAutoTaggersCommand;
 import commander.commands.StopListenToCommand;
 import commander.commands.TSCommand;
+import commander.commands.WriteFileMessageCommand;
 import commander.commands.WriteMessageCommand;
 
 /**
@@ -40,6 +41,7 @@ public class CommandManager implements Observer {
 	 */
 	public enum CmdCodes {
 		LOG_WRITE_MESSAGE,
+		LOG_WRITE_FILE_MESSAGE,
 		LOG_GET_MESSAGES,
 		LSTNR_ACTIVATE,
 		LSTNR_DEACTIVATE,
@@ -121,6 +123,7 @@ public class CommandManager implements Observer {
 		
 		// Add all the commands to the hashmap
 		commandMappings.put(LOG_WRITE_MESSAGE, new WriteMessageCommand());
+		commandMappings.put(LOG_WRITE_FILE_MESSAGE, new WriteFileMessageCommand());
 		commandMappings.put(LOG_GET_MESSAGES, new GetMessagesCommand());
 		commandMappings.put(LSTNR_ACTIVATE, new ActivateListenerCommand());
 		commandMappings.put(LSTNR_DEACTIVATE, new DeactivateListenerCommand());
@@ -171,9 +174,14 @@ public class CommandManager implements Observer {
 	@Override
 	public void update(Observable object, Object arg) {
 
-		// Pass this data to the tagger
+		//pass this date to the log
 		Object[] params = new Object[] {arg};
-		getCommand(TAGGER_PROCESS_FILE_CHANGE_TAGGING).execute(params);
+		getCommand(LOG_WRITE_FILE_MESSAGE).execute(params);
+		
+		
+		// Pass this data to the tagger
+		//Object[] params = new Object[] {arg};
+		//getCommand(TAGGER_PROCESS_FILE_CHANGE_TAGGING).execute(params);
 	}
 
 	/**

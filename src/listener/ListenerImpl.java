@@ -40,6 +40,8 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import log.EventType;
+
 /**
  * This class represents an object capable of listening to filesystem events on
  * pre-specified folders and notify about changes to files.
@@ -183,6 +185,10 @@ public class ListenerImpl extends Listener {
 			if (previousRef == null) {
 
 				// TODO: Instead of this... maybe write to log
+				System.out.println("obs: "+ countObservers());
+				setChanged();
+				notifyObservers(new FileEvent( dir.getDirectory().toPath(),
+					FileEvents.CREATED));
 				System.out.format("register: %s\n", dir.getDirectory().toString());
 			}
 			else if (!dir.getDirectory().toPath().equals(previousRef)) {
@@ -346,7 +352,6 @@ public class ListenerImpl extends Listener {
 						
 							// If directory is created then register it and its sub-directories
 							if (kind == ENTRY_CREATE) {
-
 								// Listen to all sub-folders of new folder
 								registerAll(child);
 							}
@@ -589,8 +594,6 @@ public class ListenerImpl extends Listener {
 			
 			// Clone the key
 			curPath = new File(curEntry.getKey().getAbsolutePath());
-			
-			System.out.println("path : " + curEntry.getKey().getAbsolutePath());
 			 
 			// Clone the regular expressions 
 			curReturnedRegexes = new ArrayList<String>(curEntry.getValue().size());

@@ -1,8 +1,10 @@
 package commander.commands;
 
+import log.EventType;
+
 /**
  * This command writes a certain message to the log.
- * @author Or Shwartz
+ * @author Or Shwartz, Itay Evron
  */
 public class WriteMessageCommand extends TSCommand {
 
@@ -13,8 +15,9 @@ public class WriteMessageCommand extends TSCommand {
 	@Override
 	public Object execute(Object[] params) {
 		
+		
 		// Write a message to the log
-		getLog().writeMessage((String)params[0]);
+		getLog().writeMessage((EventType)params[0]);
 		
 		return null;
 	}
