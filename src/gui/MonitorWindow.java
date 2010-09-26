@@ -5,11 +5,14 @@ import static commander.CommandManager.CmdCodes.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import log.EventType;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
@@ -40,6 +43,7 @@ public class MonitorWindow {
 	
 	private Table table1;
 	private Label label1;
+	private Button button2;
 	private Button button1;
 	private static Shell window;
 	
@@ -106,8 +110,51 @@ public class MonitorWindow {
 			label1.setText("System Log");
 			label1.setBounds(12, 12, 115, 30);
 		}
-
+		{
+			button2 = new Button(window, SWT.PUSH | SWT.CENTER);
+			button2.setText("Reboot Tagger");
+			button2.setBounds(344, 88, 117, 43);
 			
+			button2.addListener(SWT.Selection, new Listener(){
+
+				@Override
+				public void handleEvent(Event arg0) {
+					
+					MessageBox mBox = new MessageBox(window, 
+							SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
+					
+					mBox.setMessage("This action will delete all of the tags and " +
+							"the file-to-tags attachments in the system");
+					
+					int choice = mBox.open();
+					
+						switch(choice){
+							case SWT.OK :
+								
+								
+								TSCommand RbtCmd = commander.getCommand(
+										TAGGER_REBOOT);
+								RbtCmd.execute(null);
+								
+								//inform Log
+								TSCommand writeMsgCmd = commander.getCommand(
+										LOG_WRITE_MESSAGE);
+								Object[] params = {EventType.Tagger_Reboot};
+								writeMsgCmd.execute(params);
+								
+								System.out.println("ok");
+								break;
+							case SWT.CANCEL :
+								break;
+						}
+				}
+				
+				
+			});
+			
+			
+		}
+
 	}
 		
 	
