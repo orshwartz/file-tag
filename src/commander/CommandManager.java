@@ -21,6 +21,7 @@ import commander.commands.GetTagsByFreqCommand;
 import commander.commands.GetTagsOfFileCommand;
 import commander.commands.ListenToCommand;
 import commander.commands.ProcessFileChangeTaggingCommand;
+import commander.commands.RebootTaggerCommand;
 import commander.commands.SetAutoTaggersCommand;
 import commander.commands.StopListenToCommand;
 import commander.commands.TSCommand;
@@ -54,6 +55,7 @@ public class CommandManager implements Observer {
 		TAGGER_SET_AUTO_TAGGERS,
 		TAGGER_GET_AUTO_TAGGERS,
 		TAGGER_GET_TAGS_OF_FILE,
+		TAGGER_REBOOT,
 		TOTAL_COMMAND_CODES
 	}
 	
@@ -136,7 +138,7 @@ public class CommandManager implements Observer {
 		commandMappings.put(TAGGER_SET_AUTO_TAGGERS, new SetAutoTaggersCommand());
 		commandMappings.put(TAGGER_GET_AUTO_TAGGERS, new GetAutoTaggersCommand());
 		commandMappings.put(TAGGER_GET_TAGS_OF_FILE, new GetTagsOfFileCommand());
-
+		commandMappings.put(TAGGER_REBOOT, new RebootTaggerCommand());
 		/* TODO: Add rest of the commands to the hashmap here...
 		 * 
 		 * 

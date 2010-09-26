@@ -11,6 +11,7 @@ public enum EventType {
 	Modified,
 	Lstnr_Act,
 	Lstnr_Deact,
+	Tagger_Reboot,
 	Moved,
 	Renamed;
 }

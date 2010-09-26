@@ -134,7 +134,7 @@ public class LogImpl implements Log {
 			switch (fileEvent.getEvent()) {
 			
 				case CREATED :
-					logger.info("Register :" + file.toAbsolutePath());
+					logger.info("Register: " + file.toAbsolutePath());
 					break;
 		
 			}
@@ -151,6 +151,9 @@ public class LogImpl implements Log {
 			break;
 		case Lstnr_Deact :
 			logger.info("Listner Deactivated");
+			break;
+		case Tagger_Reboot :
+			logger.info("Tag Repository Reboot");
 			break;
 		
 		}
