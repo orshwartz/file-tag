@@ -221,7 +221,7 @@ public class MainAppGUI {
 					if (chosenAutoTaggers != null) {
 						
 						// Set chosen automatic taggers
-						commander.getCommand(TAGGER_SET_AUTO_TAGGERS).execute(
+						commander.getCommand(TAGGER_GET_AUTO_TAGGERS).execute(
 								new Object[] {chosenAutoTaggers});
 					}
 				}
@@ -288,20 +288,13 @@ public class MainAppGUI {
 		}
 
 
-		/* -------- Listen to buttons ---------------*/
+		/* -------- Listen to buttons --------------- */
 		
 		
 		btnControl.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event e) {
-				switch (e.type) {
-		          case SWT.Selection:
-		        	  
-		        	  //controlsWindow.makeWindow();
-		        	  //controlsWindow.open();
-		        	 
+	
 		        	  monitorWindow.open();
-		        	  
-				}	
 			   }
 		});
 		

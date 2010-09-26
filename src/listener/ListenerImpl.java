@@ -590,6 +590,8 @@ public class ListenerImpl extends Listener {
 			// Clone the key
 			curPath = new File(curEntry.getKey().getAbsolutePath());
 			
+			System.out.println("path : " + curEntry.getKey().getAbsolutePath());
+			 
 			// Clone the regular expressions 
 			curReturnedRegexes = new ArrayList<String>(curEntry.getValue().size());
 			curRegexes = curEntry.getValue();

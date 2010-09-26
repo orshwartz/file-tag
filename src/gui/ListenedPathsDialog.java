@@ -197,7 +197,7 @@ public class ListenedPathsDialog extends Dialog {
 				checkboxTreeViewer.addCheckStateListener(new ICheckStateListener() {
 					@Override
 					public void checkStateChanged(CheckStateChangedEvent event) {
-
+						System.out.println("vaarg");
 // TODO: Reconsider using this implementation
 //						// If the item is checked...
 //						if (event.getChecked()) {
@@ -212,7 +212,6 @@ public class ListenedPathsDialog extends Dialog {
 						
 						// If the item is checked...
 						if (event.getChecked()) {
-							
 							// If item is already listened to
 							File checkedDir = (File) event.getElement();
 							if (listenedDirsOriginal.containsKey(checkedDir)) {
@@ -265,19 +264,22 @@ public class ListenedPathsDialog extends Dialog {
 						}
 						// Else, item is unchecked so...
 						else {
-							
 							// If unchecked element is also selected
 							File selectedElement =
 								convertISelectionToFile(checkboxTreeViewer.getSelection());
-							if (event.getElement().equals(selectedElement)) {
-								
+							
+							// FIXME : I'm not sure it's correct
+							//		   but why we do also need mouse selection
+							//         for unchecking the directory ?
+							
+							//if (event.getElement().equals(selectedElement)) {
 								// Clear the list of regular expressions
 								lstRegularExpressions.removeAll();
 								
 								// Remove directory from wanted listened directories
-								listenedDirsNew.remove(selectedElement);
-							}
-							
+								// FIXME : previous : listenedDirsNew.remove(selectedElement);
+								listenedDirsNew.remove(event.getElement());
+							//}							
 							// Disable regex addition button
 							btnAddRegex.setEnabled(false);
 						}
@@ -287,7 +289,6 @@ public class ListenedPathsDialog extends Dialog {
 
 					@Override
 					public void selectionChanged(SelectionChangedEvent arg0) {
-						
 						File selectedDir = convertISelectionToFile(arg0.getSelection());  
 
 						// Check if directory is checked (if it is - it must be in the new dirs)
@@ -302,7 +303,6 @@ public class ListenedPathsDialog extends Dialog {
 						
 						// If directory is checked
 						if (dirIsChecked) {
-							
 							// Display regexes of listened directory
 							Collection<String> regexes =
 								((ListenedDirectory)listenedDirsNew.get(selectedDir)).
