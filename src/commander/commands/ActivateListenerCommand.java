@@ -3,6 +3,8 @@
  */
 package commander.commands;
 
+import log.EventType;
+
 /**
  * @author Or Shwartz, Itay Evron
  *
@@ -19,7 +21,7 @@ public class ActivateListenerCommand extends TSCommand {
 		getListener().activate();
 		
 		// Write event to log
-		getLog().writeMessage("Listener activated.");
+		getLog().writeMessage(EventType.Lstnr_Act);
 		
 		return null;
 	}

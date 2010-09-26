@@ -3,6 +3,8 @@
  */
 package commander.commands;
 
+import log.EventType;
+
 
 /**
  * @author Or Shwartz
@@ -20,7 +22,7 @@ public class DeactivateListenerCommand extends TSCommand {
 		getListener().deactivate();
 		
 		// Write to log
-		getLog().writeMessage("Listener deactivated.");
+		getLog().writeMessage(EventType.Lstnr_Deact);
 		
 		return null;
 	}

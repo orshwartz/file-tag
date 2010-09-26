@@ -9,6 +9,8 @@ public enum EventType {
 	Created,
 	Deleted,
 	Modified,
+	Lstnr_Act,
+	Lstnr_Deact,
 	Moved,
 	Renamed;
 }
