@@ -134,6 +134,11 @@ public class LogImpl implements Log {
 			switch (fileEvent.getEvent()) {
 			
 				case CREATED :
+					logger.info("The file " + file.toAbsolutePath() + 
+							"was created in the directory " + 
+							file.getParent());
+					break;
+				case NEW_DIRECTORY :
 					logger.info("Register: " + file.toAbsolutePath());
 					break;
 		
@@ -147,16 +152,19 @@ public class LogImpl implements Log {
 		switch(event){
 		
 		case Lstnr_Act :
-			logger.info("Listner Activated");
+			logger.info("Listner Activated.");
 			break;
 		case Lstnr_Deact :
-			logger.info("Listner Deactivated");
+			logger.info("Listner Deactivated.");
 			break;
 		case Tagger_Reboot :
-			logger.info("Tag Repository Reboot");
+			logger.info("Tag Repository Reboot.");
 			break;
 		case Error_Plugin_Creation :
 			logger.info("Error occurred during creation of plugins directory.");
+			break;
+		case System_Up :
+			logger.info("System Up.");
 			break;
 		
 		}

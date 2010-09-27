@@ -193,7 +193,6 @@ public class Main {
 		}
 		
 		gui.displayGUI();
-
 		// Close the listener
 		listener.close();
 		

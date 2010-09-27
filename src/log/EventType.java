@@ -14,5 +14,6 @@ public enum EventType {
 	Tagger_Reboot,
 	Error_Plugin_Creation,
 	Moved,
-	Renamed;
+	Renamed,
+	System_Up;
 }

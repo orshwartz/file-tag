@@ -32,5 +32,7 @@ pictures=photos
 
 downloads=downloads
 
+txt=text
+
 
 #add more ..
