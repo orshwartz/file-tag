@@ -2,6 +2,9 @@ package gui;
 
 import static commander.CommandManager.CmdCodes.*;
 
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -41,6 +44,7 @@ public class SearchWindow {
 	private List lstAvailableTags;
 	private List lstExcludedTags;
 	private Button btnIncludeTag;
+	private Button button1;
 	private List list1;
 	private Button btnSearch;
 	private Label lblSearchResults;
@@ -271,7 +275,8 @@ public class SearchWindow {
 
 				@Override
 				public void handleEvent(Event arg0) {
-					
+				
+				button1.setEnabled(true);
 				TSCommand getTagsCmd = commander.getCommand(TAGGER_GET_TAGS_OF_FILE);
 				Collection<String> tags = (Collection<String>) getTagsCmd.execute(lstResults.getSelection());
 				
@@ -290,6 +295,42 @@ public class SearchWindow {
 			list1LData.verticalAlignment = GridData.FILL;
 			list1 = new List(window, SWT.V_SCROLL | SWT.BORDER);
 			list1.setLayoutData(list1LData);
+		}
+		{
+			button1 = new Button(window, SWT.PUSH | SWT.CENTER);
+			GridData button1LData = new GridData();
+			button1LData.horizontalSpan = 2;
+			button1LData.horizontalAlignment = GridData.FILL;
+			button1.setLayoutData(button1LData);
+			button1.setText("Open Folder");
+			button1.setEnabled(false);
+			
+			button1.addListener(SWT.Selection, new Listener(){
+
+				@Override
+				public void handleEvent(Event arg0) {
+					
+					
+					File f = new File(lstResults.getSelection()[0]);
+					Desktop desktop = null;
+					
+						if (Desktop.isDesktopSupported()) {
+							desktop = Desktop.getDesktop();	
+						}
+					
+							try {
+								desktop.open(f.getParentFile());
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+				
+					
+				}
+				
+			});
+			
+			
 		}
 
 		window.setSize(500, 400);
