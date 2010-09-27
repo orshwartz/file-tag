@@ -185,10 +185,9 @@ public class ListenerImpl extends Listener {
 			if (previousRef == null) {
 
 				// TODO: Instead of this... maybe write to log
-				System.out.println("obs: "+ countObservers());
 				setChanged();
 				notifyObservers(new FileEvent( dir.getDirectory().toPath(),
-					FileEvents.CREATED));
+					FileEvents.NEW_DIRECTORY));
 				System.out.format("register: %s\n", dir.getDirectory().toString());
 			}
 			else if (!dir.getDirectory().toPath().equals(previousRef)) {

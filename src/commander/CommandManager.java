@@ -12,6 +12,7 @@ import log.Log;
 import tagger.TagRepository;
 
 import commander.commands.ActivateListenerCommand;
+import commander.commands.AskActivityOfListenerCommand;
 import commander.commands.DeactivateListenerCommand;
 import commander.commands.GetAutoTaggersCommand;
 import commander.commands.GetFileByTagsCommand;
@@ -49,6 +50,7 @@ public class CommandManager implements Observer {
 		LSTNR_LISTEN_TO,
 		LSTNR_STOP_LISTENING_TO,
 		LSTNR_GET_LISTENED_DIRS,
+		LSTNR_ASK_ACTIVE,
 		TAGGER_GET_FILES_BY_TAGS,
 		TAGGER_GET_TAGS_BY_FREQ,
 		TAGGER_PROCESS_FILE_CHANGE_TAGGING,
@@ -132,6 +134,7 @@ public class CommandManager implements Observer {
 		commandMappings.put(LSTNR_LISTEN_TO, new ListenToCommand());
 		commandMappings.put(LSTNR_STOP_LISTENING_TO, new StopListenToCommand());
 		commandMappings.put(LSTNR_GET_LISTENED_DIRS, new GetListenedDirsCommand());
+		commandMappings.put(LSTNR_ASK_ACTIVE, new AskActivityOfListenerCommand());
 		commandMappings.put(TAGGER_GET_FILES_BY_TAGS, new GetFileByTagsCommand());
 		commandMappings.put(TAGGER_GET_TAGS_BY_FREQ, new GetTagsByFreqCommand());
 		commandMappings.put(TAGGER_PROCESS_FILE_CHANGE_TAGGING, new ProcessFileChangeTaggingCommand());
@@ -183,7 +186,7 @@ public class CommandManager implements Observer {
 		
 		// Pass this data to the tagger
 		//Object[] params = new Object[] {arg};
-		//getCommand(TAGGER_PROCESS_FILE_CHANGE_TAGGING).execute(params);
+		getCommand(TAGGER_PROCESS_FILE_CHANGE_TAGGING).execute(params);
 	}
 
 	/**

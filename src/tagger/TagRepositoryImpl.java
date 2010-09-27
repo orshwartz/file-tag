@@ -1,5 +1,7 @@
 package tagger;
 
+import gui.MainAppGUI;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,6 +15,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Observable;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -25,7 +28,7 @@ import tagger.autotagger.AutoTaggerLoader;
  * files to tags and uses events to keep track of those files.
  * @author Or Shwartz
  */
-public class TagRepositoryImpl implements TagRepository {
+public class TagRepositoryImpl extends Observable implements TagRepository {
 
 	private DataAccessLevel DAL = null;
     private final static Locale dfltLocal = Locale.getDefault();
@@ -157,12 +160,12 @@ public class TagRepositoryImpl implements TagRepository {
 		
 		switch (fileEvent.getEvent()) {
 			case MODIFIED:
-
+				System.out.println("blew it");
 				// Remove tags for file (and re-tag it using fall-thru to file creation event)
 				DAL.unTagFileAll(file.toString());
 
 			case CREATED:
-
+				System.out.println("you blew it");
 				Collection<String> fileTags = new TreeSet<String>(); // XXX: Consider a different data structure if tagging is slow
 
 				// For each tagging algorithm
@@ -189,6 +192,8 @@ public class TagRepositoryImpl implements TagRepository {
 
 				// Tag the file with generated tags
 				DAL.tagFile(file.toString(), fileTags);
+				
+				
 				
 				break;
 			case DELETED:

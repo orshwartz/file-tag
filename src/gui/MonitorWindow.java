@@ -50,7 +50,6 @@ public class MonitorWindow {
 	public MonitorWindow(CommandManager commander) {
 
 		this.commander = commander;
-		lstn = false;
 	}
 	
 	public void makeWindow(){
@@ -81,9 +80,15 @@ public class MonitorWindow {
 		}
 		{
 			button1 = new Button(window, SWT.PUSH | SWT.CENTER);
-			button1.setText("Activate Listener");
+			
+			button1.setText("Deactivate Listener");
 			button1.setBounds(344, 30, 117, 52);
 			
+			lstn = (Boolean) commander.getCommand(LSTNR_ASK_ACTIVE).execute(null);
+			if(lstn == false)
+				button1.setText("Activate Listener");
+			else
+				button1.setText("Deactivate Listener");
 			
 			button1.addListener(SWT.Selection, new Listener() {
 
@@ -93,12 +98,12 @@ public class MonitorWindow {
 					if(lstn == false){
 						commander.getCommand(LSTNR_ACTIVATE).execute(null);
 						button1.setText("Deactivate Listener");
-						lstn = true;
+						lstn = (Boolean) commander.getCommand(LSTNR_ASK_ACTIVE).execute(null);
 					}
 					else{
 						commander.getCommand(LSTNR_DEACTIVATE).execute(null);
 						button1.setText("Activate Listener");
-						lstn = false;
+						lstn = (Boolean) commander.getCommand(LSTNR_ASK_ACTIVE).execute(null);
 					}
 				}});
 			

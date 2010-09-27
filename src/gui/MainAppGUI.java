@@ -79,6 +79,9 @@ public class MainAppGUI {
 		searchWindow = new SearchWindow(commander);
 		monitorWindow = new MonitorWindow(commander);
 		
+		Object[] params = {EventType.System_Up};
+		commander.getCommand(LOG_WRITE_MESSAGE).execute(params);
+		
 		
 		System.out.println(this.getClass().getName() + " up.");
 	}
@@ -223,7 +226,7 @@ public class MainAppGUI {
 						
 						// FIXME : Should it be SET or GET ??????
 						// Set chosen automatic taggers
-						commander.getCommand(TAGGER_GET_AUTO_TAGGERS).execute(
+						commander.getCommand(TAGGER_SET_AUTO_TAGGERS).execute(
 								new Object[] {chosenAutoTaggers});
 					}
 				}
