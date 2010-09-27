@@ -155,6 +155,9 @@ public class LogImpl implements Log {
 		case Tagger_Reboot :
 			logger.info("Tag Repository Reboot");
 			break;
+		case Error_Plugin_Creation :
+			logger.info("Error occurred during creation of plugins directory.");
+			break;
 		
 		}
 		

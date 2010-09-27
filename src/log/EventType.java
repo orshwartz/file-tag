@@ -12,6 +12,7 @@ public enum EventType {
 	Lstnr_Act,
 	Lstnr_Deact,
 	Tagger_Reboot,
+	Error_Plugin_Creation,
 	Moved,
 	Renamed;
 }
