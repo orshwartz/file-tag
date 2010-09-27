@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import listener.ListenedDirectory;
+import log.EventType;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -185,7 +186,7 @@ public class MainAppGUI {
 
 						// Report problem to log
 						Object[] params =
-							new Object[] {"Error occurred during creation of plugins directory."};
+							new Object[] {EventType.Error_Plugin_Creation};
 						commander.getCommand(LOG_WRITE_MESSAGE).execute(params);
 					}
 					File[] possiblePlugins =
@@ -220,6 +221,7 @@ public class MainAppGUI {
 					// If user didn't abandon changes
 					if (chosenAutoTaggers != null) {
 						
+						// FIXME : Should it be SET or GET ??????
 						// Set chosen automatic taggers
 						commander.getCommand(TAGGER_GET_AUTO_TAGGERS).execute(
 								new Object[] {chosenAutoTaggers});
