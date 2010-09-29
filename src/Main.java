@@ -46,6 +46,8 @@ public class Main {
 		// "controller" of the application and will know what to do)
 //		listener.addObserver(tagRep); TODO: Remove this line if everything's OK
 		listener.addObserver(commander);
+		//tagRep.getSignal().addObserver(commander);
+		
 		
 //		Collection<AutoTagger> autoTaggers = new ArrayList<AutoTagger>();
 //		try {

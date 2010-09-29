@@ -22,6 +22,7 @@ import commander.commands.GetTagsByFreqCommand;
 import commander.commands.GetTagsOfFileCommand;
 import commander.commands.ListenToCommand;
 import commander.commands.ProcessFileChangeTaggingCommand;
+import commander.commands.RebootListenerSourcesCommand;
 import commander.commands.RebootTaggerCommand;
 import commander.commands.SetAutoTaggersCommand;
 import commander.commands.StopListenToCommand;
@@ -51,6 +52,7 @@ public class CommandManager implements Observer {
 		LSTNR_STOP_LISTENING_TO,
 		LSTNR_GET_LISTENED_DIRS,
 		LSTNR_ASK_ACTIVE,
+		LSTNR_REBOOT,
 		TAGGER_GET_FILES_BY_TAGS,
 		TAGGER_GET_TAGS_BY_FREQ,
 		TAGGER_PROCESS_FILE_CHANGE_TAGGING,
@@ -135,6 +137,7 @@ public class CommandManager implements Observer {
 		commandMappings.put(LSTNR_STOP_LISTENING_TO, new StopListenToCommand());
 		commandMappings.put(LSTNR_GET_LISTENED_DIRS, new GetListenedDirsCommand());
 		commandMappings.put(LSTNR_ASK_ACTIVE, new AskActivityOfListenerCommand());
+		commandMappings.put(LSTNR_REBOOT, new RebootListenerSourcesCommand());
 		commandMappings.put(TAGGER_GET_FILES_BY_TAGS, new GetFileByTagsCommand());
 		commandMappings.put(TAGGER_GET_TAGS_BY_FREQ, new GetTagsByFreqCommand());
 		commandMappings.put(TAGGER_PROCESS_FILE_CHANGE_TAGGING, new ProcessFileChangeTaggingCommand());
