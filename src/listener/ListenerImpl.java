@@ -24,6 +24,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.SimpleFileVisitor;
@@ -425,7 +426,8 @@ public class ListenerImpl extends Listener {
 	 * @return True is returned if the filename matches at least one of the regular expressions. False,
 	 * if it matches none of the regular expressions. 
 	 */
-	private boolean checkRegex(Path fileName, Collection<String> regularExpressions) {
+	//FIXME : it used to be private
+	public boolean checkRegex(Path fileName, Collection<String> regularExpressions) {
 		
 		PathMatcher matcher = null;
 		
@@ -593,6 +595,8 @@ public class ListenerImpl extends Listener {
 			
 			// Clone the key
 			curPath = new File(curEntry.getKey().getAbsolutePath());
+			
+			System.out.println("curPath : " + curEntry.getKey().getAbsolutePath());
 			 
 			// Clone the regular expressions 
 			curReturnedRegexes = new ArrayList<String>(curEntry.getValue().size());
@@ -614,5 +618,44 @@ public class ListenerImpl extends Listener {
 		
 		// Returned the cloned structure
 		return returnedPaths;
+	}
+	
+	
+	public Collection<ListenedDirectory> getCollectionOfListenedPaths(){
+		
+		Collection<ListenedDirectory> returnedPaths = 
+			new ArrayList<ListenedDirectory>(listenedPaths.size());
+		File curPath = null;
+		Collection<String> curReturnedRegexes = null;
+		Collection<String> curRegexes = null;
+		
+		for (Entry<File, Collection<String>> curEntry :
+			 listenedPaths.entrySet()) {
+			
+			// Clone the key
+			curPath = new File(curEntry.getKey().getAbsolutePath());
+			
+			// Clone the regular expressions 
+			curReturnedRegexes = new ArrayList<String>(curEntry.getValue().size());
+			curRegexes = curEntry.getValue();
+			for (String curRegex : curRegexes) {
+				
+				curReturnedRegexes.add(curRegex);
+			}
+			
+			try {
+				returnedPaths.add(new ListenedDirectory(curPath,curReturnedRegexes));
+			} catch (NotDirectoryException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		
+		return returnedPaths;
+		
 	}
 }

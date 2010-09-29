@@ -2,6 +2,8 @@ package listener;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Observable;
 
@@ -50,9 +52,15 @@ public abstract class Listener extends Observable {
 	 */
 	public abstract Map<File, ListenedDirectory> getListenedPaths();
 	
+	public abstract Collection<ListenedDirectory> getCollectionOfListenedPaths();
+	
 	/**
 	 * Performs listener finalization actions. Should be called when
 	 * the listener is no longer needed.
 	 */
 	public abstract void close();
+	
+	
+	
+	public abstract boolean checkRegex(Path fileName, Collection<String> regularExpressions);
 }

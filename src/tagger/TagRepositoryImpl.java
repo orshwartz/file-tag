@@ -20,6 +20,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import listener.FileEvent;
+import listener.FileEvents;
+import log.EventType;
 import tagger.autotagger.AutoTagger;
 import tagger.autotagger.AutoTaggerLoader;
 
@@ -28,18 +30,21 @@ import tagger.autotagger.AutoTaggerLoader;
  * files to tags and uses events to keep track of those files.
  * @author Or Shwartz
  */
-public class TagRepositoryImpl extends Observable implements TagRepository {
+public class TagRepositoryImpl implements TagRepository {
 
 	private DataAccessLevel DAL = null;
     private final static Locale dfltLocal = Locale.getDefault();
     private Map<File, AutoTagger> autoTaggers = new HashMap<File,AutoTagger>();
 	private String FILENAME_PERSISTENCE = "tagger_persistence.bin";
 	
+	private Observable signal;
+	
 	/**
 	 * <CODE>TagRepositoryImpl</CODE> constructor.
 	 */
 	public TagRepositoryImpl() {
 		
+		signal = new Observable();
 		DAL = new DataAccessLevel();
 		DAL.getConnection();
 		
@@ -160,12 +165,10 @@ public class TagRepositoryImpl extends Observable implements TagRepository {
 		
 		switch (fileEvent.getEvent()) {
 			case MODIFIED:
-				System.out.println("blew it");
 				// Remove tags for file (and re-tag it using fall-thru to file creation event)
 				DAL.unTagFileAll(file.toString());
 
 			case CREATED:
-				System.out.println("you blew it");
 				Collection<String> fileTags = new TreeSet<String>(); // XXX: Consider a different data structure if tagging is slow
 
 				// For each tagging algorithm
@@ -193,6 +196,12 @@ public class TagRepositoryImpl extends Observable implements TagRepository {
 				// Tag the file with generated tags
 				DAL.tagFile(file.toString(), fileTags);
 				
+				//notify log
+				/* FIXME :
+				FileEvent fileTagged= new FileEvent(file,FileEvents.TAGGED);
+				fileTagged.setTags(fileTags);
+				signal.notifyObservers(fileTagged);*/
+				
 				
 				
 				break;
@@ -202,7 +211,60 @@ public class TagRepositoryImpl extends Observable implements TagRepository {
 				DAL.removeFile(file.toString());
 				
 				break;
+			
+			case REBOOT:
+				
+				if( DAL.fileExists(file.toString()) ){
+					
+					long lastModOfFile = new File(file.toString()).lastModified();
+					long modInDB = DAL.getTime(file.toString());
+					
+					if(modInDB < lastModOfFile){
+						DAL.unTagFileAll(file.toString());
+						DAL.tagFile(file.toString(),CaseCreated(file.toString()));
+					}
+					else
+						System.out.println("fhfh");
+						
+					
+				}
+				else
+				DAL.tagFile(file.toString(),CaseCreated(file.toString()));
+				
+				
+				break;
 		}
+		
+	}
+	
+	public Collection<String> CaseCreated(String file){
+		
+		Collection<String> fileTags = new TreeSet<String>();
+		
+		// For each tagging algorithm
+		Collection<AutoTagger> usedAlgorithms = autoTaggers.values();
+		for (AutoTagger curAutoTagger : usedAlgorithms) {
+			
+			try {
+				// Get tags for file
+				Collection<String> tagsForFile =
+					curAutoTagger.autoTag(new File(file.toString()));
+
+				// Perform safety check on returned result
+				if (tagsForFile != null) {
+				
+					// Add automatically generated tags of file to collection
+					fileTags.addAll(tagsForFile); // XXX: Consider using just a path or just a file, if tagging is slow
+				}
+			} catch (Exception e) {
+
+				// Problem with tagger, continue to next one
+				continue; // TODO: Consider attempting to report the problem somehow
+			}
+		}
+		
+		return fileTags;
+
 		
 	}
 	
@@ -313,5 +375,11 @@ public class TagRepositoryImpl extends Observable implements TagRepository {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public Observable getSignal() {
+
+		return signal;
 	}
 }

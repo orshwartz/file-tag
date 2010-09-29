@@ -2,9 +2,12 @@ package gui;
 
 import static commander.CommandManager.CmdCodes.*;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import listener.ListenedDirectory;
 import log.EventType;
 
 import org.eclipse.swt.SWT;
@@ -43,6 +46,7 @@ public class MonitorWindow {
 	
 	private Table table1;
 	private Label label1;
+	private Button rebootSourcesBtn;
 	private Button button2;
 	private Button button1;
 	private static Shell window;
@@ -159,6 +163,37 @@ public class MonitorWindow {
 			
 			
 		}
+		{
+			rebootSourcesBtn = new Button(window, SWT.PUSH | SWT.CENTER);
+			rebootSourcesBtn.setText("Reboot Listened Sources");
+			rebootSourcesBtn.setBounds(344, 137, 117, 58);
+			
+			rebootSourcesBtn.addListener(SWT.Selection, new Listener(){
+
+				@Override
+				public void handleEvent(Event arg0) {
+					
+					Collection<ListenedDirectory> gomel = null;
+					gomel = (Collection<ListenedDirectory>) 
+							commander.getCommand(LSTNR_REBOOT).execute(null);
+					
+					/*for(ListenedDirectory dir : gomel){
+	
+							String[] files = dir.getDirectory().list();
+							
+							for(String file : files){
+								System.out.println(file);
+							}
+						}*/
+					
+					
+					
+				}
+				
+			});
+			
+			
+		}
 
 	}
 		
@@ -170,7 +205,6 @@ public class MonitorWindow {
 		
 		for (String str : msgs){
 			TableItem item = new TableItem(table1,SWT.None);
-			System.out.println(str);
 			
 			String[] parts = str.split(" ", 3);
 			
