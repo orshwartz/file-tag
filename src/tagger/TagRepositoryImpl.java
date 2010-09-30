@@ -207,7 +207,9 @@ public class TagRepositoryImpl implements TagRepository {
 	 */
 	public void processFileChangeTagging(FileEvent fileEvent) {
 		
-		Path file = fileEvent.getFile().getName();
+		Path file = fileEvent.getFile();
+		
+		System.out.println("THE NAME : " + fileEvent.getFile());
 		
 		switch (fileEvent.getEvent()) {
 			case MODIFIED:

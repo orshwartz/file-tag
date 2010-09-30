@@ -54,6 +54,8 @@ public class MonitorWindow {
 	private Button button1;
 	private static Shell window;
 	
+	private Thread thread;
+	
 	public MonitorWindow(CommandManager commander) {
 
 		this.commander = commander;
@@ -177,7 +179,7 @@ public class MonitorWindow {
 				public void handleEvent(Event arg0) {
 					
 					//open a new thread
-					new Thread(new Runnable(){
+					thread = new Thread(new Runnable(){
 
 						@Override
 						public void run() {
@@ -185,7 +187,8 @@ public class MonitorWindow {
 							
 						}
 						
-					}).start();					
+					});		
+					thread.start();
 				}
 				
 			});

@@ -15,6 +15,8 @@ import listener.ListenedDirectory;
  */
 public class RebootListenerSourcesCommand extends TSCommand {
 
+	String completePath = null;
+	
 	@Override
 	public Object execute(Object[] params) {
 
@@ -39,8 +41,14 @@ public class RebootListenerSourcesCommand extends TSCommand {
 				
 				
 				for(String file : files){
+					
+					completePath = dir1.getDirectory().getAbsolutePath() +
+					FileSystems.getDefault().getSeparator() + file;
+					
+					System.out.println("COMPLETE!! : " + completePath);
+					
 					getTagRepository().processFileChangeTagging(new FileEvent(
-							new File(file).toPath(),FileEvents.REBOOT));
+							new File(completePath).toPath(),FileEvents.REBOOT));
 							
 				}
 		}
