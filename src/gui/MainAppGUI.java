@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import listener.ListenedDirectory;
+import log.EventType;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -77,6 +78,9 @@ public class MainAppGUI {
 		
 		searchWindow = new SearchWindow(commander);
 		monitorWindow = new MonitorWindow(commander);
+		
+		Object[] params = {EventType.System_Up};
+		commander.getCommand(LOG_WRITE_MESSAGE).execute(params);
 		
 		
 		System.out.println(this.getClass().getName() + " up.");
@@ -185,7 +189,7 @@ public class MainAppGUI {
 
 						// Report problem to log
 						Object[] params =
-							new Object[] {"Error occurred during creation of plugins directory."};
+							new Object[] {EventType.Error_Plugin_Creation};
 						commander.getCommand(LOG_WRITE_MESSAGE).execute(params);
 					}
 					File[] possiblePlugins =
@@ -220,6 +224,7 @@ public class MainAppGUI {
 					// If user didn't abandon changes
 					if (chosenAutoTaggers != null) {
 						
+						// FIXME : Should it be SET or GET ??????
 						// Set chosen automatic taggers
 						commander.getCommand(TAGGER_SET_AUTO_TAGGERS).execute(
 								new Object[] {chosenAutoTaggers});
@@ -288,20 +293,13 @@ public class MainAppGUI {
 		}
 
 
-		/* -------- Listen to buttons ---------------*/
+		/* -------- Listen to buttons --------------- */
 		
 		
 		btnControl.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event e) {
-				switch (e.type) {
-		          case SWT.Selection:
-		        	  
-		        	  //controlsWindow.makeWindow();
-		        	  //controlsWindow.open();
-		        	 
+	
 		        	  monitorWindow.open();
-		        	  
-				}	
 			   }
 		});
 		

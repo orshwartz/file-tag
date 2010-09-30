@@ -8,5 +8,8 @@ public enum FileEvents {
 
 	MODIFIED,
 	CREATED,
-	DELETED
+	DELETED,
+	NEW_DIRECTORY,
+	TAGGED,
+	REBOOT
 }

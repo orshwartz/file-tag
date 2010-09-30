@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Observable;
 
 import listener.FileEvent;
 
@@ -25,6 +26,7 @@ public interface TagRepository {
 	public void untagFile(String file, String tag) throws FileNotTaggedException;
 	public void renameTag(String oldName, String newName) throws TagNotFoundException, TagAlreadyExistsException;
 	public void deleteAll();
+	public Collection<String> getTagsOfFile(String file);
 	public Collection<String> searchByTag(Collection<String> includedTags,
 										Collection<String> excludedTags);
 	public Collection<TagFreq> getTagListFreqOrdered();
@@ -45,4 +47,6 @@ public interface TagRepository {
 	
 	public void removeFile(String file); // TODO : delete after we're done
 	public void unTagFileAll(String file);
+	
+	public Observable getSignal();
 }

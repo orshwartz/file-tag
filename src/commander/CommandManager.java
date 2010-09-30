@@ -12,17 +12,22 @@ import log.Log;
 import tagger.TagRepository;
 
 import commander.commands.ActivateListenerCommand;
+import commander.commands.AskActivityOfListenerCommand;
 import commander.commands.DeactivateListenerCommand;
 import commander.commands.GetAutoTaggersCommand;
 import commander.commands.GetFileByTagsCommand;
 import commander.commands.GetListenedDirsCommand;
 import commander.commands.GetMessagesCommand;
 import commander.commands.GetTagsByFreqCommand;
+import commander.commands.GetTagsOfFileCommand;
 import commander.commands.ListenToCommand;
 import commander.commands.ProcessFileChangeTaggingCommand;
+import commander.commands.RebootListenerSourcesCommand;
+import commander.commands.RebootTaggerCommand;
 import commander.commands.SetAutoTaggersCommand;
 import commander.commands.StopListenToCommand;
 import commander.commands.TSCommand;
+import commander.commands.WriteFileMessageCommand;
 import commander.commands.WriteMessageCommand;
 
 /**
@@ -39,17 +44,22 @@ public class CommandManager implements Observer {
 	 */
 	public enum CmdCodes {
 		LOG_WRITE_MESSAGE,
+		LOG_WRITE_FILE_MESSAGE,
 		LOG_GET_MESSAGES,
 		LSTNR_ACTIVATE,
 		LSTNR_DEACTIVATE,
 		LSTNR_LISTEN_TO,
 		LSTNR_STOP_LISTENING_TO,
 		LSTNR_GET_LISTENED_DIRS,
+		LSTNR_ASK_ACTIVE,
+		LSTNR_REBOOT,
 		TAGGER_GET_FILES_BY_TAGS,
 		TAGGER_GET_TAGS_BY_FREQ,
 		TAGGER_PROCESS_FILE_CHANGE_TAGGING,
 		TAGGER_SET_AUTO_TAGGERS,
 		TAGGER_GET_AUTO_TAGGERS,
+		TAGGER_GET_TAGS_OF_FILE,
+		TAGGER_REBOOT,
 		TOTAL_COMMAND_CODES
 	}
 	
@@ -119,17 +129,22 @@ public class CommandManager implements Observer {
 		
 		// Add all the commands to the hashmap
 		commandMappings.put(LOG_WRITE_MESSAGE, new WriteMessageCommand());
+		commandMappings.put(LOG_WRITE_FILE_MESSAGE, new WriteFileMessageCommand());
 		commandMappings.put(LOG_GET_MESSAGES, new GetMessagesCommand());
 		commandMappings.put(LSTNR_ACTIVATE, new ActivateListenerCommand());
 		commandMappings.put(LSTNR_DEACTIVATE, new DeactivateListenerCommand());
 		commandMappings.put(LSTNR_LISTEN_TO, new ListenToCommand());
 		commandMappings.put(LSTNR_STOP_LISTENING_TO, new StopListenToCommand());
 		commandMappings.put(LSTNR_GET_LISTENED_DIRS, new GetListenedDirsCommand());
+		commandMappings.put(LSTNR_ASK_ACTIVE, new AskActivityOfListenerCommand());
+		commandMappings.put(LSTNR_REBOOT, new RebootListenerSourcesCommand());
 		commandMappings.put(TAGGER_GET_FILES_BY_TAGS, new GetFileByTagsCommand());
 		commandMappings.put(TAGGER_GET_TAGS_BY_FREQ, new GetTagsByFreqCommand());
 		commandMappings.put(TAGGER_PROCESS_FILE_CHANGE_TAGGING, new ProcessFileChangeTaggingCommand());
 		commandMappings.put(TAGGER_SET_AUTO_TAGGERS, new SetAutoTaggersCommand());
 		commandMappings.put(TAGGER_GET_AUTO_TAGGERS, new GetAutoTaggersCommand());
+		commandMappings.put(TAGGER_GET_TAGS_OF_FILE, new GetTagsOfFileCommand());
+		commandMappings.put(TAGGER_REBOOT, new RebootTaggerCommand());
 		/* TODO: Add rest of the commands to the hashmap here...
 		 * 
 		 * 
@@ -167,8 +182,13 @@ public class CommandManager implements Observer {
 	@Override
 	public void update(Observable object, Object arg) {
 
-		// Pass this data to the tagger
+		//pass this date to the log
 		Object[] params = new Object[] {arg};
+		getCommand(LOG_WRITE_FILE_MESSAGE).execute(params);
+		
+		
+		// Pass this data to the tagger
+		//Object[] params = new Object[] {arg};
 		getCommand(TAGGER_PROCESS_FILE_CHANGE_TAGGING).execute(params);
 	}
 

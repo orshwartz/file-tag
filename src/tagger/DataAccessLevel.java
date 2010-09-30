@@ -306,7 +306,6 @@ public class DataAccessLevel {
 				string.append(")");
 
 				stmt = conn.prepareStatement(string.toString());
-				System.out.println("println1");
 				stmt.executeUpdate();
 			}
 			else {
@@ -326,9 +325,7 @@ public class DataAccessLevel {
 				
 			}
 			
-			System.out.println("println2");
 			while (it.hasNext()) {
-					System.out.println("println3");
 					String tag = it.next();
 
 					string.setLength(0);
@@ -602,7 +599,6 @@ public class DataAccessLevel {
 				results.next();
 				
 			int tagId = results.getInt(1);
-			System.out.println("tag id is " + tagId);
 
 			
 			// get file id
@@ -617,7 +613,6 @@ public class DataAccessLevel {
 				results.next();
 				
 			int fileId = results.getInt(1);
-			System.out.println("file name is " + fileId);
 
 			
 			// insert into attachments

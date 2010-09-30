@@ -2,14 +2,20 @@ package gui;
 
 import static commander.CommandManager.CmdCodes.*;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import listener.ListenedDirectory;
+import log.EventType;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
@@ -40,13 +46,14 @@ public class MonitorWindow {
 	
 	private Table table1;
 	private Label label1;
+	private Button rebootSourcesBtn;
+	private Button button2;
 	private Button button1;
 	private static Shell window;
 	
 	public MonitorWindow(CommandManager commander) {
 
 		this.commander = commander;
-		lstn = false;
 	}
 	
 	public void makeWindow(){
@@ -77,9 +84,15 @@ public class MonitorWindow {
 		}
 		{
 			button1 = new Button(window, SWT.PUSH | SWT.CENTER);
-			button1.setText("Activate Listener");
+			
+			button1.setText("Deactivate Listener");
 			button1.setBounds(344, 30, 117, 52);
 			
+			lstn = (Boolean) commander.getCommand(LSTNR_ASK_ACTIVE).execute(null);
+			if(lstn == false)
+				button1.setText("Activate Listener");
+			else
+				button1.setText("Deactivate Listener");
 			
 			button1.addListener(SWT.Selection, new Listener() {
 
@@ -89,12 +102,12 @@ public class MonitorWindow {
 					if(lstn == false){
 						commander.getCommand(LSTNR_ACTIVATE).execute(null);
 						button1.setText("Deactivate Listener");
-						lstn = true;
+						lstn = (Boolean) commander.getCommand(LSTNR_ASK_ACTIVE).execute(null);
 					}
 					else{
 						commander.getCommand(LSTNR_DEACTIVATE).execute(null);
 						button1.setText("Activate Listener");
-						lstn = false;
+						lstn = (Boolean) commander.getCommand(LSTNR_ASK_ACTIVE).execute(null);
 					}
 				}});
 			
@@ -106,8 +119,82 @@ public class MonitorWindow {
 			label1.setText("System Log");
 			label1.setBounds(12, 12, 115, 30);
 		}
-
+		{
+			button2 = new Button(window, SWT.PUSH | SWT.CENTER);
+			button2.setText("Reboot Tagger");
+			button2.setBounds(344, 88, 117, 43);
 			
+			button2.addListener(SWT.Selection, new Listener(){
+
+				@Override
+				public void handleEvent(Event arg0) {
+					
+					MessageBox mBox = new MessageBox(window, 
+							SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
+					
+					mBox.setMessage("This action will delete all of the tags and " +
+							"the file-to-tags attachments in the system");
+					
+					int choice = mBox.open();
+					
+						switch(choice){
+							case SWT.OK :
+								
+								
+								TSCommand RbtCmd = commander.getCommand(
+										TAGGER_REBOOT);
+								RbtCmd.execute(null);
+								
+								//inform Log
+								TSCommand writeMsgCmd = commander.getCommand(
+										LOG_WRITE_MESSAGE);
+								Object[] params = {EventType.Tagger_Reboot};
+								writeMsgCmd.execute(params);
+								
+								System.out.println("ok");
+								break;
+							case SWT.CANCEL :
+								break;
+						}
+				}
+				
+				
+			});
+			
+			
+		}
+		{
+			rebootSourcesBtn = new Button(window, SWT.PUSH | SWT.CENTER);
+			rebootSourcesBtn.setText("Reboot Listened Sources");
+			rebootSourcesBtn.setBounds(344, 137, 117, 58);
+			
+			rebootSourcesBtn.addListener(SWT.Selection, new Listener(){
+
+				@Override
+				public void handleEvent(Event arg0) {
+					
+					Collection<ListenedDirectory> gomel = null;
+					gomel = (Collection<ListenedDirectory>) 
+							commander.getCommand(LSTNR_REBOOT).execute(null);
+					
+					/*for(ListenedDirectory dir : gomel){
+	
+							String[] files = dir.getDirectory().list();
+							
+							for(String file : files){
+								System.out.println(file);
+							}
+						}*/
+					
+					
+					
+				}
+				
+			});
+			
+			
+		}
+
 	}
 		
 	
@@ -118,7 +205,6 @@ public class MonitorWindow {
 		
 		for (String str : msgs){
 			TableItem item = new TableItem(table1,SWT.None);
-			System.out.println(str);
 			
 			String[] parts = str.split(" ", 3);
 			

@@ -2,6 +2,8 @@ package log;
 
 import java.util.Collection;
 
+import listener.FileEvent;
+
 /**
  * @author Or Shwartz
  *
@@ -15,7 +17,8 @@ public interface Log {
 	 * maybe filter by activity type (creation of file, deletion,
 	 * rename, etc...).
 	 */
-	public void writeMessage(String message);
+	public void writeMessage(FileEvent fileEvent);
+	public void writeMessage(EventType event);
 	public Collection<String> getMessages();
 	public void clearLog();
 }
