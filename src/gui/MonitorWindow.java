@@ -9,6 +9,7 @@ import java.util.Collection;
 
 import listener.ListenedDirectory;
 import log.EventType;
+import org.eclipse.jface.dialogs.ProgressIndicator;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
@@ -46,6 +47,8 @@ public class MonitorWindow {
 	
 	private Table table1;
 	private Label label1;
+	private Button clearLogBtn;
+	private ProgressIndicator progressIndicator1;
 	private Button rebootSourcesBtn;
 	private Button button2;
 	private Button button1;
@@ -63,7 +66,7 @@ public class MonitorWindow {
 				   SWT.MIN |
 				   SWT.RESIZE);
 		window.setText("Control and Monitor");
-		window.setSize(481, 350);
+		window.setSize(481, 383);
 		{
 			table1 = new Table(window, SWT.V_SCROLL | SWT.BORDER);
 			table1.setBounds(12, 30, 326, 275);
@@ -193,6 +196,37 @@ public class MonitorWindow {
 			});
 			
 			
+		}
+		{
+			progressIndicator1 = new ProgressIndicator(window);
+			progressIndicator1.setBounds(12, 313, 326, 30);
+		}
+		{
+			clearLogBtn = new Button(window, SWT.PUSH | SWT.CENTER);
+			clearLogBtn.setText("Clear Log");
+			clearLogBtn.setBounds(344, 201, 117, 41);
+			
+			clearLogBtn.addListener(SWT.Selection, new Listener(){
+
+				@Override
+				public void handleEvent(Event arg0) {
+					
+					MessageBox mBox = new MessageBox(window, 
+							SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
+					
+					mBox.setMessage("This action will clean all the messages from the log");
+					
+					int choice = mBox.open();
+					switch(choice){
+						case SWT.OK :
+							commander.getCommand(LOG_CLEAR).execute(null);
+							break;
+						case SWT.CANCEL :
+							break;
+					}
+				}
+				
+			});
 		}
 
 	}
