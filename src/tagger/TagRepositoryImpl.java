@@ -223,8 +223,6 @@ public class TagRepositoryImpl implements TagRepository {
 						DAL.unTagFileAll(file.toString());
 						DAL.tagFile(file.toString(),CaseCreated(file.toString()));
 					}
-					else
-						System.out.println("fhfh");
 						
 					
 				}
