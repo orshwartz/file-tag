@@ -176,21 +176,16 @@ public class MonitorWindow {
 				@Override
 				public void handleEvent(Event arg0) {
 					
-					Collection<ListenedDirectory> gomel = null;
-					gomel = (Collection<ListenedDirectory>) 
+					//open a new thread
+					new Thread(new Runnable(){
+
+						@Override
+						public void run() {
 							commander.getCommand(LSTNR_REBOOT).execute(null);
-					
-					/*for(ListenedDirectory dir : gomel){
-	
-							String[] files = dir.getDirectory().list();
 							
-							for(String file : files){
-								System.out.println(file);
-							}
-						}*/
-					
-					
-					
+						}
+						
+					}).start();					
 				}
 				
 			});
