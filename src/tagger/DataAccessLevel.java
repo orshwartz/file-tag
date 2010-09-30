@@ -474,6 +474,66 @@ public class DataAccessLevel {
 	}//		public void unTagFileAll(String file)
 	
 	
+	public Collection<String> getTagsOfFile(String file){
+		
+		connect();
+		
+		Collection<String> tags = new LinkedList<String>();
+		ResultSet results2;
+		int fileId = 0;
+		
+		string.setLength(0);
+		string.append("SELECT file_id FROM files WHERE filename = '");
+		string.append(file);
+		string.append("'");
+		
+		try {
+			stmt = conn.prepareStatement(string.toString());
+			results = stmt.executeQuery();
+			results.next();
+			fileId = results.getInt(1);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		string.setLength(0);
+		string.append("SELECT tag_id FROM attachments WHERE file_id = ");
+		string.append(fileId);
+		
+		
+		try {
+			stmt = conn.prepareStatement(string.toString());
+			results = stmt.executeQuery();
+			
+			
+				while(results.next()){
+					
+					string.setLength(0);
+					string.append("SELECT tag FROM tags WHERE tag_id = ");
+					string.append(results.getInt(1));
+					
+					stmt = conn.prepareStatement(string.toString());
+					results2 = stmt.executeQuery();
+					results2.next();
+					tags.add( results2.getString(1) );
+
+				}
+			
+			
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+		disconnect();
+		return tags;
+	}
+	
+	
 	/**
 	 * This method removes a given file from the repository
 	 * @param file - The file that will be removed
