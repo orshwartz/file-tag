@@ -187,13 +187,12 @@ public class MonitorWindow {
 						@Override
 						public void run() {
 							
-							commander.getCommand(TAGGER_REBOOT).execute(null);
+							//TODO : should it be here ?
+							//commander.getCommand(TAGGER_REBOOT).execute(null);
 							reboot = true;
 							Object[] params = {thread};
 							commander.getCommand(LSTNR_REBOOT).execute(params);
-							
 							reboot = false;
-							
 						}
 						
 					});		

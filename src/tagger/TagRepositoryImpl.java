@@ -227,7 +227,6 @@ public class TagRepositoryImpl implements TagRepository {
 					}				
 				break;
 			case DELETED:
-
 				// The file was deleted, so delete it
 				DAL.removeFile(file.toString());
 				
