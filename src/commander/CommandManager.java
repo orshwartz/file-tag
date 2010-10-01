@@ -19,6 +19,7 @@ import commander.commands.GetAutoTaggersCommand;
 import commander.commands.GetFileByTagsCommand;
 import commander.commands.GetListenedDirsCommand;
 import commander.commands.GetMessagesCommand;
+import commander.commands.GetRebootModeCommand;
 import commander.commands.GetTagsByFreqCommand;
 import commander.commands.GetTagsOfFileCommand;
 import commander.commands.ListenToCommand;
@@ -26,6 +27,7 @@ import commander.commands.ProcessFileChangeTaggingCommand;
 import commander.commands.RebootListenerSourcesCommand;
 import commander.commands.RebootTaggerCommand;
 import commander.commands.SetAutoTaggersCommand;
+import commander.commands.SetRebootModeCommand;
 import commander.commands.StopListenToCommand;
 import commander.commands.TSCommand;
 import commander.commands.WriteFileMessageCommand;
@@ -62,6 +64,8 @@ public class CommandManager implements Observer {
 		TAGGER_GET_AUTO_TAGGERS,
 		TAGGER_GET_TAGS_OF_FILE,
 		TAGGER_REBOOT,
+		TAGGER_SET_REBOOT_MODE,
+		TAGGER_GET_REBOOT_MODE,
 		TOTAL_COMMAND_CODES
 	}
 	
@@ -148,6 +152,8 @@ public class CommandManager implements Observer {
 		commandMappings.put(TAGGER_GET_AUTO_TAGGERS, new GetAutoTaggersCommand());
 		commandMappings.put(TAGGER_GET_TAGS_OF_FILE, new GetTagsOfFileCommand());
 		commandMappings.put(TAGGER_REBOOT, new RebootTaggerCommand());
+		commandMappings.put(TAGGER_SET_REBOOT_MODE, new SetRebootModeCommand());
+		commandMappings.put(TAGGER_GET_REBOOT_MODE, new GetRebootModeCommand());
 		/* TODO: Add rest of the commands to the hashmap here...
 		 * 
 		 * 
