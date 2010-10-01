@@ -76,7 +76,6 @@ public class AlgorithmSelector extends Dialog {
 	 */
 	public Map<File, AutoTagger> open(final File[] availablePlugins, File[] curPlugins) {
 
-		try {
 			Shell parent = getParent();
 			dialogShell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 			dialogShell.setText("Automatic Tagging Plug-ins");
@@ -262,9 +261,14 @@ public class AlgorithmSelector extends Dialog {
 						TableItem curTableItem = null;
 						for (File curPluginFile : availablePlugins) {
 							
-							curTableItem = new TableItem(tblPlugins, SWT.NONE);
-							AutoTagger curAutoTagger =
+							AutoTagger curAutoTagger = null;
+							try {
+							curAutoTagger =
 								AutoTaggerLoader.getAutoTagger(curPluginFile);
+							} catch (Exception e) {
+								break;
+							}
+							curTableItem = new TableItem(tblPlugins, SWT.NONE);
 							curTableItem.setText(curAutoTagger.getName());
 							curTableItem.setData(new FileAutoTaggerPair(curPluginFile,curAutoTagger));
 							
@@ -375,9 +379,6 @@ public class AlgorithmSelector extends Dialog {
 				if (!display.readAndDispatch())
 					display.sleep();
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 
 		// Return chosen automatic taggers
 		return chosenAutoTaggers;
