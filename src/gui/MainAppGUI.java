@@ -202,8 +202,11 @@ public class MainAppGUI {
 							@Override
 							public boolean accept(File dir, String name) {
 	
-								return name.endsWith(".class") ||
-									   name.endsWith(".jar");
+								/// FIXME: Ignore jars : I couldn't get jars
+								/// to work before project submission :-(
+//								return name.endsWith(".class") ||
+//									   name.endsWith(".jar");
+								return name.endsWith(".class");
 							}
 						});
 					
