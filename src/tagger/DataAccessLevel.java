@@ -52,7 +52,6 @@ public class DataAccessLevel {
 		disconnect();
 		
 		connCheck = false;
-		System.out.println("cons");
 	}
 
 	/**
@@ -61,7 +60,7 @@ public class DataAccessLevel {
 	public void connect() {
 
 		try {
-			System.out.println("Connecting to database ...");
+//			System.out.println("Connecting to database ...");
 			Class.forName(jdbcDriver).newInstance();
 
 			// Get a connection
@@ -938,7 +937,6 @@ public class DataAccessLevel {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println(epoch);
 		
 		disconnect();
 		return 0;
@@ -997,7 +995,7 @@ public class DataAccessLevel {
 	public void disconnect() {
 
 		try {
-			System.out.println("Task done. Disconnecting...");
+//			System.out.println("Task done. Disconnecting...");
 				if (stmt != null) {
 						stmt.close();
 				}
