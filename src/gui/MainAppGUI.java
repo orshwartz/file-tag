@@ -77,7 +77,7 @@ public class MainAppGUI {
 		createSShell();
 		
 		searchWindow = new SearchWindow(commander);
-		monitorWindow = new MonitorWindow(commander);
+		monitorWindow = new MonitorWindow(sShell, commander);
 		
 		Object[] params = {EventType.System_Up};
 		commander.getCommand(LOG_WRITE_MESSAGE).execute(params);
