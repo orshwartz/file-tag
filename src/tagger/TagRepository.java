@@ -48,4 +48,7 @@ public interface TagRepository {
 	public void removeFile(String file); // TODO : delete after we're done
 	public void unTagFileAll(String file);
 	
+	public void setRebootMode();
+	public boolean getRebootMode();
+	
 }

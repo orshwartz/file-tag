@@ -44,9 +44,12 @@ public class MonitorWindow {
 	
 	public CommandManager commander;
 	private boolean lstn;
+	private boolean reboot;
+	private boolean onOff;
 	
 	private Table table1;
 	private Label label1;
+	public Button onOffBtn;
 	private Button clearLogBtn;
 	private ProgressIndicator progressIndicator1;
 	private Button rebootSourcesBtn;
@@ -183,7 +186,12 @@ public class MonitorWindow {
 
 						@Override
 						public void run() {
-							commander.getCommand(LSTNR_REBOOT).execute(null);
+							
+							reboot = true;
+							Object[] params = {thread};
+							commander.getCommand(LSTNR_REBOOT).execute(params);
+							
+							reboot = false;
 							
 						}
 						
@@ -202,7 +210,7 @@ public class MonitorWindow {
 		{
 			clearLogBtn = new Button(window, SWT.PUSH | SWT.CENTER);
 			clearLogBtn.setText("Clear Log");
-			clearLogBtn.setBounds(344, 201, 117, 41);
+			clearLogBtn.setBounds(344, 264, 117, 41);
 			
 			clearLogBtn.addListener(SWT.Selection, new Listener(){
 
@@ -225,6 +233,43 @@ public class MonitorWindow {
 				}
 				
 			});
+		}
+		{
+			onOffBtn = new Button(window, SWT.PUSH | SWT.CENTER);
+			onOffBtn.setText("Stop/Start Reboot");
+			onOffBtn.setBounds(344, 195, 117, 30);
+			
+			onOffBtn.addListener(SWT.Selection, new Listener(){
+
+				@Override
+				public void handleEvent(Event arg0) {
+					
+					if(reboot == false){
+						MessageBox mBox = new MessageBox(window, 
+								SWT.ICON_INFORMATION);
+						
+						mBox.setMessage("Reboot process is not active at the moment");
+						mBox.open();
+					}
+					else{
+						synchronized(thread){
+						commander.getCommand
+								(TAGGER_SET_REBOOT_MODE).execute(null);	
+						if((Boolean) commander.getCommand
+								(TAGGER_GET_REBOOT_MODE).execute(null)){								
+		
+								thread.notify();
+							
+						}
+						
+						
+						}
+					}
+					
+				}
+				
+			});
+			
 		}
 
 	}

@@ -36,6 +36,7 @@ public class TagRepositoryImpl implements TagRepository {
     private final static Locale dfltLocal = Locale.getDefault();
     private Map<File, AutoTagger> autoTaggers = new HashMap<File,AutoTagger>();
 	private String FILENAME_PERSISTENCE = "tagger_persistence.bin";
+	private boolean rebootMode;
 	
 	
 	/**
@@ -48,6 +49,7 @@ public class TagRepositoryImpl implements TagRepository {
 		
 		// Restore needed automatic algorithms
 		loadTaggerData();
+		rebootMode = true;
 		
 		System.out.println(this.getClass().getName() + " up.");
 	}
@@ -208,8 +210,6 @@ public class TagRepositoryImpl implements TagRepository {
 	public void processFileChangeTagging(FileEvent fileEvent) {
 		
 		Path file = fileEvent.getFile();
-		
-		System.out.println("THE NAME : " + fileEvent.getFile());
 		
 		switch (fileEvent.getEvent()) {
 			case MODIFIED:
@@ -425,6 +425,17 @@ public class TagRepositoryImpl implements TagRepository {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public synchronized void setRebootMode() {
+		rebootMode = !rebootMode;
+	}
+
+	@Override
+	public boolean getRebootMode() {
+
+		return rebootMode;
 	}
 
 }
