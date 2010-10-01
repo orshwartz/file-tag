@@ -24,7 +24,7 @@ import commander.commands.GetTagsOfFileCommand;
 import commander.commands.ListenToCommand;
 import commander.commands.ProcessFileChangeTaggingCommand;
 import commander.commands.RebootListenerSourcesCommand;
-import commander.commands.RebootTaggerCommand;
+import commander.commands.ClearAllTagsCommand;
 import commander.commands.SetAutoTaggersCommand;
 import commander.commands.StopListenToCommand;
 import commander.commands.TSCommand;
@@ -54,14 +54,14 @@ public class CommandManager implements Observer {
 		LSTNR_STOP_LISTENING_TO,
 		LSTNR_GET_LISTENED_DIRS,
 		LSTNR_ASK_ACTIVE,
-		LSTNR_REBOOT,
+		LSTNR_RETAG_ALL_FILES,
 		TAGGER_GET_FILES_BY_TAGS,
 		TAGGER_GET_TAGS_BY_FREQ,
 		TAGGER_PROCESS_FILE_CHANGE_TAGGING,
 		TAGGER_SET_AUTO_TAGGERS,
 		TAGGER_GET_AUTO_TAGGERS,
 		TAGGER_GET_TAGS_OF_FILE,
-		TAGGER_REBOOT,
+		TAGGER_CLEAR_ALL_TAGS,
 		TOTAL_COMMAND_CODES
 	}
 	
@@ -140,14 +140,14 @@ public class CommandManager implements Observer {
 		commandMappings.put(LSTNR_STOP_LISTENING_TO, new StopListenToCommand());
 		commandMappings.put(LSTNR_GET_LISTENED_DIRS, new GetListenedDirsCommand());
 		commandMappings.put(LSTNR_ASK_ACTIVE, new AskActivityOfListenerCommand());
-		commandMappings.put(LSTNR_REBOOT, new RebootListenerSourcesCommand());
+		commandMappings.put(LSTNR_RETAG_ALL_FILES, new RebootListenerSourcesCommand());
 		commandMappings.put(TAGGER_GET_FILES_BY_TAGS, new GetFileByTagsCommand());
 		commandMappings.put(TAGGER_GET_TAGS_BY_FREQ, new GetTagsByFreqCommand());
 		commandMappings.put(TAGGER_PROCESS_FILE_CHANGE_TAGGING, new ProcessFileChangeTaggingCommand());
 		commandMappings.put(TAGGER_SET_AUTO_TAGGERS, new SetAutoTaggersCommand());
 		commandMappings.put(TAGGER_GET_AUTO_TAGGERS, new GetAutoTaggersCommand());
 		commandMappings.put(TAGGER_GET_TAGS_OF_FILE, new GetTagsOfFileCommand());
-		commandMappings.put(TAGGER_REBOOT, new RebootTaggerCommand());
+		commandMappings.put(TAGGER_CLEAR_ALL_TAGS, new ClearAllTagsCommand());
 		/* TODO: Add rest of the commands to the hashmap here...
 		 * 
 		 * 
