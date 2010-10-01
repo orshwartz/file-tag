@@ -108,7 +108,7 @@ public class MonitorWindow extends Dialog {
 		}
 		{
 			btnRebootTagger = new Button(window, SWT.PUSH | SWT.CENTER);
-			btnRebootTagger.setText("Reboot Tagger");
+			btnRebootTagger.setText("Clear all tags");
 			GridData button2LData = new GridData();
 			button2LData.horizontalAlignment = GridData.FILL;
 			btnRebootTagger.setLayoutData(button2LData);
@@ -155,7 +155,7 @@ public class MonitorWindow extends Dialog {
 		}
 		{
 			rebootSourcesBtn = new Button(window, SWT.PUSH | SWT.CENTER);
-			rebootSourcesBtn.setText("Reboot Listened Sources");
+			rebootSourcesBtn.setText("Re-tag all files");
 			GridData rebootSourcesBtnLData = new GridData();
 			rebootSourcesBtnLData.horizontalAlignment = GridData.FILL;
 			rebootSourcesBtn.setLayoutData(rebootSourcesBtnLData);
