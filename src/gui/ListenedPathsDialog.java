@@ -83,9 +83,6 @@ public class ListenedPathsDialog extends Dialog {
 			listenedDirs.put(dir, new ListenedDirectory(dir, (Collection<String>) regexes.clone()));
 
 			ListenedPathsDelta pathsDelta = inst.open(listenedDirs);
-			
-			// TODO: Process changes to listened paths
-			System.out.println(pathsDelta.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -197,18 +194,6 @@ public class ListenedPathsDialog extends Dialog {
 				checkboxTreeViewer.addCheckStateListener(new ICheckStateListener() {
 					@Override
 					public void checkStateChanged(CheckStateChangedEvent event) {
-						System.out.println("vaarg");
-// TODO: Reconsider using this implementation
-//						// If the item is checked...
-//						if (event.getChecked()) {
-//							// ...check all its children
-//							checkboxTreeViewer.setSubtreeChecked(event.getElement(), true);
-//						}
-//						// Else, item is unchecked so...
-//						else {
-//							// ...uncheck all its children
-//							checkboxTreeViewer.setSubtreeChecked(event.getElement(), false);					
-//						}
 						
 						// If the item is checked...
 						if (event.getChecked()) {

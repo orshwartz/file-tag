@@ -582,8 +582,6 @@ public class ListenerImpl extends Listener {
 			
 			// Clone the key
 			curPath = new File(curEntry.getKey().getAbsolutePath());
-			
-			System.out.println("curPath : " + curEntry.getKey().getAbsolutePath());
 			 
 			// Clone the regular expressions 
 			curReturnedRegexes = new ArrayList<String>(curEntry.getValue().size());
