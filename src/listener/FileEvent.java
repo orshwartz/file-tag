@@ -1,7 +1,6 @@
 package listener;
 
 import java.nio.file.Path;
-import java.util.Collection;
 
 /**
  * This class represents an event for a file -
@@ -12,7 +11,6 @@ public class FileEvent {
 	
 	Path file;
 	FileEvents event;
-	Collection<String> tags = null;
 	
 	/**
 	 * Constructor for <CODE>FileEvent</CODE>.
@@ -37,15 +35,6 @@ public class FileEvent {
 	public FileEvents getEvent() {
 		return event;
 	}
-	
-	public void setTags(Collection<String> tags){
-		this.tags = tags;
-	}
-	
-	public Collection<String> getTags(){
-		return tags;
-	}
-	
 	
 	public String toString(){
 		
