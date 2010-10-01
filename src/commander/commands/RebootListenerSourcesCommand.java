@@ -65,6 +65,8 @@ public class RebootListenerSourcesCommand extends TSCommand {
 		}
 		
 		
+		getLog().writeMessage("Retagged all files.");
+		
 		return null;
 	}
 

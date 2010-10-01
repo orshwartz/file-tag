@@ -6,13 +6,16 @@ package commander.commands;
  * @author Itay Evron
  *
  */
-public class RebootTaggerCommand extends TSCommand{
+public class ClearAllTagsCommand extends TSCommand {
 
 	
 	@Override
 	public Object execute(Object[] params) {
 		
 		getTagRepository().deleteAll();
+		
+		getLog().writeMessage("Cleared all tags.");
+		
 		return null;
 	}
 

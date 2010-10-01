@@ -1,10 +1,7 @@
 package web;
 import java.io.IOException;
-import java.sql.Array;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Enumeration;
-import java.util.LinkedList;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -13,10 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import commander.commands.TSCommand;
 
-import tagger.DataAccessLevel;
-import tagger.TagFreq;
-
-    public class SearchResults extends HttpServlet {
+    public class SearchResultsServlet extends HttpServlet {
         
 		/**
 		 * 

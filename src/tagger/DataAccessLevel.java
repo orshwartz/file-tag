@@ -338,7 +338,8 @@ public class DataAccessLevel {
 						stmt = conn.prepareStatement(string.toString());
 						stmt.executeUpdate();
 					} catch (SQLException e) {
-					e.printStackTrace();
+						
+						// This shouldn't happen... if it does - don't bug the user
 					}
 					
 					makeAttachments(file, tag); // attach the tag into the file
