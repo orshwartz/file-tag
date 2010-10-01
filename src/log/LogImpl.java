@@ -10,15 +10,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import listener.FileEvent;
+import javax.xml.parsers.FactoryConfigurationError;
 
-import org.apache.log4j.FileAppender;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.apache.log4j.xml.DOMConfigurator;
 
 /**
@@ -45,6 +42,14 @@ public class LogImpl implements Log {
 		// TODO: Remove this stub message
 		System.out.println(this.getClass().getName() + " up.");
 
+		configLog4J();
+	}
+
+	/**
+	 * @throws FactoryConfigurationError
+	 */
+	private void configLog4J() throws FactoryConfigurationError {
+
 		// Configure the Log4J
 		DOMConfigurator.configure("src\\Log4j.xml");
 		logger = Logger.getLogger("FileTagger");
@@ -67,6 +72,9 @@ public class LogImpl implements Log {
 			OutputStreamWriter writer = new OutputStreamWriter(os);
 			writer.write("");
 			writer.close();
+			
+			// Re-config log4j
+			configLog4J();
 		} catch (Exception e) {
 			// TODO: Something
 		}
@@ -130,7 +138,4 @@ public class LogImpl implements Log {
 		logger.info(obj.toString());
 		
 	}
-	
-	
-
 }
