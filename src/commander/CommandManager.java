@@ -1,24 +1,7 @@
 package commander;
 
-import static commander.CommandManager.CmdCodes.LOG_CLEAR;
-import static commander.CommandManager.CmdCodes.LOG_GET_MESSAGES;
-import static commander.CommandManager.CmdCodes.LOG_WRITE_FILE_MESSAGE;
-import static commander.CommandManager.CmdCodes.LOG_WRITE_MESSAGE;
-import static commander.CommandManager.CmdCodes.LSTNR_ACTIVATE;
-import static commander.CommandManager.CmdCodes.LSTNR_ASK_ACTIVE;
-import static commander.CommandManager.CmdCodes.LSTNR_DEACTIVATE;
-import static commander.CommandManager.CmdCodes.LSTNR_GET_LISTENED_DIRS;
-import static commander.CommandManager.CmdCodes.LSTNR_LISTEN_TO;
-import static commander.CommandManager.CmdCodes.LSTNR_RETAG_ALL_FILES;
-import static commander.CommandManager.CmdCodes.LSTNR_STOP_LISTENING_TO;
-import static commander.CommandManager.CmdCodes.TAGGER_CLEAR_ALL_TAGS;
-import static commander.CommandManager.CmdCodes.TAGGER_GET_AUTO_TAGGERS;
-import static commander.CommandManager.CmdCodes.TAGGER_GET_FILES_BY_TAGS;
-import static commander.CommandManager.CmdCodes.TAGGER_GET_TAGS_BY_FREQ;
-import static commander.CommandManager.CmdCodes.TAGGER_GET_TAGS_OF_FILE;
-import static commander.CommandManager.CmdCodes.TAGGER_PROCESS_FILE_CHANGE_TAGGING;
-import static commander.CommandManager.CmdCodes.TAGGER_SET_AUTO_TAGGERS;
-import static commander.CommandManager.CmdCodes.TOTAL_COMMAND_CODES;
+import static commander.CommandManager.CmdCodes.*;
+
 import gui.MainAppGUI;
 
 import java.util.HashMap;
@@ -38,12 +21,14 @@ import commander.commands.GetAutoTaggersCommand;
 import commander.commands.GetFileByTagsCommand;
 import commander.commands.GetListenedDirsCommand;
 import commander.commands.GetMessagesCommand;
+import commander.commands.GetRebootModeCommand;
 import commander.commands.GetTagsByFreqCommand;
 import commander.commands.GetTagsOfFileCommand;
 import commander.commands.ListenToCommand;
 import commander.commands.ProcessFileChangeTaggingCommand;
 import commander.commands.RebootListenerSourcesCommand;
 import commander.commands.SetAutoTaggersCommand;
+import commander.commands.SetRebootModeCommand;
 import commander.commands.StopListenToCommand;
 import commander.commands.TSCommand;
 import commander.commands.WriteFileMessageCommand;
@@ -168,8 +153,8 @@ public class CommandManager implements Observer {
 		commandMappings.put(TAGGER_GET_AUTO_TAGGERS, new GetAutoTaggersCommand());
 		commandMappings.put(TAGGER_GET_TAGS_OF_FILE, new GetTagsOfFileCommand());
 		commandMappings.put(TAGGER_CLEAR_ALL_TAGS, new ClearAllTagsCommand());
-//		commandMappings.put(TAGGER_SET_REBOOT_MODE, new SetRebootModeCommand());
-//		commandMappings.put(TAGGER_GET_REBOOT_MODE, new GetRebootModeCommand());
+		commandMappings.put(TAGGER_SET_REBOOT_MODE, new SetRebootModeCommand());
+		commandMappings.put(TAGGER_GET_REBOOT_MODE, new GetRebootModeCommand());
 		/* TODO: Add rest of the commands to the hashmap here...
 		 * 
 		 * 
