@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 
 import tagger.TagFreq;
@@ -44,10 +45,11 @@ public class SearchWindow {
 	private List lstAvailableTags;
 	private List lstExcludedTags;
 	private Button btnIncludeTag;
-	private Button button1;
-	private List list1;
+	private Button btnOpenFileLocation;
+	private List lstTags;
 	private Button btnSearch;
 	private Label lblSearchResults;
+	private Label lblFileTags;
 	private Label lblExcludedTags;
 	private Label lblAvailableTags;
 	private Label lblIncludedTags;
@@ -103,6 +105,7 @@ public class SearchWindow {
 			lstIncludedTagsLData.horizontalAlignment = GridData.FILL;
 			lstIncludedTags.setLayoutData(lstIncludedTagsLData);
 			lstIncludedTags.setBounds(12, 9, 193, 222);
+			lstIncludedTags.setEnabled(false);
 		}
 		{
 			btnIncludeTag = new Button(window, SWT.PUSH | SWT.CENTER);
@@ -133,6 +136,9 @@ public class SearchWindow {
 						lstAvailableTags.remove(curTag);
 						
 					}
+					
+					// Update inclusion-exclusion buttons availability
+					updateInclExclTagEnabledStatus();
 					
 					// Enable search button
 					btnSearch.setEnabled(true);
@@ -207,6 +213,9 @@ public class SearchWindow {
 						
 					}
 					
+					// Update inclusion-exclusion buttons availability
+					updateInclExclTagEnabledStatus();
+					
 					// Enable search button
 					btnSearch.setEnabled(true);
 				}});
@@ -220,6 +229,7 @@ public class SearchWindow {
 			lstExcludedTagsLData.horizontalAlignment = GridData.FILL;
 			lstExcludedTags.setLayoutData(lstExcludedTagsLData);
 			lstExcludedTags.setBounds(568, 7, 193, 227);
+			lstExcludedTags.setEnabled(false);
 		}
 		{
 			btnSearch = new Button(window, SWT.PUSH | SWT.CENTER);
@@ -256,9 +266,16 @@ public class SearchWindow {
 		{
 			lblSearchResults = new Label(window, SWT.NONE);
 			GridData lblSearchResultsLData = new GridData();
-			lblSearchResultsLData.horizontalSpan = 5;
+			lblSearchResultsLData.horizontalSpan = 4;
 			lblSearchResults.setLayoutData(lblSearchResultsLData);
 			lblSearchResults.setText("Search results");
+		}
+		{
+			lblFileTags = new Label(window, SWT.NONE);
+			GridData lblFileTagsLData = new GridData();
+			lblFileTagsLData.horizontalSpan = 1;
+			lblFileTags.setLayoutData(lblFileTagsLData);
+			lblFileTags.setText("File tags");
 		}
 		{
 			lstResults = new List(window, SWT.SINGLE | SWT.V_SCROLL | SWT.BORDER);
@@ -276,36 +293,35 @@ public class SearchWindow {
 				@Override
 				public void handleEvent(Event arg0) {
 				
-				button1.setEnabled(true);
-				TSCommand getTagsCmd = commander.getCommand(TAGGER_GET_TAGS_OF_FILE);
-				Collection<String> tags = (Collection<String>) getTagsCmd.execute(lstResults.getSelection());
-				
-				list1.removeAll();
-				for(String str : tags){
-					list1.add(str);
-				}
+					btnOpenFileLocation.setEnabled(lstResults.getSelectionCount() > 0);
+					TSCommand getTagsCmd = commander.getCommand(TAGGER_GET_TAGS_OF_FILE);
+					Collection<String> tags = (Collection<String>) getTagsCmd.execute(lstResults.getSelection());
 					
+					lstTags.removeAll();
+					for(String str : tags){
+						lstTags.add(str);
+					}
 				}
-				
 			});
 		}
 		{
-			GridData list1LData = new GridData();
-			list1LData.horizontalAlignment = GridData.FILL;
-			list1LData.verticalAlignment = GridData.FILL;
-			list1 = new List(window, SWT.V_SCROLL | SWT.BORDER);
-			list1.setLayoutData(list1LData);
+			GridData lstTagsLData = new GridData();
+			lstTagsLData.horizontalAlignment = GridData.FILL;
+			lstTagsLData.verticalAlignment = GridData.FILL;
+			lstTags = new List(window, SWT.V_SCROLL | SWT.BORDER);
+			lstTags.setLayoutData(lstTagsLData);
+			lstTags.setEnabled(false);
 		}
 		{
-			button1 = new Button(window, SWT.PUSH | SWT.CENTER);
+			btnOpenFileLocation = new Button(window, SWT.PUSH | SWT.CENTER);
 			GridData button1LData = new GridData();
 			button1LData.horizontalSpan = 2;
 			button1LData.horizontalAlignment = GridData.FILL;
-			button1.setLayoutData(button1LData);
-			button1.setText("Open Folder");
-			button1.setEnabled(false);
+			btnOpenFileLocation.setLayoutData(button1LData);
+			btnOpenFileLocation.setText("Open File Location");
+			btnOpenFileLocation.setEnabled(false);
 			
-			button1.addListener(SWT.Selection, new Listener(){
+			btnOpenFileLocation.addListener(SWT.Selection, new Listener(){
 
 				@Override
 				public void handleEvent(Event arg0) {
@@ -329,8 +345,6 @@ public class SearchWindow {
 				}
 				
 			});
-			
-			
 		}
 
 		window.setSize(500, 400);
@@ -345,5 +359,15 @@ public class SearchWindow {
 			if (!MainAppGUI.display.readAndDispatch())
 				MainAppGUI.display.sleep();
 		}
+	}
+
+	private void updateInclExclTagEnabledStatus() {
+
+		// If there are no more available tags, disable inclusion
+		// and exclusion buttons
+		boolean availTagsListNotEmpty =
+			(lstAvailableTags.getItemCount() > 0);
+		btnIncludeTag.setEnabled(availTagsListNotEmpty);
+		btnExcludeTag.setEnabled(availTagsListNotEmpty);
 	}
 }
