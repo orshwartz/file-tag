@@ -166,11 +166,6 @@ public class CommandManager implements Observer {
 		 * 
 		 * 
 		 */
-		
-		// TODO: Remove this debug message
-		System.out.printf("DEBUG DEBUG DEBUG *** %d/%d (Mapped/Codes) *** DEBUG DEBUG DEBUG\n",
-						  commandMappings.size(),
-						  TOTAL_COMMAND_CODES.ordinal());
 	}
 
 	/**
