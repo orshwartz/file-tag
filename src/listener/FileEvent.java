@@ -46,9 +46,13 @@ public class FileEvent {
 				
 			case NEW_DIRECTORY :
 				return new String("Register: " + file.toAbsolutePath());
-		}
-		
-		return null;
-		
+				
+			case DELETED:
+			case MODIFIED:
+				return getFile() + " " + event.name().toLowerCase() + ".";
+
+			default:
+				return event.name();
+		}	
 	}
 }

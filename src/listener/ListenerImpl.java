@@ -185,16 +185,14 @@ public class ListenerImpl extends Listener {
 			// If path not registered before
 			if (previousRef == null) {
 
-				// TODO: Instead of this... maybe write to log
+				// Notify observers
 				setChanged();
 				notifyObservers(new FileEvent( dir.getDirectory().toPath(),
 					FileEvents.NEW_DIRECTORY));
-				System.out.format("register: %s\n", dir.getDirectory().toString());
 			}
 			else if (!dir.getDirectory().toPath().equals(previousRef)) {
 
-				// TODO: Instead of this... maybe write to log
-				System.out.format("update: %s -> %s\n", previousRef, dir.getDirectory().toString());
+				// Dir update
 			}
 		}
 

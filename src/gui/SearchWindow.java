@@ -1,6 +1,8 @@
 package gui;
 
-import static commander.CommandManager.CmdCodes.*;
+import static commander.CommandManager.CmdCodes.TAGGER_GET_FILES_BY_TAGS;
+import static commander.CommandManager.CmdCodes.TAGGER_GET_TAGS_BY_FREQ;
+import static commander.CommandManager.CmdCodes.TAGGER_GET_TAGS_OF_FILE;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -16,7 +18,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 
 import tagger.TagFreq;
@@ -97,7 +98,7 @@ public class SearchWindow {
 			lblExcludedTags.setText("Excluded tags");
 		}
 		{
-			lstIncludedTags = new List(window, SWT.BORDER);
+			lstIncludedTags = new List(window, SWT.V_SCROLL | SWT.BORDER);
 			GridData lstIncludedTagsLData = new GridData();
 			lstIncludedTagsLData.verticalAlignment = GridData.FILL;
 			lstIncludedTagsLData.grabExcessVerticalSpace = true;
@@ -146,7 +147,7 @@ public class SearchWindow {
 			});
 		}
 		{
-			lstAvailableTags = new List(window, SWT.MULTI | SWT.BORDER);
+			lstAvailableTags = new List(window, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL);
 			GridData lstAvailableTagsLData = new GridData();
 			lstAvailableTagsLData.verticalAlignment = GridData.FILL;
 			lstAvailableTagsLData.grabExcessVerticalSpace = true;
@@ -221,7 +222,7 @@ public class SearchWindow {
 				}});
 		}
 		{
-			lstExcludedTags = new List(window, SWT.BORDER);
+			lstExcludedTags = new List(window, SWT.V_SCROLL | SWT.BORDER);
 			GridData lstExcludedTagsLData = new GridData();
 			lstExcludedTagsLData.verticalAlignment = GridData.FILL;
 			lstExcludedTagsLData.grabExcessVerticalSpace = true;
