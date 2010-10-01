@@ -28,7 +28,7 @@ import tagger.autotagger.AutoTaggerLoader;
 /**
  * This class represents a tag repository - which is a repository associating
  * files to tags and uses events to keep track of those files.
- * @author Or Shwartz
+ * @author Or Shwartz, Itay Evron
  */
 public class TagRepositoryImpl implements TagRepository {
 
@@ -37,14 +37,12 @@ public class TagRepositoryImpl implements TagRepository {
     private Map<File, AutoTagger> autoTaggers = new HashMap<File,AutoTagger>();
 	private String FILENAME_PERSISTENCE = "tagger_persistence.bin";
 	
-	private Observable signal;
 	
 	/**
 	 * <CODE>TagRepositoryImpl</CODE> constructor.
 	 */
 	public TagRepositoryImpl() {
 		
-		signal = new Observable();
 		DAL = new DataAccessLevel();
 		DAL.getConnection();
 		
@@ -99,7 +97,7 @@ public class TagRepositoryImpl implements TagRepository {
 	
 	/**
 	 * This method removes a tag from the repository.
-	 * TODO: Say what happens if tag is associated to files or doesn't exist.
+	 * If there is any file attached to this tag, the attachment is being removed as well
 	 * @see tagger.TagRepository#removeTag(java.lang.String)
 	 */
 	@Override
@@ -108,47 +106,85 @@ public class TagRepositoryImpl implements TagRepository {
 		DAL.removeTag(tag);
 	}
 
+	/**
+	 * This method renames a tag from the repository
+	 * @see tagger.TagRepository#renameTag(java.lang.String, java.lang.String)
+	 */
 	@Override
 	public void renameTag(String oldName, String newName)
 			throws TagNotFoundException, TagAlreadyExistsException {
 		DAL.renameTag(oldName, newName);
 	}
 
+	/** 
+	 * This method search in the repository for files that are attached to the
+	 * <CODE> includedTags </CODE> tags and also not-attached to the <CODE>
+	 *  excludedTags </CODE> tags
+	 *  @param includedTags : tags to be included in the search
+	 *  @param excludedTags : tags to be excluded in the search
+	 *  @return A collection(Strings) of those files
+	 * @see tagger.TagRepository#searchByTag(java.util.Collection, java.util.Collection)
+	 */
 	@Override
 	public Collection<String> searchByTag(Collection<String> includedTags,
 			Collection<String> excludedTags) {
 		
-		return DAL.searchByTag(includedTags, excludedTags);
+ 		return DAL.searchByTag(includedTags, excludedTags);
 	}
 
+	/** This method checks if a given <CODE> tag </CODE> exists in the repository
+	 * @return true if the tag exists, false otherwise
+	 * @see tagger.TagRepository#tagExists(java.lang.String)
+	 */
 	@Override
 	public boolean tagExists(String tag) {
-
+		
 		return DAL.tagExists(tag);
 	}
 
+	/** This method tags a given <CODE> file </CODE> with the given tags
+	 * @param file : the file to be tagged
+	 * @param tags : a Collection of tags(Strings)
+	 * @see tagger.TagRepository#tagFile(java.lang.String, java.util.Collection)
+	 */
 	@Override
 	public void tagFile(String file, Collection<String> tags) throws FileNotFoundException {
 		DAL.tagFile(file, tags);
 		
 	}
 
+	/** This method removes the attachment from a given <CODE>file</CODE>
+	 * to a given <CODE>tag</CODE>
+	 * @see tagger.TagRepository#untagFile(java.lang.String, java.lang.String)
+	 */
+	
 	@Override
 	public void untagFile(String file, String tag) throws FileNotTaggedException {
 		DAL.untagFile(file, tag);
 		
 	}
 	
+	/** Removes all the tags that are attached to a give <CODE> file </CODE>
+	 * @see tagger.TagRepository#unTagFileAll(java.lang.String)
+	 */
 	@Override
 	public void unTagFileAll(String file){
 		DAL.unTagFileAll(file);
 	}
 	
+	/** Gets a Collection of all the tags related to a give <CODE>
+	 *  file </CODE>
+	 *  @return a Collection of tags(Strings)
+	 * @see tagger.TagRepository#getTagsOfFile(java.lang.String)
+	 */
+	@Override
 	public Collection<String> getTagsOfFile(String file){
-		
 		return DAL.getTagsOfFile(file);
 	}
 	
+	/** Deletes all the tags and files in the repository
+	 * @see tagger.TagRepository#deleteAll()
+	 */
 	@Override
 	public void deleteAll(){
 		DAL.deleteAll();
@@ -156,8 +192,18 @@ public class TagRepositoryImpl implements TagRepository {
 
 
 	/**
-	 * TODO: Doc this method...
-	 * @param fileEvent
+	 * This Method gets a <CODE> fileEvent </CODE> and responds to it according to the
+	 * event the given FileEvent contains
+	 * 
+	 * There are four cases :
+	 * CREATED : the method then tags the given file using the auto-taggers
+	 * MODIFIED : the method untag all the tags from the given file then do the same
+	 * 			as in CREATED case
+	 * DELETED : the method removes the file from the repository
+	 * REBOOT : the method checks if the file is in the repository and if its not modified
+	 * 			since it got i
+	 * 
+	 * @param fileEvent : a given event
 	 */
 	public void processFileChangeTagging(FileEvent fileEvent) {
 		
@@ -223,8 +269,6 @@ public class TagRepositoryImpl implements TagRepository {
 						DAL.unTagFileAll(file.toString());
 						DAL.tagFile(file.toString(),CaseCreated(file.toString()));
 					}
-					else
-						System.out.println("fhfh");
 						
 					
 				}
@@ -377,9 +421,4 @@ public class TagRepositoryImpl implements TagRepository {
 		}
 	}
 
-	@Override
-	public Observable getSignal() {
-
-		return signal;
-	}
 }

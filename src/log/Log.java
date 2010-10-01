@@ -17,8 +17,7 @@ public interface Log {
 	 * maybe filter by activity type (creation of file, deletion,
 	 * rename, etc...).
 	 */
-	public void writeMessage(FileEvent fileEvent);
-	public void writeMessage(EventType event);
+	public void writeMessage(Object obj);
 	public Collection<String> getMessages();
 	public void clearLog();
 }

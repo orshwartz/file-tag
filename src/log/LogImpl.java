@@ -56,20 +56,20 @@ public class LogImpl implements Log {
 	@Override
 	public void clearLog() {
 		
-//		// Disable the log file
-//		logger.getAppender("fileTag").close();
-//		logger.removeAppender("fileTag");
-//		
-//		// Delete the log file
-//		try {
-//			File logFile = new File(LOG_NAME);
-//			OutputStream os = new FileOutputStream(logFile);
-//			OutputStreamWriter writer = new OutputStreamWriter(os);
-//			writer.write("");
-//			writer.close();
-//		} catch (Exception e) {
-//			// TODO: Something
-//		}
+		// Disable the log file
+		logger.getAppender("fileTag").close();
+		logger.removeAppender("fileTag");
+		
+		// Delete the log file
+		try {
+			File logFile = new File(LOG_NAME);
+			OutputStream os = new FileOutputStream(logFile);
+			OutputStreamWriter writer = new OutputStreamWriter(os);
+			writer.write("");
+			writer.close();
+		} catch (Exception e) {
+			// TODO: Something
+		}
 //		
 //		// Recreate the log file
 //		try {
@@ -126,48 +126,8 @@ public class LogImpl implements Log {
 	 * @see log.Log#writeMessage(log.LogEvent)
 	 */
 	@Override
-	public void writeMessage(FileEvent fileEvent) {
-		
-		
-			Path file = fileEvent.getFile();
-		
-			switch (fileEvent.getEvent()) {
-			
-				case CREATED :
-					logger.info("The file " + file.toAbsolutePath() + 
-							"was created in the directory " + 
-							file.getParent());
-					break;
-				case NEW_DIRECTORY :
-					logger.info("Register: " + file.toAbsolutePath());
-					break;
-		
-			}
-		
-	}
-
-	@Override
-	public void writeMessage(EventType event) {
-
-		switch(event){
-		
-		case Lstnr_Act :
-			logger.info("Listner Activated.");
-			break;
-		case Lstnr_Deact :
-			logger.info("Listner Deactivated.");
-			break;
-		case Tagger_Reboot :
-			logger.info("Tag Repository Reboot.");
-			break;
-		case Error_Plugin_Creation :
-			logger.info("Error occurred during creation of plugins directory.");
-			break;
-		case System_Up :
-			logger.info("System Up.");
-			break;
-		
-		}
+	public void writeMessage(Object obj) {
+		logger.info(obj.toString());
 		
 	}
 	

@@ -13,6 +13,7 @@ import tagger.TagRepository;
 
 import commander.commands.ActivateListenerCommand;
 import commander.commands.AskActivityOfListenerCommand;
+import commander.commands.ClearLogCommand;
 import commander.commands.DeactivateListenerCommand;
 import commander.commands.GetAutoTaggersCommand;
 import commander.commands.GetFileByTagsCommand;
@@ -46,6 +47,7 @@ public class CommandManager implements Observer {
 		LOG_WRITE_MESSAGE,
 		LOG_WRITE_FILE_MESSAGE,
 		LOG_GET_MESSAGES,
+		LOG_CLEAR,
 		LSTNR_ACTIVATE,
 		LSTNR_DEACTIVATE,
 		LSTNR_LISTEN_TO,
@@ -131,6 +133,7 @@ public class CommandManager implements Observer {
 		commandMappings.put(LOG_WRITE_MESSAGE, new WriteMessageCommand());
 		commandMappings.put(LOG_WRITE_FILE_MESSAGE, new WriteFileMessageCommand());
 		commandMappings.put(LOG_GET_MESSAGES, new GetMessagesCommand());
+		commandMappings.put(LOG_CLEAR, new ClearLogCommand());
 		commandMappings.put(LSTNR_ACTIVATE, new ActivateListenerCommand());
 		commandMappings.put(LSTNR_DEACTIVATE, new DeactivateListenerCommand());
 		commandMappings.put(LSTNR_LISTEN_TO, new ListenToCommand());
