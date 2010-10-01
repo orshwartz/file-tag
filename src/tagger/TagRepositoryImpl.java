@@ -209,6 +209,7 @@ public class TagRepositoryImpl implements TagRepository {
 	 */
 	public void processFileChangeTagging(FileEvent fileEvent) {
 		
+		Collection<String> fileTags = new TreeSet<String>();
 		Path file = fileEvent.getFile();
 		
 		switch (fileEvent.getEvent()) {
@@ -217,41 +218,13 @@ public class TagRepositoryImpl implements TagRepository {
 				DAL.unTagFileAll(file.toString());
 
 			case CREATED:
-				Collection<String> fileTags = new TreeSet<String>(); // XXX: Consider a different data structure if tagging is slow
-
-				// For each tagging algorithm
-				Collection<AutoTagger> usedAlgorithms = autoTaggers.values();
-				for (AutoTagger curAutoTagger : usedAlgorithms) {
-					
-					try {
-						// Get tags for file
-						Collection<String> tagsForFile =
-							curAutoTagger.autoTag(new File(file.toString()));
-
-						// Perform safety check on returned result
-						if (tagsForFile != null) {
-						
-							// Add automatically generated tags of file to collection
-							fileTags.addAll(tagsForFile); // XXX: Consider using just a path or just a file, if tagging is slow
-						}
-					} catch (Exception e) {
-
-						// Problem with tagger, continue to next one
-						continue; // TODO: Consider attempting to report the problem somehow
-					}
-				}
 
 				// Tag the file with generated tags
-				DAL.tagFile(file.toString(), fileTags);
-				
-				//notify log
-				/* FIXME :
-				FileEvent fileTagged= new FileEvent(file,FileEvents.TAGGED);
-				fileTagged.setTags(fileTags);
-				signal.notifyObservers(fileTagged);*/
-				
-				
-				
+					fileTags = new TreeSet<String>();
+					fileTags = CaseCreated(file);
+					if(!fileTags.isEmpty()){
+							DAL.tagFile(file.toString(), fileTags);
+					}				
 				break;
 			case DELETED:
 
@@ -269,13 +242,24 @@ public class TagRepositoryImpl implements TagRepository {
 					
 					if(modInDB < lastModOfFile){
 						DAL.unTagFileAll(file.toString());
-						DAL.tagFile(file.toString(),CaseCreated(file));
+						
+						
+						fileTags = new TreeSet<String>();
+						fileTags = CaseCreated(file);
+						if(!fileTags.isEmpty()){
+								DAL.tagFile(file.toString(), fileTags);
+						}
 					}
 						
 					
 				}
-				else
-				DAL.tagFile(file.toString(),CaseCreated(file));
+				else{
+					fileTags = new TreeSet<String>();
+					fileTags = CaseCreated(file);
+					if(!fileTags.isEmpty()){
+							DAL.tagFile(file.toString(), fileTags);
+					}
+				}
 				
 				
 				break;
@@ -312,7 +296,7 @@ public class TagRepositoryImpl implements TagRepository {
 				//continue; // TODO: Consider attempting to report the problem somehow
 			}
 		}
-		
+	
 		return fileTags;
 
 		
