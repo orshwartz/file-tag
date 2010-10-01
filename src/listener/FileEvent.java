@@ -45,4 +45,21 @@ public class FileEvent {
 	public Collection<String> getTags(){
 		return tags;
 	}
+	
+	
+	public String toString(){
+		
+		switch(event){
+			case CREATED :
+				return new String("The file " + file.toAbsolutePath() + 
+						" was created in the directory " + 
+						file.getParent());
+				
+			case NEW_DIRECTORY :
+				return new String("Register: " + file.toAbsolutePath());
+		}
+		
+		return null;
+		
+	}
 }
