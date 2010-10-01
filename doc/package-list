@@ -1,0 +1,10 @@
+
+com.cloudgarden.resource
+commander
+commander.commands
+gui
+listener
+log
+tagger
+tagger.autotagger
+web

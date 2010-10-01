@@ -793,8 +793,6 @@ public class DataAccessLevel {
 				string.append(")");// if there no tags to exclude
 				
 			try {
-				
-					System.out.println(string); // TODO : println for testing
 					stmt = conn.prepareStatement(string.toString());
 					results = stmt.executeQuery();
 			

@@ -313,8 +313,9 @@ public class ListenerImpl extends Listener {
 
 				Path dir = keys.get(key);
 				if (dir == null) {
-					// TODO: Printing is not discouraged... think this through.
-					System.err.println("WatchKey not recognized!!");
+					
+					// Original error message: "WatchKey not recognized!!"
+					// However, ignore
 					continue;
 				}
 				
@@ -335,16 +336,6 @@ public class ListenerImpl extends Listener {
 					WatchEvent<Path> ev = cast(event);
 					Path name = ev.context();
 					Path child = dir.resolve(name);
-					
-//					SimpleDateFormat timeFormat =
-//						new SimpleDateFormat("HH:mm:ss:SSS");
-//					Date now = new Date();
-//					String.format(SimpleDateFormat.getDateInstance().format(now) + " " +
-//							  SimpleDateFormat.getTimeInstance().format(now) +
-//							  " %s: %s",
-//							  kind.name(),
-//							  child);
-					System.out.println(kind + "\t" + child); // TODO: Remove this line
 					
 					try {
 						// If directory event occurred
@@ -434,8 +425,6 @@ public class ListenerImpl extends Listener {
 		// If any parameter is null TODO: Check might be removable
 		if (fileName == null || regularExpressions == null) {
 			
-			// Return false - nothing to check TODO: Remove debug print
-			System.out.println("fileName = " + fileName + "\tNOT MATCHING\t regularExpressions = " + regularExpressions);
 			return false;
 		}
 		
@@ -562,8 +551,6 @@ public class ListenerImpl extends Listener {
 		listenerClosed = true;
 		
 		try {
-			// Close the watch service TODO: Remove message
-			System.out.println("Closing the watch service...");
 			watcher.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
