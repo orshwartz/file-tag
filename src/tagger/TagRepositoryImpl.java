@@ -36,6 +36,7 @@ public class TagRepositoryImpl implements TagRepository {
     private final static Locale dfltLocal = Locale.getDefault();
     private Map<File, AutoTagger> autoTaggers = new HashMap<File,AutoTagger>();
 	private String FILENAME_PERSISTENCE = "tagger_persistence.bin";
+	private boolean rebootMode;
 	
 	
 	/**
@@ -48,6 +49,7 @@ public class TagRepositoryImpl implements TagRepository {
 		
 		// Restore needed automatic algorithms
 		loadTaggerData();
+		rebootMode = true;
 		
 		System.out.println(this.getClass().getName() + " up.");
 	}
@@ -196,17 +198,18 @@ public class TagRepositoryImpl implements TagRepository {
 	 * event the given FileEvent contains
 	 * 
 	 * There are four cases :
-	 * CREATED : the method then tags the given file using the auto-taggers
-	 * MODIFIED : the method untag all the tags from the given file then do the same
+	 * file created : the method then tags the given file using the auto-taggers
+	 * file modified : the method untag all the tags from the given file then do the same
 	 * 			as in CREATED case
-	 * DELETED : the method removes the file from the repository
-	 * REBOOT : the method checks if the file is in the repository and if its not modified
-	 * 			since it got i
+	 * file deleted : the method removes the file from the repository
+	 * reboot process : the method checks if the file is in the repository and the last
+	 *  time when it's modified, then tagging it
 	 * 
 	 * @param fileEvent : a given event
 	 */
 	public void processFileChangeTagging(FileEvent fileEvent) {
 		
+		Collection<String> fileTags = new TreeSet<String>();
 		Path file = fileEvent.getFile();
 		
 		switch (fileEvent.getEvent()) {
@@ -215,44 +218,15 @@ public class TagRepositoryImpl implements TagRepository {
 				DAL.unTagFileAll(file.toString());
 
 			case CREATED:
-				Collection<String> fileTags = new TreeSet<String>(); // XXX: Consider a different data structure if tagging is slow
-
-				// For each tagging algorithm
-				Collection<AutoTagger> usedAlgorithms = autoTaggers.values();
-				for (AutoTagger curAutoTagger : usedAlgorithms) {
-					
-					try {
-						// Get tags for file
-						Collection<String> tagsForFile =
-							curAutoTagger.autoTag(new File(file.toString()));
-
-						// Perform safety check on returned result
-						if (tagsForFile != null) {
-						
-							// Add automatically generated tags of file to collection
-							fileTags.addAll(tagsForFile); // XXX: Consider using just a path or just a file, if tagging is slow
-						}
-					} catch (Exception e) {
-
-						// Problem with tagger, continue to next one
-						continue; // TODO: Consider attempting to report the problem somehow
-					}
-				}
 
 				// Tag the file with generated tags
-				DAL.tagFile(file.toString(), fileTags);
-				
-				//notify log
-				/* FIXME :
-				FileEvent fileTagged= new FileEvent(file,FileEvents.TAGGED);
-				fileTagged.setTags(fileTags);
-				signal.notifyObservers(fileTagged);*/
-				
-				
-				
+					fileTags = new TreeSet<String>();
+					fileTags = CaseCreated(file);
+					if(!fileTags.isEmpty()){
+							DAL.tagFile(file.toString(), fileTags);
+					}				
 				break;
 			case DELETED:
-
 				// The file was deleted, so delete it
 				DAL.removeFile(file.toString());
 				
@@ -267,13 +241,24 @@ public class TagRepositoryImpl implements TagRepository {
 					
 					if(modInDB < lastModOfFile){
 						DAL.unTagFileAll(file.toString());
-						DAL.tagFile(file.toString(),CaseCreated(file.toString()));
+						
+						
+						fileTags = new TreeSet<String>();
+						fileTags = CaseCreated(file);
+						if(!fileTags.isEmpty()){
+								DAL.tagFile(file.toString(), fileTags);
+						}
 					}
 						
 					
 				}
-				else
-				DAL.tagFile(file.toString(),CaseCreated(file.toString()));
+				else{
+					fileTags = new TreeSet<String>();
+					fileTags = CaseCreated(file);
+					if(!fileTags.isEmpty()){
+							DAL.tagFile(file.toString(), fileTags);
+					}
+				}
 				
 				
 				break;
@@ -281,32 +266,36 @@ public class TagRepositoryImpl implements TagRepository {
 		
 	}
 	
-	public Collection<String> CaseCreated(String file){
+	/**
+	 * This method is used to prevent double-code in the created and reboot
+	 * cases in the processFileChangeTagging method.
+	 * The method uses the available auto-taggers algorithms to tag the given
+	 * <CODE> file </CODE>
+	 * @param file : a file to tag
+	 * @return a Collection of tags(Strings) that the <CODE> file </CODE> will be
+	 * tagged with
+	 */
+	private Collection<String> CaseCreated(Path file){
 		
 		Collection<String> fileTags = new TreeSet<String>();
-		
 		// For each tagging algorithm
 		Collection<AutoTagger> usedAlgorithms = autoTaggers.values();
 		for (AutoTagger curAutoTagger : usedAlgorithms) {
-			
 			try {
 				// Get tags for file
 				Collection<String> tagsForFile =
 					curAutoTagger.autoTag(new File(file.toString()));
-
 				// Perform safety check on returned result
 				if (tagsForFile != null) {
-				
 					// Add automatically generated tags of file to collection
 					fileTags.addAll(tagsForFile); // XXX: Consider using just a path or just a file, if tagging is slow
 				}
 			} catch (Exception e) {
-
 				// Problem with tagger, continue to next one
-				continue; // TODO: Consider attempting to report the problem somehow
+				//continue; // TODO: Consider attempting to report the problem somehow
 			}
 		}
-		
+	
 		return fileTags;
 
 		
@@ -419,6 +408,17 @@ public class TagRepositoryImpl implements TagRepository {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public synchronized void setRebootMode() {
+		rebootMode = !rebootMode;
+	}
+
+	@Override
+	public boolean getRebootMode() {
+
+		return rebootMode;
 	}
 
 }

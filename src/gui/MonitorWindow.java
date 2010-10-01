@@ -1,17 +1,9 @@
 package gui;
 
-import static commander.CommandManager.CmdCodes.LOG_CLEAR;
-import static commander.CommandManager.CmdCodes.LOG_GET_MESSAGES;
-import static commander.CommandManager.CmdCodes.LOG_WRITE_MESSAGE;
-import static commander.CommandManager.CmdCodes.LSTNR_ACTIVATE;
-import static commander.CommandManager.CmdCodes.LSTNR_ASK_ACTIVE;
-import static commander.CommandManager.CmdCodes.LSTNR_DEACTIVATE;
-import static commander.CommandManager.CmdCodes.LSTNR_RETAG_ALL_FILES;
-import static commander.CommandManager.CmdCodes.TAGGER_CLEAR_ALL_TAGS;
+import static commander.CommandManager.CmdCodes.*;
 
 import java.util.Collection;
 
-import listener.ListenedDirectory;
 import log.EventType;
 
 import org.eclipse.jface.dialogs.ProgressIndicator;
@@ -30,7 +22,10 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
 import commander.CommandManager;
+import commander.CommandManager.CmdCodes;
 import commander.commands.TSCommand;
+
+
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo
@@ -48,92 +43,220 @@ public class MonitorWindow extends Dialog {
 	
 	public CommandManager commander;
 	private boolean lstn;
+	private boolean reboot;
 	
-	private Table tblLogMessages;
-	private Label lblSystemLog;
+	private Table tblLogMsgs;
+	private Label lblSysLog;
+	public Button onOffBtn;
 	private Button clearLogBtn;
 	private ProgressIndicator progressIndicator1;
 	private Button rebootSourcesBtn;
-	private Button btnClearAllTags;
-	private Button btnActDeactListener;
+	private Button btnRebootTagger;
+	private Button btnLstnrActiveToggle;
 	private static Shell window;
+	
+	private Thread thread;
 	
 	public MonitorWindow(Shell parent, CommandManager commander) {
 
-		super(parent, SWT.NONE);
+		super (parent, SWT.NONE);
 		
 		this.commander = commander;
 	}
 	
 	public void makeWindow(){
 		window = new Shell(MainAppGUI.display, SWT.CLOSE |
-											   SWT.TITLE |
-											   SWT.MAX |
-											   SWT.MIN |
-											   SWT.RESIZE |
-											   SWT.APPLICATION_MODAL |
-											   SWT.DIALOG_TRIM);
-		window.setText("Control and Monitor");
-		GridLayout windowLayout = new GridLayout(2, false);
+				   SWT.TITLE |
+				   SWT.MAX |
+				   SWT.MIN |
+				   SWT.RESIZE);
+		GridLayout windowLayout = new GridLayout();
+		windowLayout.numColumns = 2;
 		window.setLayout(windowLayout);
-		window.setSize(481, 383);
+		window.setText("Control and Monitor");
 		{
-			lblSystemLog = new Label(window, SWT.NONE);
-			GridData lblSystemLogLData = new GridData();
-			lblSystemLogLData.horizontalSpan = 2;
-			lblSystemLog.setLayoutData(lblSystemLogLData);
-			lblSystemLog.setText("System Log");
+			lblSysLog = new Label(window, SWT.NONE);
+			lblSysLog.setText("System Log");
+			GridData label1LData = new GridData();
+			label1LData.horizontalSpan = 2;
+			lblSysLog.setLayoutData(label1LData);
+			lblSysLog.setBounds(12, 12, 115, 30);
 		}
 		{
-			tblLogMessages = new Table(window, SWT.V_SCROLL | SWT.BORDER);
-			GridData tblLogMessagesLData = new GridData();
-			tblLogMessagesLData.verticalSpan = 4;
-			tblLogMessagesLData.grabExcessHorizontalSpace = true;
-			tblLogMessagesLData.grabExcessVerticalSpace = true;
-			tblLogMessagesLData.horizontalAlignment = GridData.FILL;
-			tblLogMessagesLData.verticalAlignment = GridData.FILL;
-			tblLogMessages.setLayoutData(tblLogMessagesLData);
-			tblLogMessages.setLinesVisible(true);
-		    tblLogMessages.setHeaderVisible(true);
-		    String titles[] = { "Date", "Time", "Message" };
-		    
-		    for (int i = 0; i < 3; i++) {
-		        TableColumn column = new TableColumn(tblLogMessages, SWT.NONE);
-		        column.setText(titles[i]);
-		      }
-
-				updateLog();
+			tblLogMsgs = new Table(window, SWT.V_SCROLL | SWT.BORDER);
+			tblLogMsgs.setLinesVisible(true);
+			GridData table1LData = new GridData();
+			table1LData.horizontalAlignment = GridData.FILL;
+			table1LData.grabExcessHorizontalSpace = true;
+			table1LData.grabExcessVerticalSpace = true;
+			table1LData.verticalSpan = 4;
+			table1LData.verticalAlignment = GridData.FILL;
+			tblLogMsgs.setLayoutData(table1LData);
+			tblLogMsgs.setHeaderVisible(true);
+			
+			String titles[] = { "Date", "Time", "Message" };
+			
+			for (int i = 0; i < 3; i++) {
+				TableColumn column = new TableColumn(tblLogMsgs, SWT.NONE);
+				column.setText(titles[i]);
+			}
+			
+			updateLog();
 			for(int i = 0; i<3; i++){
-				tblLogMessages.getColumn(i).pack();
+				tblLogMsgs.getColumn(i).pack();
 			}
 		}
 		{
-			btnActDeactListener = new Button(window, SWT.PUSH | SWT.CENTER);
+			btnRebootTagger = new Button(window, SWT.PUSH | SWT.CENTER);
+			btnRebootTagger.setText("Reboot Tagger");
+			GridData button2LData = new GridData();
+			button2LData.horizontalAlignment = GridData.FILL;
+			btnRebootTagger.setLayoutData(button2LData);
+			btnRebootTagger.setBounds(344, 88, 117, 43);
 			
-			btnActDeactListener.setText("Deactivate Listener");
-			GridData btnActDeactListenerLData = new GridData();
-			btnActDeactListenerLData.horizontalAlignment = GridData.FILL;
-			btnActDeactListener.setLayoutData(btnActDeactListenerLData);
+			btnRebootTagger.addListener(SWT.Selection, new Listener(){
+
+				@Override
+				public void handleEvent(Event arg0) {
+					
+					MessageBox mBox = new MessageBox(window, 
+							SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
+					
+					mBox.setMessage("This action will delete all of the tags and " +
+							"the file-to-tags attachments in the system");
+					
+					int choice = mBox.open();
+					
+						switch(choice){
+							case SWT.OK :
+								
+								
+								TSCommand RbtCmd = commander.getCommand(
+										CmdCodes.TAGGER_CLEAR_ALL_TAGS);
+								RbtCmd.execute(null);
+								
+								//inform Log
+								TSCommand writeMsgCmd = commander.getCommand(
+										LOG_WRITE_MESSAGE);
+								Object[] params = {EventType.Tagger_Reboot};
+								writeMsgCmd.execute(params);
+								
+								System.out.println("ok");
+								break;
+							case SWT.CANCEL :
+								break;
+						}
+				}
+				
+				
+			});
 			
+			
+		}
+		{
+			rebootSourcesBtn = new Button(window, SWT.PUSH | SWT.CENTER);
+			rebootSourcesBtn.setText("Reboot Listened Sources");
+			GridData rebootSourcesBtnLData = new GridData();
+			rebootSourcesBtnLData.horizontalAlignment = GridData.FILL;
+			rebootSourcesBtn.setLayoutData(rebootSourcesBtnLData);
+			rebootSourcesBtn.setBounds(344, 137, 117, 58);
+			
+			rebootSourcesBtn.addListener(SWT.Selection, new Listener(){
+
+				@Override
+				public void handleEvent(Event arg0) {
+					
+					//open a new thread
+					thread = new Thread(new Runnable(){
+
+						@Override
+						public void run() {
+							
+							//TODO : should it be here ?
+							//commander.getCommand(LSTNR_RETAG_ALL_FILES).execute(null);
+							reboot = true;
+							Object[] params = {thread};
+							commander.getCommand(CmdCodes.LSTNR_RETAG_ALL_FILES).execute(params);
+							reboot = false;
+						}
+						
+					});		
+					thread.start();
+				}
+				
+			});
+			
+			
+		}
+		{
+			onOffBtn = new Button(window, SWT.PUSH | SWT.CENTER);
+			onOffBtn.setText("Stop/Start Reboot");
+			GridData onOffBtnLData = new GridData();
+			onOffBtnLData.horizontalAlignment = GridData.FILL;
+			onOffBtn.setLayoutData(onOffBtnLData);
+			onOffBtn.setBounds(344, 195, 117, 30);
+			
+			onOffBtn.addListener(SWT.Selection, new Listener(){
+
+				@Override
+				public void handleEvent(Event arg0) {
+					
+					if(reboot == false){
+						MessageBox mBox = new MessageBox(window, 
+								SWT.ICON_INFORMATION);
+						
+						mBox.setMessage("Reboot process is not active at the moment");
+						mBox.open();
+					}
+					else{
+						synchronized(thread){
+						commander.getCommand
+								(TAGGER_SET_REBOOT_MODE).execute(null);	
+						if((Boolean) commander.getCommand
+								(TAGGER_GET_REBOOT_MODE).execute(null)){								
+		
+								thread.notify();
+							
+						}
+						
+						
+						}
+					}
+					
+				}
+				
+			});
+			
+		}
+		{
+			btnLstnrActiveToggle = new Button(window, SWT.PUSH | SWT.CENTER);
+			
+			btnLstnrActiveToggle.setText("Deactivate Listener");
+
 			lstn = (Boolean) commander.getCommand(LSTNR_ASK_ACTIVE).execute(null);
 			if(lstn == false)
-				btnActDeactListener.setText("Activate Listener");
-			else
-				btnActDeactListener.setText("Deactivate Listener");
+				btnLstnrActiveToggle.setText("Activate Listener");
+			else {
+				GridData button1LData = new GridData();
+				button1LData.horizontalAlignment = GridData.FILL;
+				button1LData.verticalAlignment = GridData.BEGINNING;
+				btnLstnrActiveToggle.setLayoutData(button1LData);
+					btnLstnrActiveToggle.setText("Deactivate Listener");
+			}
 			
-			btnActDeactListener.addListener(SWT.Selection, new Listener() {
-
+			btnLstnrActiveToggle.addListener(SWT.Selection, new Listener() {
+				
 				@Override
 				public void handleEvent(Event arg0) {
 					
 					if(lstn == false){
 						commander.getCommand(LSTNR_ACTIVATE).execute(null);
-						btnActDeactListener.setText("Deactivate Listener");
+						btnLstnrActiveToggle.setText("Deactivate Listener");
 						lstn = (Boolean) commander.getCommand(LSTNR_ASK_ACTIVE).execute(null);
 					}
 					else{
 						commander.getCommand(LSTNR_DEACTIVATE).execute(null);
-						btnActDeactListener.setText("Activate Listener");
+						btnLstnrActiveToggle.setText("Activate Listener");
 						lstn = (Boolean) commander.getCommand(LSTNR_ASK_ACTIVE).execute(null);
 					}
 				}});
@@ -142,113 +265,42 @@ public class MonitorWindow extends Dialog {
 			
 		}
 		{
-			btnClearAllTags = new Button(window, SWT.PUSH | SWT.CENTER);
-			btnClearAllTags.setText("Clear all tags");
-			GridData btnClearAllTagsLData = new GridData();
-			btnClearAllTagsLData.horizontalAlignment = GridData.FILL;
-			btnClearAllTags.setLayoutData(btnClearAllTagsLData);
-			
-			btnClearAllTags.addListener(SWT.Selection, new Listener(){
-
-				@Override
-				public void handleEvent(Event arg0) {
-					
-					MessageBox mBox = new MessageBox(window, 
-													 SWT.ICON_WARNING |
-													 SWT.OK |
-													 SWT.CANCEL);
-					
-					mBox.setMessage("This action will delete all file tagging from the system.\n\nAre you sure you want to clear all the tags?");
-
-					// If user approved tag-clear action
-					if (mBox.open() == SWT.OK) {
-								
-						// Clear the tags
-						TSCommand rbtCmd = commander.getCommand(TAGGER_CLEAR_ALL_TAGS);
-						rbtCmd.execute(null);
-						
-						//inform Log FIXME: Do this from TAGGER_REBOOT command somehow!
-						TSCommand writeMsgCmd = commander.getCommand(
-								LOG_WRITE_MESSAGE);
-						Object[] params = {EventType.Tagger_Reboot};
-						writeMsgCmd.execute(params);
-						
-System.out.println("OK"); // TODO: Delete this debug print
-					}
-				}
-			});
-		}
-		{
-			rebootSourcesBtn = new Button(window, SWT.PUSH | SWT.CENTER);
-			rebootSourcesBtn.setText("Re-tag all files");
-			GridData rebootSourcesBtnLData = new GridData();
-			rebootSourcesBtnLData.horizontalAlignment = GridData.FILL;
-			rebootSourcesBtn.setLayoutData(rebootSourcesBtnLData);
-			
-			rebootSourcesBtn.addListener(SWT.Selection, new Listener(){
-
-				@SuppressWarnings("unchecked")
-				@Override
-				public void handleEvent(Event arg0) {
-					
-					Collection<ListenedDirectory> gomel = null;
-					gomel = (Collection<ListenedDirectory>) 
-							commander.getCommand(LSTNR_RETAG_ALL_FILES).execute(null);
-					
-					/*for(ListenedDirectory dir : gomel){
-	
-							String[] files = dir.getDirectory().list();
-							
-							for(String file : files){
-								System.out.println(file);
-							}
-						}*/
-					
-					
-					
-				}
-				
-			});
-			
-			
-		}
-		{
-			progressIndicator1 = new ProgressIndicator(window);
-			progressIndicator1.setBounds(12, 313, 326, 30);
-		}
-		{
 			clearLogBtn = new Button(window, SWT.PUSH | SWT.CENTER);
-			clearLogBtn.setText("Clear log");
+			clearLogBtn.setText("Clear Log");
 			GridData clearLogBtnLData = new GridData();
 			clearLogBtnLData.horizontalAlignment = GridData.FILL;
 			clearLogBtn.setLayoutData(clearLogBtnLData);
+			clearLogBtn.setBounds(344, 264, 117, 41);
+			
 			clearLogBtn.addListener(SWT.Selection, new Listener(){
-
+				
 				@Override
 				public void handleEvent(Event arg0) {
 					
 					MessageBox mBox = new MessageBox(window, 
-													 SWT.ICON_WARNING |
-													 SWT.OK |
-													 SWT.CANCEL);
+							SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
 					
 					mBox.setMessage("This action will clean all the messages from the log");
 					
-					// If user approves change
-					if (mBox.open() == SWT.OK) {
-					
-						// Clear the messages
+					if (mBox.open() == SWT.OK)
+					{
 						commander.getCommand(LOG_CLEAR).execute(null);
 						
-						// Reflect this change in the table (it's not updated
-						// online so at least this will be shown)
-						tblLogMessages.clearAll();
+						// Reflect only this change in the GUI (others don't reflect)
+						tblLogMsgs.clearAll();
 					}
 				}
 				
 			});
 		}
-
+		{
+			progressIndicator1 = new ProgressIndicator(window);
+			GridData progressIndicator1LData = new GridData();
+			progressIndicator1LData.heightHint = 30;
+			progressIndicator1LData.horizontalAlignment = GridData.FILL;
+			progressIndicator1.setLayoutData(progressIndicator1LData);
+		}
+		
 	}
 		
 	
@@ -259,7 +311,7 @@ System.out.println("OK"); // TODO: Delete this debug print
 		Collection<String> msgs = (Collection<String>) getMsgCmd.execute(null);
 		
 		for (String str : msgs){
-			TableItem item = new TableItem(tblLogMessages,SWT.None);
+			TableItem item = new TableItem(tblLogMsgs,SWT.None);
 			
 			String[] parts = str.split(" ", 3);
 			
@@ -277,7 +329,6 @@ System.out.println("OK"); // TODO: Delete this debug print
 		makeWindow();
 		window.open();
 		window.pack();
-		window.setMinimumSize(window.getSize());
 		while (!window.isDisposed()) {
 			if (!MainAppGUI.display.readAndDispatch())
 				MainAppGUI.display.sleep();

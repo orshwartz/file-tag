@@ -15,16 +15,20 @@ import listener.ListenedDirectory;
  */
 public class RebootListenerSourcesCommand extends TSCommand {
 
+	String completePath = null;
+	
 	@Override
 	public Object execute(Object[] params) {
 
+		Thread thisThread = (Thread) params[0];
+		
 		Collection<ListenedDirectory> dirs;
 		dirs = getListener().getCollectionOfListenedPaths();
 		
 		
 		for(final ListenedDirectory dir1 : dirs){
 			
-			
+				
 				String[] files = dir1.getDirectory().list(new FilenameFilter(){
 
 					@Override
@@ -39,8 +43,23 @@ public class RebootListenerSourcesCommand extends TSCommand {
 				
 				
 				for(String file : files){
+					
+					synchronized(thisThread){
+						while(!getTagRepository().getRebootMode()){
+							try {
+								thisThread.wait();
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					}
+					
+					completePath = dir1.getDirectory().getAbsolutePath() +
+					FileSystems.getDefault().getSeparator() + file;
+					
 					getTagRepository().processFileChangeTagging(new FileEvent(
-							new File(file).toPath(),FileEvents.REBOOT));
+							new File(completePath).toPath(),FileEvents.REBOOT));
 							
 				}
 		}

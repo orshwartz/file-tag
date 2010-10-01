@@ -207,7 +207,7 @@ public class DataAccessLevel {
 					stmt.close();
 				
 				} catch (SQLException e) {
-				e.printStackTrace();
+					//ignore
 				}
 		}
 		
@@ -338,7 +338,8 @@ public class DataAccessLevel {
 						stmt = conn.prepareStatement(string.toString());
 						stmt.executeUpdate();
 					} catch (SQLException e) {
-					e.printStackTrace();
+						
+						// This shouldn't happen... if it does - don't bug the user
 					}
 					
 					makeAttachments(file, tag); // attach the tag into the file
@@ -346,7 +347,7 @@ public class DataAccessLevel {
 			
 			stmt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			//ignore
 		}
 		
 		disconnect();
@@ -630,7 +631,7 @@ public class DataAccessLevel {
 				stmt.close();
 			
 		} catch (SQLException e) {
-			e.printStackTrace();
+			// ignore
 		}
 
 	}// 	public void makeAttachments(String file, String tag)
@@ -704,19 +705,6 @@ public class DataAccessLevel {
 		return false;
 	}// 	public boolean fileExists(String file)
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
 	
 	/**
 	 * Connection getter.
