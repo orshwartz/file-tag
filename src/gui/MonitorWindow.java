@@ -69,7 +69,8 @@ public class MonitorWindow extends Dialog {
 				   SWT.TITLE |
 				   SWT.MAX |
 				   SWT.MIN |
-				   SWT.RESIZE);
+				   SWT.RESIZE |
+				   SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM);
 		GridLayout windowLayout = new GridLayout();
 		windowLayout.numColumns = 2;
 		window.setLayout(windowLayout);
@@ -329,6 +330,7 @@ public class MonitorWindow extends Dialog {
 		makeWindow();
 		window.open();
 		window.pack();
+		window.setMinimumSize(window.getSize());
 		while (!window.isDisposed()) {
 			if (!MainAppGUI.display.readAndDispatch())
 				MainAppGUI.display.sleep();

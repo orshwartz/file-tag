@@ -1,7 +1,5 @@
 package tagger;
 
-import gui.MainAppGUI;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -15,13 +13,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Observable;
 import java.util.Set;
 import java.util.TreeSet;
 
 import listener.FileEvent;
-import listener.FileEvents;
-import log.EventType;
 import tagger.autotagger.AutoTagger;
 import tagger.autotagger.AutoTaggerLoader;
 

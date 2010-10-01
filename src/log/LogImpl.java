@@ -51,7 +51,7 @@ public class LogImpl implements Log {
 	private void configLog4J() throws FactoryConfigurationError {
 
 		// Configure the Log4J
-		DOMConfigurator.configure("src\\Log4j.xml");
+		DOMConfigurator.configure("Log4j.xml");
 		logger = Logger.getLogger("FileTagger");
 	}
 	
