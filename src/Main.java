@@ -195,8 +195,10 @@ public class Main {
 		}
 		
 		gui.displayGUI();
-		// Close the listener
+		
+		// Close the listener and the webserver
 		listener.close();
+		webServer.close();
 		
 //		File file = new File("c:\\TEMP\\New Folder\\New Folder\\New Folder\\24.S08E09.CUSTOM.HEBSUB.HDTV.XviD-iDown.avi");
 //		System.out.println(file.getParentFile().toString());

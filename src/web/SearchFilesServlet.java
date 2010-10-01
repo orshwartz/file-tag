@@ -7,12 +7,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import commander.commands.TSCommand;
-
-import tagger.DataAccessLevel;
 import tagger.TagFreq;
 
-    public class SearchFiles extends HttpServlet {
+import commander.commands.TSCommand;
+
+    public class SearchFilesServlet extends HttpServlet {
         /**
 		 * 
 		 */

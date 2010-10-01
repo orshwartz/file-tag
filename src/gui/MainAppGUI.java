@@ -77,7 +77,7 @@ public class MainAppGUI {
 		createSShell();
 		
 		searchWindow = new SearchWindow(commander);
-		monitorWindow = new MonitorWindow(commander);
+		monitorWindow = new MonitorWindow(sShell, commander);
 		
 		Object[] params = {EventType.System_Up};
 		commander.getCommand(LOG_WRITE_MESSAGE).execute(params);
@@ -202,8 +202,11 @@ public class MainAppGUI {
 							@Override
 							public boolean accept(File dir, String name) {
 	
-								return name.endsWith(".class") ||
-									   name.endsWith(".jar");
+								/// FIXME: Ignore jars : I couldn't get jars
+								/// to work before project submission :-(
+//								return name.endsWith(".class") ||
+//									   name.endsWith(".jar");
+								return name.endsWith(".class");
 							}
 						});
 					
