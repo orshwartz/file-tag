@@ -27,7 +27,7 @@ import tagger.autotagger.AutoTaggerLoader;
  */
 public class TagRepositoryImpl implements TagRepository {
 
-	private DataAccessLevel DAL = null;
+	private DataAccessLayer DAL = null;
     private final static Locale dfltLocal = Locale.getDefault();
     private Map<File, AutoTagger> autoTaggers = new HashMap<File,AutoTagger>();
 	private String FILENAME_PERSISTENCE = "tagger_persistence.bin";
@@ -39,7 +39,7 @@ public class TagRepositoryImpl implements TagRepository {
 	 */
 	public TagRepositoryImpl() {
 		
-		DAL = new DataAccessLevel();
+		DAL = new DataAccessLayer();
 		DAL.getConnection();
 		
 		// Restore needed automatic algorithms

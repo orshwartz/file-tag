@@ -21,7 +21,7 @@ import org.apache.derby.tools.ij;
  * @author Itay Evron
  * 
  */
-public class DataAccessLevel {
+public class DataAccessLayer {
 
 	private static Connection conn = null;
 
@@ -45,7 +45,7 @@ public class DataAccessLevel {
 	/**
 	 * Constructor - Creates the DB if needed.
 	 */
-	public DataAccessLevel() {
+	public DataAccessLayer() {
 
 		connect();
 		loadTables();
