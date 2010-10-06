@@ -5,7 +5,7 @@ import java.util.LinkedList;
 
 import junit.framework.TestCase;
 
-public class DataAccessLevelTest extends TestCase {
+public class DataAccessLayerTest extends TestCase {
 	
 	DataAccessLayer DAL = new DataAccessLayer();
 	
