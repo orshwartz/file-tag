@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 
 public class DataAccessLevelTest extends TestCase {
 	
-	DataAccessLevel DAL = new DataAccessLevel();
+	DataAccessLayer DAL = new DataAccessLayer();
 	
 	
 	
@@ -15,7 +15,7 @@ public class DataAccessLevelTest extends TestCase {
 		/* A check of addTags and removeTags methods */
 		
 		boolean check;
-		Collection<String> col = new LinkedList();
+		Collection<String> col = new LinkedList<String>();
 		col.add("Thor");
 		col.add("Odin");
 		col.add("Loki");
@@ -105,7 +105,7 @@ public class DataAccessLevelTest extends TestCase {
 		/*A check of the tagFile, unTagfile and unTagFileAll methods */
 		
 		boolean check;
-		Collection<String> col = new LinkedList();
+		Collection<String> col = new LinkedList<String>();
 		col.add("Thor");
 		
 		String file = "file";
@@ -171,7 +171,7 @@ public class DataAccessLevelTest extends TestCase {
 		/* A check of the renameTag method */
 	
 		boolean check;
-		Collection<String> col = new LinkedList();
+		Collection<String> col = new LinkedList<String>();
 		
 		col.add("Thor");
 		
@@ -213,7 +213,7 @@ public class DataAccessLevelTest extends TestCase {
 		
 		/* A check of getTagFreq method */
 		
-		Collection<String> col = new LinkedList();
+		Collection<String> col = new LinkedList<String>();
 		TagFreq tagFreq = new TagFreq(0,"Thor");
 		int freq;
 		
@@ -258,16 +258,16 @@ public class DataAccessLevelTest extends TestCase {
 		
 		/* A check of searchByTag method */
 		
-		Collection<String> files = new LinkedList();
+		Collection<String> files = new LinkedList<String>();
 		
 		
-		Collection<String> col = new LinkedList();
-		Collection<String> col2 = new LinkedList();
-		Collection<String> col3 = new LinkedList();
-		Collection<String> col4 = new LinkedList();
+		Collection<String> col = new LinkedList<String>();
+		Collection<String> col2 = new LinkedList<String>();
+		Collection<String> col3 = new LinkedList<String>();
+		Collection<String> col4 = new LinkedList<String>();
 		
-		Collection<String> inc = new LinkedList();
-		Collection<String> exc = new LinkedList();
+		Collection<String> inc = new LinkedList<String>();
+		Collection<String> exc = new LinkedList<String>();
 		
 		String file000 = "file000";
 		String file001 = "file001";
