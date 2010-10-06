@@ -758,7 +758,7 @@ public class DataAccessLayer {
 						string.append(curTag);
 						string.append("' ");
 						if (i < sizeInc)
-							string.append("OR ");// this tag OR this tag ..
+							string.append("AND ");// this tag AND this tag ..
 						
 				} // for
 			} // if(sizeInc != 0){
@@ -783,7 +783,7 @@ public class DataAccessLayer {
 					string.append(curTag);
 					string.append("' ");
 					if (i < sizeExc)
-						string.append("OR "); // this tag OR this tag ..
+						string.append("AND "); // this tag AND this tag ..
 					else // if we reached the end of the list
 						string.append(")");
 			} // for
