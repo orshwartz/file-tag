@@ -201,8 +201,9 @@ public class TagRepositoryImpl implements TagRepository {
 	 *  time when it's modified, then tagging it
 	 * 
 	 * @param fileEvent : a given event
+	 * @return 
 	 */
-	public void processFileChangeTagging(FileEvent fileEvent) {
+	public Collection<String> processFileChangeTagging(FileEvent fileEvent) {
 		
 		Collection<String> fileTags = new TreeSet<String>();
 		Path file = fileEvent.getFile();
@@ -259,6 +260,9 @@ public class TagRepositoryImpl implements TagRepository {
 				break;
 		}
 		
+		return (fileTags.size() > 0?
+					fileTags :
+					null);
 	}
 	
 	/**
