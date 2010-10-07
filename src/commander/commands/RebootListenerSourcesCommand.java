@@ -58,9 +58,14 @@ public class RebootListenerSourcesCommand extends TSCommand {
 					completePath = dir1.getDirectory().getAbsolutePath() +
 					FileSystems.getDefault().getSeparator() + file;
 					
-					getTagRepository().processFileChangeTagging(new FileEvent(
+					Collection<String> tags = getTagRepository().processFileChangeTagging(new FileEvent(
 							new File(completePath).toPath(),FileEvents.REBOOT));
 							
+					if (tags != null) {
+						for (String curTag : tags) {
+							getLog().writeMessage(completePath + " tagged " + curTag);
+						}
+					}
 				}
 		}
 		

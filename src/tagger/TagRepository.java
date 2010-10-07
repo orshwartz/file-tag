@@ -18,7 +18,7 @@ import tagger.autotagger.AutoTagger;
  */
 public interface TagRepository {
 
-	public void processFileChangeTagging(FileEvent fileEvent);
+	public Collection<String> processFileChangeTagging(FileEvent fileEvent);
 	public boolean tagExists(String tag);
 	public void removeTag(String tag) throws TagNotFoundException;
 	public void addTags(Collection<String> tags) throws TagAlreadyExistsException;
